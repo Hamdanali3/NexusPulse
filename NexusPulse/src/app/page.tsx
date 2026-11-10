@@ -253,15 +253,15 @@ export default function NexusPulseHomePage() {
       <div
         role="status"
         aria-live="polite"
-        className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center"
+        className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in"
       >
-        <div className="mb-4">
+        <div className="mb-4 animate-bounce">
           <NexusPulseLogo size="lg" showTagline={false} />
         </div>
-        <h1 className="text-base font-bold text-white">
+        <h1 className="text-base font-bold text-slate-900">
           Initializing NexusPulse Clearinghouse...
         </h1>
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-slate-500">
           Loading PayPal Dual-Mode Gateway, Channel3 Catalog, Bryntum Escrow Gantt, and AG Grid Ledger
         </p>
       </div>
@@ -536,20 +536,20 @@ export default function NexusPulseHomePage() {
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 id="gemini-console-heading" className="text-xs font-semibold text-white">
+                  <h2 id="gemini-console-heading" className="text-xs font-bold text-slate-950">
                     Google Gemini Interactions API — Autonomous CFO &amp; PayPal MCP Orchestrator
                   </h2>
-                  <span className="rounded bg-white/[0.05] border border-white/[0.08] px-2 py-0.5 font-mono text-[10px] text-slate-300">
+                  <span className="rounded bg-slate-100 border border-slate-200 px-2 py-0.5 font-mono text-[10px] text-slate-700 font-semibold">
                     client.interactions.create()
                   </span>
                   {turnCount > 0 && (
-                    <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
+                    <span className="rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-mono text-[10px] text-emerald-800 font-semibold">
                       Turn #{turnCount} Stateful Thread
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Powered by <code className="text-indigo-300">@google/genai v3.0.0</code> with stateful <code className="text-indigo-300">previous_interaction_id</code> and native PayPal tool bindings
+                <p className="text-[11px] text-slate-600">
+                  Powered by <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.2 font-mono text-indigo-700 font-medium">@google/genai v3.0.0</code> with stateful <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.2 font-mono text-indigo-700 font-medium">previous_interaction_id</code> and native PayPal tool bindings
                 </p>
               </div>
             </div>
@@ -562,9 +562,9 @@ export default function NexusPulseHomePage() {
                     setAgentResponse(null);
                     setTurnCount(0);
                   }}
-                  className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-slate-900 hover:bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
+                  className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1 text-xs text-slate-700 font-medium shadow-xs transition"
                 >
-                  <RotateCcw className="h-3 w-3" />
+                  <RotateCcw className="h-3 w-3 text-slate-500" />
                   <span>Reset Session</span>
                 </button>
               )}
@@ -691,7 +691,7 @@ export default function NexusPulseHomePage() {
         <div
           role="tablist"
           aria-label="NexusPulse Financial Engines and Sponsor Workspaces"
-          className="flex lg:hidden flex-wrap items-center gap-2 border-b border-slate-800 pb-3"
+          className="flex lg:hidden flex-wrap items-center gap-2 border-b border-slate-200 pb-3"
         >
           {[
             {
@@ -729,10 +729,10 @@ export default function NexusPulseHomePage() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setActiveTab(tab.id as WorkspaceTabId)}
-                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-xs ${
                   active
-                    ? "bg-white text-slate-950 shadow"
-                    : "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800"
+                    ? "bg-slate-950 text-white shadow-sm"
+                    : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -784,19 +784,19 @@ export default function NexusPulseHomePage() {
 
             {/* PAYPAL WEBHOOKS V1 SIGNATURE VERIFIER & APIMATIC SDK INSPECTOR */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
-                      <ShieldCheck className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                       PayPal Webhooks v1 Security
                     </span>
-                    <h3 className="mt-1 text-base font-bold text-white">
+                    <h3 className="mt-1 text-base font-bold text-slate-900">
                       Cryptographic Webhook Signature Verifier &amp; Dispute Shield
                     </h3>
-                    <p className="text-xs text-slate-400">
-                      Verifies <code className="text-indigo-300">PAYPAL-TRANSMISSION-SIG</code> via{" "}
-                      <code className="text-indigo-300">POST /v1/notifications/verify-webhook-signature</code>{" "}
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Verifies <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">PAYPAL-TRANSMISSION-SIG</code> via{" "}
+                      <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">POST /v1/notifications/verify-webhook-signature</code>{" "}
                       using raw unparsed payload bytes before mutating state.
                     </p>
                   </div>
@@ -814,7 +814,7 @@ export default function NexusPulseHomePage() {
                       type="button"
                       disabled={webhookSimulating}
                       onClick={() => handleSimulateWebhook(evt)}
-                      className="rounded-xl border border-slate-700 bg-slate-950 hover:border-indigo-500 px-3 py-1.5 font-mono text-xs text-slate-200 transition"
+                      className="rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-indigo-400 hover:shadow-xs px-3 py-1.5 font-mono text-xs text-slate-800 font-medium transition active:scale-95"
                     >
                       Simulate {evt}
                     </button>
@@ -825,66 +825,66 @@ export default function NexusPulseHomePage() {
                   <div
                     role="status"
                     aria-live="polite"
-                    className="nexus-fade-in rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 text-xs space-y-1"
+                    className="nexus-fade-in rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs space-y-1"
                   >
                     <div className="flex items-center justify-between font-mono">
-                      <span className="font-bold text-emerald-300">
+                      <span className="font-bold text-emerald-900">
                         Signature Verification: {webhookResult.verification_status}
                       </span>
-                      <span className="text-slate-400">
+                      <span className="text-slate-600">
                         Event ID: {webhookResult.eventId}
                       </span>
                     </div>
-                    <p className="text-slate-300 text-xs">
+                    <p className="text-slate-700 text-xs">
                       Deduplicated &amp; logged to Webhook Event Ledger (Mode:{" "}
-                      {webhookResult.mode.toUpperCase()}).
+                      <strong className="text-slate-900">{webhookResult.mode.toUpperCase()}</strong>).
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
-                      <KeyRound className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
+                      <KeyRound className="h-3.5 w-3.5 text-indigo-600" />
                       Sponsor: APIMatic SDK + Dual-Mode Gateway Architecture
                     </span>
-                    <h3 className="mt-1 text-base font-bold text-white">
+                    <h3 className="mt-1 text-base font-bold text-slate-900">
                       Zero-Blocker Judge &amp; Global Developer Verification
                     </h3>
                   </div>
                 </div>
 
-                <ul className="space-y-2 text-xs text-slate-300">
+                <ul className="space-y-2 text-xs text-slate-700">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong>APIMatic Strongly-Typed Controllers:</strong> Uses{" "}
-                      <code className="text-indigo-300">@paypal/paypal-server-sdk v2.5.0</code>{" "}
-                      (<code className="text-slate-200">OrdersController</code>,{" "}
-                      <code className="text-slate-200">PaymentsController</code>,{" "}
-                      <code className="text-slate-200">SubscriptionsController</code>,{" "}
-                      <code className="text-slate-200">TransactionSearchController</code>) with automatic OAuth2 token caching and{" "}
-                      <code className="text-slate-200">PayPal-Request-Id</code> idempotency.
+                      <strong className="text-slate-900">APIMatic Strongly-Typed Controllers:</strong> Uses{" "}
+                      <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">@paypal/paypal-server-sdk v2.5.0</code>{" "}
+                      (<code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">OrdersController</code>,{" "}
+                      <code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">PaymentsController</code>,{" "}
+                      <code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">SubscriptionsController</code>,{" "}
+                      <code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">TransactionSearchController</code>) with automatic OAuth2 token caching and{" "}
+                      <code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">PayPal-Request-Id</code> idempotency.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong>Dual-Mode Sandbox &amp; Mirror Parity:</strong> Works out-of-the-box in{" "}
-                      <strong>Deterministic Sandbox Mirror Mode</strong> (solving regional SMS verification barriers) and switches automatically to{" "}
-                      <strong>Live PayPal Sandbox</strong> whenever{" "}
-                      <code className="text-indigo-300">PAYPAL_CLIENT_ID</code> &amp;{" "}
-                      <code className="text-indigo-300">PAYPAL_CLIENT_SECRET</code> are configured.
+                      <strong className="text-slate-900">Dual-Mode Sandbox &amp; Mirror Parity:</strong> Works out-of-the-box in{" "}
+                      <strong className="text-slate-900">Deterministic Sandbox Mirror Mode</strong> (solving regional SMS verification barriers) and switches automatically to{" "}
+                      <strong className="text-slate-900">Live PayPal Sandbox</strong> whenever{" "}
+                      <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">PAYPAL_CLIENT_ID</code> &amp;{" "}
+                      <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">PAYPAL_CLIENT_SECRET</code> are configured.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong>Render Cloud Blueprint Ready:</strong> Includes production{" "}
-                      <code className="text-indigo-300">render.yaml</code> with Web Service + Hourly Autonomous Cron Worker (
-                      <code className="text-slate-200">scripts/autonomous-sweep.mjs</code>).
+                      <strong className="text-slate-900">Render Cloud Blueprint Ready:</strong> Includes production{" "}
+                      <code className="rounded bg-indigo-50 border border-indigo-200 px-1 py-0.5 font-mono text-indigo-700 font-semibold">render.yaml</code> with Web Service + Hourly Autonomous Cron Worker (
+                      <code className="rounded bg-slate-100 border border-slate-200 px-1 py-0.5 font-mono text-slate-800">scripts/autonomous-sweep.mjs</code>).
                     </span>
                   </li>
                 </ul>

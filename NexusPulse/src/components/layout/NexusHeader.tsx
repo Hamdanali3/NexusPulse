@@ -289,15 +289,20 @@ export default function NexusHeader({
             onClick={onPlayVoiceBriefing}
             disabled={voiceLoading}
             title="Listen to Executive Audio Briefing from Gemini"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-700 shadow-xs transition"
+            className="group inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-700 shadow-xs transition active:scale-95"
           >
-            <Volume2
-              className={`h-3.5 w-3.5 text-sky-600 ${
-                voiceLoading ? "animate-pulse" : ""
-              }`}
-            />
+            {voiceLoading ? (
+              <div className="audio-bars text-sky-600" aria-hidden="true">
+                <span className="audio-bar" />
+                <span className="audio-bar" />
+                <span className="audio-bar" />
+                <span className="audio-bar" />
+              </div>
+            ) : (
+              <Volume2 className="h-3.5 w-3.5 text-sky-600 transition-transform group-hover:scale-110" />
+            )}
             <span className="hidden sm:inline">
-              {voiceLoading ? "Briefing..." : "Voice CFO"}
+              {voiceLoading ? "Speaking..." : "Voice CFO"}
             </span>
           </button>
 

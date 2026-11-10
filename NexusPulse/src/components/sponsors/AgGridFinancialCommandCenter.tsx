@@ -52,13 +52,13 @@ export default function AgGridFinancialCommandCenter({
         field: "transaction_id",
         headerName: "PayPal Txn ID",
         width: 155,
-        cellClass: "font-mono text-sky-300",
+        cellClass: "font-mono text-sky-700 font-semibold",
       },
       {
         field: "transaction_event_code",
         headerName: "T-Code",
         width: 95,
-        cellClass: "font-mono text-amber-300",
+        cellClass: "font-mono text-amber-800 font-semibold",
       },
       {
         field: "engine",
@@ -85,7 +85,7 @@ export default function AgGridFinancialCommandCenter({
             ? `${p.value >= 0 ? "+" : "-"}$${Math.abs(Number(p.value)).toFixed(2)}`
             : "$0.00",
         cellClass: (p) =>
-          Number(p.value) >= 0 ? "font-bold text-emerald-400" : "font-semibold text-rose-300",
+          Number(p.value) >= 0 ? "font-bold text-emerald-700" : "font-semibold text-rose-700",
       },
       {
         field: "net_amount",
@@ -221,30 +221,30 @@ export default function AgGridFinancialCommandCenter({
   return (
     <section
       aria-labelledby="aggrid-heading"
-      className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl"
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-4"
     >
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
-              <Layers className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
+              <Layers className="h-3 w-3 text-sky-600" />
               Sponsor Integration: AG Grid Enterprise Telemetry (v36.3.0)
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
-              <ShieldCheck className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+              <ShieldCheck className="h-3 w-3 text-emerald-600" />
               PayPal Reporting &amp; Orders v2 Synced
             </span>
           </div>
-          <h2 id="aggrid-heading" className="mt-1.5 text-lg font-bold text-white">
+          <h2 id="aggrid-heading" className="mt-1.5 text-lg font-bold text-slate-950">
             AG Grid Unified PayPal Financial &amp; Agentic Telemetry Command Center
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600 leading-relaxed">
             Real-time multi-endpoint relational grid across{" "}
-            <code className="text-sky-300">/v1/reporting/transactions</code>,{" "}
-            <code className="text-sky-300">/v2/checkout/orders</code>,{" "}
-            <code className="text-sky-300">/v1/payments/payouts</code>, and{" "}
-            <code className="text-sky-300">/v2/invoicing/invoices</code>.
+            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v1/reporting/transactions</code>,{" "}
+            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v2/checkout/orders</code>,{" "}
+            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v1/payments/payouts</code>, and{" "}
+            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v2/invoicing/invoices</code>.
           </p>
         </div>
 
@@ -256,18 +256,18 @@ export default function AgGridFinancialCommandCenter({
                 "Perform a deep Gemini 4 Argon CFO audit of my AG Grid PayPal ledger, highlight my highest ROI agent actions, and recommend the next optimization."
               )
             }
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow transition hover:opacity-95"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:scale-105 active:scale-95"
           >
-            <Bot className="h-3.5 w-3.5" />
+            <Bot className="h-3.5 w-3.5 text-sky-200" />
             <span>Ask Gemini 4 Argon CFO to Audit Grid</span>
           </button>
 
           <button
             type="button"
             onClick={exportCsv}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-slate-700"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:scale-105 active:scale-95"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3.5 w-3.5 text-slate-500" />
             <span>Export CSV</span>
           </button>
         </div>
@@ -310,10 +310,10 @@ export default function AgGridFinancialCommandCenter({
               role="tab"
               aria-selected={activeTab === t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
+              className={`rounded-xl px-3 py-2 text-xs font-bold transition shadow-xs ${
                 activeTab === t.id
-                  ? "bg-sky-500 text-slate-950 shadow"
-                  : "border border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800"
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-950"
               }`}
             >
               <span>{t.label}</span>
@@ -323,8 +323,8 @@ export default function AgGridFinancialCommandCenter({
 
         <div className="flex flex-wrap items-center gap-2">
           {activeTab === "transactions" && (
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950/80 px-2.5 py-1.5 text-xs">
-              <Filter className="h-3.5 w-3.5 text-slate-400" />
+            <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs shadow-xs">
+              <Filter className="h-3.5 w-3.5 text-slate-500" />
               <label htmlFor="aggrid-engine-filter" className="visually-hidden">
                 Filter transactions by Nexus Engine
               </label>
@@ -332,23 +332,13 @@ export default function AgGridFinancialCommandCenter({
                 id="aggrid-engine-filter"
                 value={engineFilter}
                 onChange={(e) => setEngineFilter(e.target.value)}
-                className="bg-transparent text-xs text-slate-200 focus:outline-none"
+                className="bg-transparent text-xs text-slate-800 font-medium focus:outline-none"
               >
-                <option value="ALL" className="bg-slate-900">
-                  All Engines
-                </option>
-                <option value="AUTOPILOT_CFO" className="bg-slate-900">
-                  Autopilot CFO &amp; Deal-Hunter
-                </option>
-                <option value="PROOF_OF_HUMAN_BOUNTY" className="bg-slate-900">
-                  Proof-of-Human Bounties
-                </option>
-                <option value="A2A_SMART_ESCROW" className="bg-slate-900">
-                  A2A Smart Escrow
-                </option>
-                <option value="SUBSCRIPTION_GUARD" className="bg-slate-900">
-                  Subscription Guard
-                </option>
+                <option value="ALL">All Engines</option>
+                <option value="AUTOPILOT_CFO">Autopilot CFO &amp; Deal-Hunter</option>
+                <option value="PROOF_OF_HUMAN_BOUNTY">Proof-of-Human Bounties</option>
+                <option value="A2A_SMART_ESCROW">A2A Smart Escrow</option>
+                <option value="SUBSCRIPTION_GUARD">Subscription Guard</option>
               </select>
             </div>
           )}
@@ -357,14 +347,14 @@ export default function AgGridFinancialCommandCenter({
             <label htmlFor="aggrid-quick-search" className="visually-hidden">
               Quick search PayPal IDs, T-codes, and amounts
             </label>
-            <Search className="pointer-events-none absolute left-3 top-2 h-3.5 w-3.5 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
             <input
               id="aggrid-quick-search"
               type="search"
               value={quickFilterText}
               onChange={(e) => setQuickFilterText(e.target.value)}
               placeholder="Search PayPal IDs, T-codes, amounts..."
-              className="w-64 rounded-xl border border-slate-800 bg-slate-950/90 py-1.5 pl-8 pr-3 text-xs text-slate-100 placeholder-slate-500 focus:border-sky-500"
+              className="w-64 rounded-xl border border-slate-200 bg-white py-1.5 pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-sky-500 shadow-xs"
             />
           </div>
         </div>

@@ -111,21 +111,10 @@ section[aria-label],
 .rounded-3xl.border,
 .rounded-2xl.border,
 .rounded-xl.border {
-  background-color: var(--theme-bg-card) !important;
-  border-color: var(--theme-border-card) !important;
-  box-shadow: var(--theme-shadow-card) !important;
+  background-color: var(--theme-bg-card);
+  border-color: var(--theme-border-card);
+  box-shadow: var(--theme-shadow-card);
   color: var(--theme-text-primary);
-}
-
-/* Universal Text Contrast Overrides for White Background */
-.text-white,
-.text-slate-100 {
-  color: var(--theme-text-primary) !important;
-}
-
-.text-slate-400,
-.text-slate-300 {
-  color: var(--theme-text-secondary) !important;
 }
 
 /* Inputs & Form Controls */
@@ -170,6 +159,92 @@ input:focus, select:focus, textarea:focus {
   border-color: #c7d2fe !important;
   color: #4338ca !important;
 }
+
+/* Voice CFO Audio Wave Equalizer Animation */
+.audio-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.audio-bar {
+  width: 2px;
+  background-color: currentColor;
+  border-radius: 1px;
+  animation: audioWaveBounce 1.2s ease-in-out infinite;
+}
+
+.audio-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.audio-bar:nth-child(2) { height: 90%; animation-delay: 0.25s; }
+.audio-bar:nth-child(3) { height: 60%; animation-delay: 0.4s; }
+.audio-bar:nth-child(4) { height: 100%; animation-delay: 0.15s; }
+
+@keyframes audioWaveBounce {
+  0%, 100% { transform: scaleY(0.3); transform-origin: bottom; }
+  50% { transform: scaleY(1); transform-origin: bottom; }
+}
+
+/* Shimmer Stripe Animation */
+.shimmer-stripe {
+  background-size: 200% 200%;
+  animation: shimmerMove 3s linear infinite;
+}
+
+@keyframes shimmerMove {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Radiant Beacon & Pulse Glow */
+.pulse-beacon {
+  position: relative;
+}
+
+.pulse-beacon::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1.5px solid currentColor;
+  opacity: 0.75;
+  animation: beaconPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes beaconPing {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Card Elevation & Shimmer */
+.card-hover-elevate {
+  transition: translate 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 200ms ease;
+}
+
+.card-hover-elevate:hover {
+  translate: 0px -2px;
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Gentle Floating Micro-Motion */
+.animate-float-gentle {
+  animation: floatGentle 4s ease-in-out infinite;
+}
+
+@keyframes floatGentle {
+  0%, 100% { translate: 0px 0px; }
+  50% { translate: 0px -3px; }
+}
+
+/* Staggered entrance */
+.stagger-1 { animation: nexusFadeUp 300ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.stagger-2 { animation: nexusFadeUp 380ms cubic-bezier(0.22, 1, 0.36, 1) both 80ms; }
+.stagger-3 { animation: nexusFadeUp 460ms cubic-bezier(0.22, 1, 0.36, 1) both 160ms; }
+.stagger-4 { animation: nexusFadeUp 540ms cubic-bezier(0.22, 1, 0.36, 1) both 240ms; }
 
 /* Accessibility Skip Link */
 .visually-hidden:where(:not(:focus-within, :active)) {

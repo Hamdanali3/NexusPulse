@@ -149,7 +149,7 @@ export interface SmartEscrowMilestone {
   start_date: string;
   end_date: string;
   progress_percent: number;
-  status: "AUTHORIZED_LOCKED" | "DELIVERABLE_SUBMITTED" | "AI_VERIFIED_CAPTURED" | "DISPUTE_PROTECTED";
+  status: "AUTHORIZED_LOCKED" | "DELIVERABLE_SUBMITTED" | "AI_VERIFIED_CAPTURED" | "DISPUTE_PROTECTED" | "AUTH_HOLD_PENDING_DELIVERABLE";
   paypal_order_id: string;
   paypal_authorization_id: string;
   paypal_capture_id?: string;
@@ -157,9 +157,12 @@ export interface SmartEscrowMilestone {
   carrier?: string;
   deliverable_requirement: string;
   submitted_proof?: string;
+  deliverable_proof?: string;
   ai_audit_notes?: string;
   dependencies?: string[];
 }
+
+export type PayPalEscrowMilestone = SmartEscrowMilestone;
 
 export interface Channel3ProductDeal {
   id: string;

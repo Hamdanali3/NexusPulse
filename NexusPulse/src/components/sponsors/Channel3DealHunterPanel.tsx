@@ -59,13 +59,13 @@ export default function Channel3DealHunterPanel({
     e.preventDefault();
     setSearching(true);
     try {
-      const params = new URLSearchParams();
-      if (searchQuery.trim()) params.set("q", searchQuery.trim());
-      const res = await fetch(`/api/channel3/search?${params.toString()}`);
+      const res = await fetch(
+        `/api/channel3/search?q=${encodeURIComponent(searchQuery)}`
+      );
       const data = await res.json();
-      if (Array.isArray(data.deals)) {
+      if (data.deals) {
         setFilteredDeals(data.deals);
-        if (data.deals[0]) {
+        if (data.deals.length > 0) {
           setActiveCheckoutDealId(data.deals[0].id);
         }
       }
@@ -77,6 +77,9 @@ export default function Channel3DealHunterPanel({
   function handleResetFilters() {
     setSearchQuery("");
     setFilteredDeals(null);
+    if (initialDeals.length > 0) {
+      setActiveCheckoutDealId(initialDeals[0].id);
+    }
   }
 
   async function handleCreateMandate(e: React.FormEvent) {
@@ -113,44 +116,44 @@ export default function Channel3DealHunterPanel({
   return (
     <section
       aria-labelledby="engine-1-heading"
-      className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-5"
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-5"
     >
       {mandateBanner && (
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-4 py-3 text-xs text-emerald-200"
+          className="flex items-center justify-between rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 shadow-xs animate-bounce"
         >
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
-            <span>{mandateBanner}</span>
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+            <span className="font-semibold">{mandateBanner}</span>
           </div>
           <button
             type="button"
             onClick={() => setMandateBanner(null)}
-            className="text-xs font-medium text-emerald-300 hover:text-white"
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-950"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 px-2.5 py-0.5 text-xs font-semibold text-fuchsia-300">
-              <ShoppingBag className="h-3.5 w-3.5" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-50 border border-fuchsia-200 px-2.5 py-0.5 text-xs font-bold text-fuchsia-800">
+              <ShoppingBag className="h-3.5 w-3.5 text-fuchsia-600" />
               Sponsor: Channel3 Universal Product Catalog (100M+ SKUs)
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 text-xs font-medium text-sky-300">
-              <Shield className="h-3 w-3" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-bold text-sky-800">
+              <Shield className="h-3 w-3 text-sky-600" />
               Cryptographic Spending Mandate + PayPal JS SDK v6
             </span>
           </div>
-          <h3 id="engine-1-heading" className="mt-1.5 text-lg font-bold text-white">
+          <h3 id="engine-1-heading" className="mt-1.5 text-lg font-bold text-slate-950">
             Engine 1: Channel3 Autonomous Deal Arbitrage &amp; PayPal Checkout
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600">
             Gemini 4 Argon continuously scans Channel3&apos;s merchant catalog against your cryptographic target price mandate and executes instant PayPal Wallet, Venmo, or Pay Later 4-installment checkouts.
           </p>
         </div>
@@ -169,13 +172,13 @@ export default function Channel3DealHunterPanel({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search Channel3 SKU / Brand..."
-                className="rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-3 py-1.5 text-xs text-white focus:border-fuchsia-500"
+                className="rounded-lg border border-slate-300 bg-white pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 shadow-xs focus:border-fuchsia-500"
               />
             </div>
             <button
               type="submit"
               disabled={searching}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 px-3.5 py-1.5 text-xs font-semibold text-white transition"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:scale-105 active:scale-95"
             >
               <Sparkles className="h-3.5 w-3.5" />
               {searching ? "Scanning..." : "Scan Catalog"}
@@ -184,7 +187,7 @@ export default function Channel3DealHunterPanel({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-xs text-slate-300 hover:text-white underline px-1.5 py-1"
+                className="text-xs text-slate-600 hover:text-slate-900 underline px-1.5 py-1 font-medium"
               >
                 Reset
               </button>
@@ -194,7 +197,7 @@ export default function Channel3DealHunterPanel({
           <button
             type="button"
             onClick={() => setShowMandateForm((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-fuchsia-500/40 bg-fuchsia-500/15 hover:bg-fuchsia-500/25 px-3 py-1.5 text-xs font-semibold text-fuchsia-200 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-fuchsia-200 bg-fuchsia-50 hover:bg-fuchsia-100 px-3 py-1.5 text-xs font-bold text-fuchsia-800 shadow-xs transition hover:scale-105 active:scale-95"
           >
             <Plus className="h-3.5 w-3.5" />
             New Price Mandate
@@ -206,16 +209,16 @@ export default function Channel3DealHunterPanel({
       {showMandateForm && (
         <form
           onSubmit={handleCreateMandate}
-          className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-4 space-y-3"
+          className="rounded-xl border border-fuchsia-200 bg-fuchsia-50/50 p-4 space-y-3 nexus-fade-in"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-fuchsia-300">
+            <span className="text-xs font-bold text-fuchsia-900">
               Register Autonomous Channel3 Price-Drop Mandate (Instant Catalog Match)
             </span>
             <button
               type="button"
               onClick={() => setShowMandateForm(false)}
-              className="text-xs text-slate-400 hover:text-white"
+              className="text-xs text-slate-500 hover:text-slate-800 font-medium"
             >
               Close
             </button>
@@ -223,7 +226,7 @@ export default function Channel3DealHunterPanel({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="sm:col-span-2">
-              <label htmlFor="mandate-title-input" className="block text-xs text-slate-300 mb-1">
+              <label htmlFor="mandate-title-input" className="block text-xs font-semibold text-slate-700 mb-1">
                 Product Name / Model
               </label>
               <input
@@ -231,12 +234,12 @@ export default function Channel3DealHunterPanel({
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 shadow-xs focus:border-fuchsia-500"
                 required
               />
             </div>
             <div>
-              <label htmlFor="mandate-brand-input" className="block text-xs text-slate-300 mb-1">
+              <label htmlFor="mandate-brand-input" className="block text-xs font-semibold text-slate-700 mb-1">
                 Brand
               </label>
               <input
@@ -244,13 +247,26 @@ export default function Channel3DealHunterPanel({
                 type="text"
                 value={newBrand}
                 onChange={(e) => setNewBrand(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 shadow-xs focus:border-fuchsia-500"
                 required
               />
             </div>
             <div>
-              <label htmlFor="mandate-retail-input" className="block text-xs text-slate-300 mb-1">
-                Retail Price (USD)
+              <label htmlFor="mandate-category-input" className="block text-xs font-semibold text-slate-700 mb-1">
+                Category
+              </label>
+              <input
+                id="mandate-category-input"
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 shadow-xs focus:border-fuchsia-500"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="mandate-retail-input" className="block text-xs font-semibold text-slate-700 mb-1">
+                Retail Price ($)
               </label>
               <input
                 id="mandate-retail-input"
@@ -258,31 +274,36 @@ export default function Channel3DealHunterPanel({
                 step="0.01"
                 value={newRetailPrice}
                 onChange={(e) => setNewRetailPrice(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="mandate-target-input" className="block text-xs text-slate-300 mb-1">
-                Target Mandate (USD)
-              </label>
-              <input
-                id="mandate-target-input"
-                type="number"
-                step="0.01"
-                value={newTargetPrice}
-                onChange={(e) => setNewTargetPrice(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white"
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 shadow-xs focus:border-fuchsia-500"
                 required
               />
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-2">
+              <label htmlFor="mandate-target-input" className="text-xs font-bold text-slate-800">
+                Your Maximum Target Price:
+              </label>
+              <div className="flex items-center">
+                <span className="text-xs font-bold text-slate-500 mr-1">$</span>
+                <input
+                  id="mandate-target-input"
+                  type="number"
+                  step="0.01"
+                  value={newTargetPrice}
+                  onChange={(e) => setNewTargetPrice(e.target.value)}
+                  className="w-28 rounded-lg border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-900 shadow-xs focus:border-fuchsia-500"
+                  required
+                />
+                <span className="text-xs font-bold text-slate-500 ml-1">USD</span>
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={creatingMandate}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500 px-4 py-1.5 text-xs font-semibold text-white transition"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-700 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:scale-105 active:scale-95"
             >
               <Zap className="h-3.5 w-3.5" />
               {creatingMandate ? "Scanning 100M+ SKUs..." : "Deploy Mandate & Lock Best Price"}
@@ -291,21 +312,26 @@ export default function Channel3DealHunterPanel({
         </form>
       )}
 
-      {/* Main Split Grid: Channel3 Catalog Cards + Live PayPal JS SDK v6 Checkout Widget */}
+      {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Column: Deal Catalog Cards */}
         <div className="lg:col-span-7 space-y-3">
+          <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
+            <span>
+              Showing <strong>{displayedDeals.length}</strong> active Channel3 product mandates
+            </span>
+            <span className="font-mono text-[11px] text-fuchsia-700 font-semibold">
+              Live Channel3 Price Feeds Active
+            </span>
+          </div>
+
           {displayedDeals.length === 0 ? (
-            <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-8 text-center space-y-2">
-              <p className="text-sm font-semibold text-slate-300">
-                No Channel3 deals matched &ldquo;{searchQuery}&rdquo;
-              </p>
-              <p className="text-xs text-slate-400">
-                Try searching for NVIDIA, Apple, Sony, Keychron, or create a custom price-drop mandate above.
-              </p>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center text-xs text-slate-500">
+              No products found matching &quot;{searchQuery}&quot;.
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 px-3 py-1.5 text-xs font-semibold text-white"
+                className="mt-2 block mx-auto text-sky-600 font-bold hover:underline"
               >
                 Show All Verified Deals
               </button>
@@ -328,28 +354,29 @@ export default function Channel3DealHunterPanel({
                       setActiveCheckoutDealId(deal.id);
                     }
                   }}
-                  className={`rounded-xl border p-4 transition cursor-pointer ${
+                  className={`rounded-xl border p-4 transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.01] ${
                     isSelected
-                      ? "border-fuchsia-500/60 bg-fuchsia-950/20 shadow-lg shadow-fuchsia-950/30"
-                      : "border-slate-800 bg-slate-950/80 hover:border-slate-700"
+                      ? "border-sky-500 bg-sky-50/50 shadow-md ring-2 ring-sky-500/20"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-xs text-slate-300">
+                        {/* High-Contrast SKU Badge (Fixed black-on-black) */}
+                        <span className="rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 font-mono text-xs font-bold text-slate-900 shadow-2xs">
                           {deal.sku}
                         </span>
-                        <span className="text-xs font-semibold text-fuchsia-300">
+                        <span className="text-xs font-bold text-fuchsia-700">
                           {deal.brand} • {deal.category}
                         </span>
                         {deal.bnpl_eligible && (
-                          <span className="rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2 py-0.5 text-xs font-medium text-indigo-300">
+                          <span className="rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-xs font-semibold text-indigo-700">
                             Pay Later ${deal.bnpl_installment_monthly}/mo
                           </span>
                         )}
                       </div>
-                      <h4 className="mt-1 text-sm font-bold text-white">
+                      <h4 className="mt-1.5 text-sm font-bold text-slate-950">
                         {deal.title}
                       </h4>
                     </div>
@@ -359,41 +386,42 @@ export default function Channel3DealHunterPanel({
                         <span className="text-xs text-slate-400 line-through">
                           ${deal.retail_price.toFixed(2)}
                         </span>
-                        <span className="text-base font-extrabold text-emerald-400">
+                        <span className="text-base font-extrabold text-emerald-600">
                           ${deal.channel3_best_price.toFixed(2)}
                         </span>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-1.5 py-0.5 text-xs font-semibold text-emerald-300">
-                        <Tag className="h-3 w-3" />
+                      {/* High-Contrast Save Badge */}
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-800 shadow-2xs">
+                        <Tag className="h-3 w-3 text-emerald-600" />
                         Save ${deal.savings_amount.toFixed(2)} ({deal.savings_percent}%)
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-800/80 text-xs">
-                    <div className="text-slate-400">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 text-xs">
+                    <div className="text-slate-600 font-medium">
                       Merchant:{" "}
-                      <strong className="text-slate-200">{deal.merchant_name}</strong> •{" "}
-                      <span>
+                      <strong className="text-slate-950 font-bold">{deal.merchant_name}</strong> •{" "}
+                      <span className="text-amber-700 font-semibold">
                         ★ {deal.rating} ({deal.review_count})
                       </span>
                     </div>
 
                     {isPurchased ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                         Purchased via PayPal ({deal.paypal_order_id})
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
-                        <Zap className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                        <Zap className="h-3 w-3 text-amber-600" />
                         Mandate Target (${deal.target_mandate_price}) Met — Ready
                       </span>
                     )}
                   </div>
 
-                  <p className="mt-2 text-xs text-slate-300">
-                    <strong className="text-fuchsia-300">Channel3 AI Signal:</strong>{" "}
+                  <p className="mt-2 text-xs text-slate-700">
+                    <strong className="text-fuchsia-800 font-bold">Channel3 AI Signal:</strong>{" "}
                     {deal.ai_price_prediction}
                   </p>
                 </div>
@@ -405,19 +433,19 @@ export default function Channel3DealHunterPanel({
         {/* Right Column: PayPal JS SDK v6 Multi-Funding Checkout */}
         <div className="lg:col-span-5">
           {activeDeal && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/90 p-5 space-y-4">
-              <div className="border-b border-slate-800 pb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-fuchsia-400">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-xs sticky top-20">
+              <div className="border-b border-slate-200 pb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-fuchsia-700">
                   PayPal JS SDK v6 Autonomous &amp; One-Click Checkout
                 </span>
-                <h4 className="mt-1 text-base font-bold text-white">
+                <h4 className="mt-1 text-base font-bold text-slate-950">
                   {activeDeal.title}
                 </h4>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-500 font-medium">
                     Channel3 Best Verified Price:
                   </span>
-                  <span className="tabular-nums text-xl font-extrabold text-emerald-400">
+                  <span className="tabular-nums text-xl font-extrabold text-emerald-600">
                     ${activeDeal.channel3_best_price.toFixed(2)} USD
                   </span>
                 </div>
