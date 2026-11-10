@@ -2,26 +2,42 @@
 
 :root {
   color-scheme: dark;
-  --font-fluid-hero: clamp(1.35rem, 1.05rem + 1.2vw, 2rem);
+  interpolate-size: allow-keywords;
+  --font-fluid-hero: clamp(1.4rem, 1.05rem + 1.25vw, 2.05rem);
   --font-fluid-title: clamp(1.05rem, 0.95rem + 0.45vw, 1.35rem);
   --surface-primary: #020617;
   --surface-elevated: #0f172a;
   --border-subtle: rgba(148, 163, 184, 0.16);
+  --in-oklab: ;
+  --in-oklch: ;
+}
+
+@supports (background: linear-gradient(in oklab, white, black)) {
+  :root {
+    --in-oklab: in oklab;
+    --in-oklch: in oklch;
+  }
 }
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 body {
   background-color: var(--surface-primary);
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -15%,
+    rgba(56, 189, 248, 0.09),
+    transparent
+  );
   color: #f8fafc;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Text wrapping & legibility (modern-web-guidance: typography & improve-text-layout-and-legibility) */
@@ -77,18 +93,88 @@ dd {
   outline-offset: 2px;
 }
 
+/* Individual transform properties with base identity transforms (modern-web-guidance: individual-transform-properties) */
+.logo-mark,
+.interactive-card,
+.kpi-card {
+  translate: 0px 0px;
+  rotate: 0deg;
+  scale: 1;
+  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    box-shadow 220ms ease;
+}
+
+.logo-mark:hover {
+  scale: 1.05;
+}
+
+.interactive-card:hover,
+.kpi-card:hover {
+  translate: 0px -3px;
+  scale: 1.008;
+}
+
+/* Brand Logo Pulse Wave Animation */
+.nexus-pulse-path {
+  stroke-dasharray: 90;
+  stroke-dashoffset: 0;
+  animation: nexusPulseWave 3.6s ease-in-out infinite;
+}
+
+@keyframes nexusPulseWave {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.92;
+  }
+  50% {
+    stroke-dashoffset: 18;
+    opacity: 1;
+  }
+}
+
+/* Smooth Entrance Animation for Minimalist Sections & Drawers */
+.nexus-fade-in {
+  animation: nexusFadeUp 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nexusFadeUp {
+  from {
+    opacity: 0;
+    translate: 0px 6px;
+  }
+  to {
+    opacity: 1;
+    translate: 0px 0px;
+  }
+}
+
 /* Subtle tactile press feedback for interactive buttons (modern-web-guidance: natural-interactions) */
 button:not(:disabled) {
   cursor: pointer;
-  transition: transform 120ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  translate: 0px 0px;
+  scale: 1;
+  transition: translate 120ms ease, scale 120ms ease, background-color 150ms ease,
+    border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
 }
 
 button:not(:disabled):active {
-  transform: translateY(1px);
+  translate: 0px 1px;
+  scale: 0.99;
 }
 
 button:disabled {
   cursor: not-allowed;
+}
+
+/* Balanced pill rows (modern-web-guidance: css-layout) */
+.balanced-pills {
+  display: flex;
+  flex-wrap: wrap;
+  flex-wrap: balance;
+  gap: 0.5rem;
 }
 
 /* Non-color-only active tab indicator (modern-web-guidance: tabs & accessibility) */
@@ -122,6 +208,18 @@ dialog::backdrop {
   overscroll-behavior: contain;
   background: rgba(2, 6, 23, 0.82);
   backdrop-filter: blur(6px);
+}
+
+/* MANDATORY Motion-Sensitivity Safety (modern-web-guidance: animate-to-intrinsic-sizes) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom sleek scrollbar for AG Grid and Bryntum Timeline */

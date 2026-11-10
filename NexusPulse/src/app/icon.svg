@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="nexusCoreGrad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+    <linearGradient id="nexusPulseStroke" x1="12" y1="32" x2="52" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Minimalist Squircle Frame -->
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="#090D16" stroke="url(#nexusCoreGrad)" stroke-width="2.5" />
+  <!-- Subtle Inner Isometric Hexagon Ring (3 Economic Engines) -->
+  <polygon points="32,11 50,21.5 50,42.5 32,53 14,42.5 14,21.5" fill="rgba(14, 165, 233, 0.08)" stroke="rgba(148, 163, 184, 0.22)" stroke-width="1.25" />
+  <!-- 3 Orbital Nodes: AI Agents (Top), Human Oracles (Bottom Left), Smart Payments (Bottom Right) -->
+  <circle cx="32" cy="11" r="3.2" fill="#818CF8" />
+  <circle cx="14" cy="42.5" r="3.2" fill="#34D399" />
+  <circle cx="50" cy="42.5" r="3.2" fill="#38BDF8" />
+  <!-- Central Nexus Pulse Waveform -->
+  <path d="M13 33H22L26.5 21L32.5 43L37.5 27L41 33H51" stroke="url(#nexusPulseStroke)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
