@@ -1,0 +1,42 @@
+# ==============================================================================
+# Sovereign Pulse (AuraPay) — Security & Privacy Guard
+# ==============================================================================
+
+# Private & Important Documents (Explicit user protection)
+Important_Documents/
+*.pdf
+Screenshot*.png
+
+# Environment Variables & Secret API Keys (CRITICAL)
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
+**/.env.*
+**/.env*
+
+# Cloned External Toolkits & Repositories
+Toolkits_And_SDKs/
+AI-Toolkit/
+
+# Dependencies & Build Outputs
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea/
+.vscode/

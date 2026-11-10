@@ -1,0 +1,47 @@
+# Render Blueprint — Sovereign Pulse (AuraPay)
+# Qualifies for "Best Use of Render" Sponsor Prize in the PayPal AI Hackathon
+services:
+  - type: web
+    name: sovereign-pulse-web
+    runtime: node
+    rootDir: "Sovereign Pulse (AuraPay)"
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PAYPAL_ENVIRONMENT
+        value: sandbox
+      - key: PAYPAL_MODE
+        value: auto
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_PAYPAL_CLIENT_ID
+        sync: false
+      - key: CHANNEL3_API_KEY
+        sync: false
+
+  - type: cron
+    name: sovereign-pulse-autonomous-cfo-sweeper
+    runtime: node
+    rootDir: "Sovereign Pulse (AuraPay)"
+    schedule: "*/15 * * * *"
+    buildCommand: npm install
+    startCommand: node scripts/autonomous-sweep.mjs
+    envVars:
+      - key: PAYPAL_ENVIRONMENT
+        value: sandbox
+      - key: PAYPAL_MODE
+        value: auto
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
