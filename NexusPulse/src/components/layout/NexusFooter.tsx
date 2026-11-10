@@ -37,9 +37,9 @@ export default function NexusFooter({
   }
 
   return (
-    <footer className="mt-20 border-t border-slate-800/80 bg-slate-950/95 text-slate-400">
+    <footer className="mt-20 border-t border-white/[0.07] bg-slate-950 text-slate-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-800/70">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10 border-b border-white/[0.07]">
           {/* Column 1: Brand Identity & Mission */}
           <div className="lg:col-span-4 space-y-4">
             <NexusPulseLogo

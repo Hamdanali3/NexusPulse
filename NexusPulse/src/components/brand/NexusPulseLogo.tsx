@@ -10,21 +10,20 @@ interface NexusPulseLogoProps {
 }
 
 /**
- * Bespoke geometric SVG brand logo for NexusPulse.
- * Represents the 3 interconnected nodes (AI Agents, Human Oracles, Smart Payments)
- * around an isometric clearinghouse core with an animated financial pulse wave.
- * Clicking the logo always directs the user to the homepage ("/") and resets to the primary overview.
+ * World-class bespoke SVG brand emblem for NexusPulse.
+ * Geometric squircle housing the 3-node clearinghouse network with an animated pulse wave.
+ * Clicking the logo smoothly navigates to the homepage and resets to the overview.
  */
 export default function NexusPulseLogo({
   onNavigateHome,
   size = "md",
-  showTagline = true,
+  showTagline = false,
 }: NexusPulseLogoProps) {
   const dimensions =
     size === "sm"
       ? "h-8 w-8"
       : size === "lg"
-        ? "h-11 w-11"
+        ? "h-10 w-10"
         : "h-9 w-9";
 
   function handleClick() {
@@ -40,11 +39,11 @@ export default function NexusPulseLogo({
     <Link
       href="/"
       onClick={handleClick}
-      aria-label="NexusPulse — Go to Homepage"
-      className="group inline-flex items-center gap-3 rounded-xl py-1 pr-2 focus:outline-none"
+      aria-label="NexusPulse — Return to Overview"
+      className="group inline-flex items-center gap-2.5 rounded-lg py-1 pr-1 focus:outline-none transition-transform duration-200"
     >
       <div
-        className={`logo-mark relative ${dimensions} shrink-0 rounded-xl bg-slate-950 p-0.5 shadow-md shadow-sky-500/10 ring-1 ring-slate-800 transition-all duration-300 group-hover:ring-sky-400/60 group-hover:shadow-sky-500/25`}
+        className={`logo-mark relative ${dimensions} shrink-0 rounded-xl bg-slate-950 p-0.5 shadow-sm shadow-sky-500/10 ring-1 ring-white/10 transition-all duration-300 group-hover:ring-sky-400/50 group-hover:shadow-sky-500/20`}
       >
         <svg
           viewBox="0 0 64 64"
@@ -80,37 +79,36 @@ export default function NexusPulseLogo({
             </linearGradient>
           </defs>
 
-          {/* Outer Squircle Frame */}
+          {/* Squircle frame */}
           <rect
             x="4"
             y="4"
             width="56"
             height="56"
-            rx="15"
+            rx="16"
             fill="#050811"
             stroke="url(#npLogoGrad)"
-            strokeWidth="2.5"
+            strokeWidth="2.2"
           />
 
           {/* Isometric Hexagon Clearinghouse Mesh */}
           <polygon
-            points="32,11 50,21.5 50,42.5 32,53 14,42.5 14,21.5"
-            fill="rgba(14, 165, 233, 0.07)"
-            stroke="rgba(148, 163, 184, 0.22)"
-            strokeWidth="1.25"
-            className="transition-transform duration-500 origin-center group-hover:scale-105"
+            points="32,12 49,22 49,42 32,52 15,42 15,22"
+            fill="rgba(14, 165, 233, 0.06)"
+            stroke="rgba(148, 163, 184, 0.2)"
+            strokeWidth="1.2"
           />
 
-          {/* 3 Nodes: AI Agents (Indigo), Human Oracles (Emerald), Smart Payments (Sky) */}
-          <circle cx="32" cy="11" r="3.2" fill="#818CF8" />
-          <circle cx="14" cy="42.5" r="3.2" fill="#34D399" />
-          <circle cx="50" cy="42.5" r="3.2" fill="#38BDF8" />
+          {/* 3 Node Indicators: AI (Indigo), Human Oracles (Emerald), Payments (Sky) */}
+          <circle cx="32" cy="12" r="2.8" fill="#818CF8" />
+          <circle cx="15" cy="42" r="2.8" fill="#34D399" />
+          <circle cx="49" cy="42" r="2.8" fill="#38BDF8" />
 
           {/* Animated Pulse Wave */}
           <path
-            d="M13 33H22L26.5 20.5L32.5 43.5L37.5 26.5L41 33H51"
+            d="M14 32H22L26.5 21L32 43L37 27L40.5 32H50"
             stroke="url(#npWaveGrad)"
-            strokeWidth="3.2"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="nexus-pulse-path"
@@ -119,17 +117,12 @@ export default function NexusPulseLogo({
       </div>
 
       <div className="flex flex-col text-left">
-        <div className="flex items-center gap-2">
-          <span className="text-base sm:text-lg font-extrabold tracking-tight text-white transition-colors group-hover:text-sky-100">
-            Nexus<span className="bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Pulse</span>
-          </span>
-          <span className="hidden xl:inline-flex items-center rounded-full border border-slate-800 bg-slate-900/90 px-2 py-0.5 text-[10px] font-medium tracking-wide text-slate-400">
-            PayPal AI Clearinghouse
-          </span>
-        </div>
+        <span className="text-base sm:text-lg font-bold tracking-tight text-white transition-colors group-hover:text-sky-100">
+          Nexus<span className="text-sky-400">Pulse</span>
+        </span>
         {showTagline && (
-          <span className="text-[11px] text-slate-400 transition-colors group-hover:text-slate-300">
-            AI Agents • Human Oracles • Smart Payments
+          <span className="text-[11px] font-medium text-slate-400">
+            Autonomous Financial Clearinghouse
           </span>
         )}
       </div>

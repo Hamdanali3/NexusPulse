@@ -5,9 +5,9 @@
   interpolate-size: allow-keywords;
   --font-fluid-hero: clamp(1.4rem, 1.05rem + 1.25vw, 2.05rem);
   --font-fluid-title: clamp(1.05rem, 0.95rem + 0.45vw, 1.35rem);
-  --surface-primary: #020617;
-  --surface-elevated: #0f172a;
-  --border-subtle: rgba(148, 163, 184, 0.16);
+  --surface-primary: #030712;
+  --surface-elevated: #080c16;
+  --border-subtle: rgba(255, 255, 255, 0.08);
   --in-oklab: ;
   --in-oklch: ;
 }
