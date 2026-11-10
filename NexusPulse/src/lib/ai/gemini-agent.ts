@@ -21,6 +21,20 @@ export function createGeminiClient(): GoogleGenAI | null {
   return new GoogleGenAI({ apiKey });
 }
 
+async function withGeminiTimeout<T>(promise: Promise<T>, timeoutMs = 4500): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`Gemini Interactions API timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export function getNexusPulseTools() {
   const tools: Array<
     | {
@@ -97,6 +111,30 @@ export function getNexusPulseTools() {
         required: ["query"],
       },
     },
+    {
+      type: "function",
+      name: "rank_human_oracle_bounties",
+      description:
+        "Ranks open Proof-of-Human verification bounties by reward-per-second yield ($/hr equivalent) and instant PayPal Payout eligibility.",
+      parameters: {
+        type: "object",
+        properties: {
+          categoryFilter: { type: "string", description: "Optional bounty category filter" },
+        },
+      },
+    },
+    {
+      type: "function",
+      name: "audit_escrow_and_disputes",
+      description:
+        "Audits active A2A Smart Escrow milestones (/v2/checkout/orders/{id}/authorize) and PayPal Dispute Shield tracking proofs.",
+      parameters: {
+        type: "object",
+        properties: {
+          includeResolved: { type: "boolean", description: "Whether to include captured/resolved items" },
+        },
+      },
+    },
   ];
 
   // Native PayPal Sandbox MCP Server integration when PAYPAL_SANDBOX_ACCESS_TOKEN is present
@@ -119,6 +157,7 @@ export const getSovereignTools = getNexusPulseTools;
 
 export interface AgentTurnResult {
   interactionId: string;
+  previousInteractionId?: string;
   modelUsed: "gemini-4-argon" | "gemini-3.8-flash";
   outputText: string;
   toolExecutions: Array<{
@@ -128,6 +167,7 @@ export interface AgentTurnResult {
   }>;
   liveApiCalled: boolean;
   paypalMode: "sandbox" | "mirror";
+  durationMs: number;
 }
 
 /**
@@ -139,6 +179,7 @@ export async function runNexusPulseAgentInteraction(params: {
   previousInteractionId?: string;
   mode?: "fast_agent" | "deep_cfo_audit";
 }): Promise<AgentTurnResult> {
+  const startedAt = Date.now();
   const state = getMirrorState();
   const paypalMode = resolveActivePayPalMode();
   const model: "gemini-4-argon" | "gemini-3.8-flash" =
@@ -147,12 +188,23 @@ export async function runNexusPulseAgentInteraction(params: {
   const toolExecutions: AgentTurnResult["toolExecutions"] = [];
   const lower = params.prompt.toLowerCase();
 
-  // Execute deterministic domain actions if the prompt explicitly asks to optimize, buy, or payout
-  if (lower.includes("subscription") || lower.includes("downgrade") || lower.includes("unused") || lower.includes("save")) {
+  // 1. Subscription Guard tool execution
+  if (
+    lower.includes("subscription") ||
+    lower.includes("downgrade") ||
+    lower.includes("unused") ||
+    lower.includes("save")
+  ) {
     const targetSub = state.subscriptions.find(
       (s) => s.status === "ACTIVE" && Number(s.potential_monthly_savings.value) > 0
     );
-    if (targetSub && (lower.includes("optimize") || lower.includes("fix") || lower.includes("cancel") || lower.includes("downgrade"))) {
+    if (
+      targetSub &&
+      (lower.includes("optimize") ||
+        lower.includes("fix") ||
+        lower.includes("cancel") ||
+        lower.includes("downgrade"))
+    ) {
       const action =
         targetSub.ai_recommendation === "KEEP" ? "NEGOTIATE_DISCOUNT" : targetSub.ai_recommendation;
       const res = await gatewayOptimizeSubscription({
@@ -167,8 +219,15 @@ export async function runNexusPulseAgentInteraction(params: {
     }
   }
 
-  if (lower.includes("orin") || lower.includes("jetson") || (lower.includes("buy") && lower.includes("channel3"))) {
-    const deal = state.channel3Deals.find((d) => d.mandate_status === "TARGET_MET_READY") ?? state.channel3Deals[0];
+  // 2. Channel3 Autonomous Deal Arbitrage tool execution
+  if (
+    lower.includes("orin") ||
+    lower.includes("jetson") ||
+    (lower.includes("buy") && lower.includes("channel3"))
+  ) {
+    const deal =
+      state.channel3Deals.find((d) => d.mandate_status === "TARGET_MET_READY") ??
+      state.channel3Deals[0];
     if (deal) {
       const order = await gatewayCreateOrder({
         amountValue: String(deal.channel3_best_price),
@@ -188,12 +247,64 @@ export async function runNexusPulseAgentInteraction(params: {
     }
   }
 
+  // 3. Proof-of-Human Bounty Yield Ranking tool execution
+  if (lower.includes("bount") || lower.includes("oracle") || lower.includes("payout")) {
+    const openBounties = state.bounties
+      .filter((b) => b.status === "OPEN")
+      .map((b) => {
+        const rewardUsd = Number(b.reward.value);
+        const hourlyEquivalent = Math.round((rewardUsd / Math.max(15, b.estimated_seconds)) * 3600);
+        return {
+          id: b.id,
+          title: b.title,
+          rewardUsd,
+          seconds: b.estimated_seconds,
+          hourlyEquivalent,
+        };
+      })
+      .sort((a, b) => b.rewardUsd - a.rewardUsd);
+
+    const topBounty = openBounties[0];
+    const totalOpenUsd = openBounties.reduce((sum, b) => sum + b.rewardUsd, 0);
+
+    toolExecutions.push({
+      toolName: "rank_human_oracle_bounties",
+      args: { openCount: openBounties.length },
+      resultSummary: topBounty
+        ? `Ranked ${openBounties.length} open bounties ($${totalOpenUsd.toFixed(2)} total). Top yield: ${topBounty.id} ($${topBounty.rewardUsd.toFixed(2)} in ${topBounty.seconds}s = ~$${topBounty.hourlyEquivalent}/hr equivalent)`
+        : "All Proof-of-Human bounties have already been verified and paid out.",
+    });
+  }
+
+  // 4. A2A Smart Escrow & Dispute Shield Audit tool execution
+  if (
+    lower.includes("escrow") ||
+    lower.includes("milestone") ||
+    lower.includes("dispute") ||
+    lower.includes("authorize")
+  ) {
+    const lockedMilestones = state.escrowMilestones.filter(
+      (m) => m.status === "AUTHORIZED_LOCKED"
+    );
+    const capturedMilestones = state.escrowMilestones.filter(
+      (m) => m.status === "AI_VERIFIED_CAPTURED"
+    );
+    const lockedUsd = lockedMilestones.reduce((s, m) => s + Number(m.amount.value), 0);
+
+    toolExecutions.push({
+      toolName: "audit_escrow_and_disputes",
+      args: { includeResolved: true },
+      resultSummary: `Audited ${state.escrowMilestones.length} A2A milestones ($${lockedUsd.toFixed(2)} locked in PayPal AUTHORIZE, ${capturedMilestones.length} captured) & ${state.disputes.length} Dispute Shield case (${state.disputes[0]?.tracking_attached ?? "DHL verified"})`,
+    });
+  }
+
   const systemContext = [
     "You are NexusPulse, an autonomous Personal AI CFO, Channel3 Deal-Hunter, and Proof-of-Human Verification Oracle built on the PayPal Developer Platform and Google Gemini.",
     `Active PayPal Gateway Mode: ${paypalMode.toUpperCase()} (Wallet Balance: $${state.walletBalanceUsd.toFixed(2)} USD, Total Saved by AI: $${state.totalSavedByAiUsd.toFixed(2)} USD, Total Earned from Proof-of-Human Bounties: $${state.totalEarnedFromBountiesUsd.toFixed(2)} USD, Active Escrow Protected: $${state.totalEscrowProtectedUsd.toFixed(2)} USD).`,
     `Active Subscriptions: ${state.subscriptions.map((s) => `${s.id} ${s.plan_name} ($${s.billing_amount.value}/mo, AI Recommendation: ${s.ai_recommendation}, Potential Savings: $${s.potential_monthly_savings.value}/mo)`).join("; ")}.`,
-    `Open Proof-of-Human Bounties: ${state.bounties.filter((b) => b.status === "OPEN").map((b) => `${b.id}: ${b.title} ($${b.reward.value} instant PayPal Payout)`).join("; ")}.`,
+    `Open Proof-of-Human Bounties: ${state.bounties.filter((b) => b.status === "OPEN").map((b) => `${b.id}: ${b.title} ($${b.reward.value} instant PayPal Payout in ${b.estimated_seconds}s)`).join("; ")}.`,
     `Channel3 Price-Drop Deals: ${state.channel3Deals.map((d) => `${d.id}: ${d.title} at $${d.channel3_best_price} vs $${d.retail_price} retail (${d.mandate_status})`).join("; ")}.`,
+    `A2A Smart Escrow Milestones: ${state.escrowMilestones.map((m) => `${m.id}: ${m.project_name} ($${m.amount.value}, ${m.status}, Order #${m.paypal_order_id})`).join("; ")}.`,
     toolExecutions.length > 0
       ? `Tools just executed in this turn: ${JSON.stringify(toolExecutions)}`
       : "",
@@ -205,22 +316,27 @@ export async function runNexusPulseAgentInteraction(params: {
   const client = createGeminiClient();
   if (client) {
     try {
-      const interaction = await client.interactions.create({
-        model,
-        input: params.prompt,
-        previous_interaction_id: params.previousInteractionId,
-        system_instruction: systemContext,
-        tools: getNexusPulseTools(),
-      });
+      const interaction = await withGeminiTimeout(
+        client.interactions.create({
+          model,
+          input: params.prompt,
+          previous_interaction_id: params.previousInteractionId,
+          system_instruction: systemContext,
+          tools: getNexusPulseTools(),
+        }),
+        4500
+      );
 
       if (interaction.output_text) {
         return {
           interactionId: interaction.id ?? `int_${Date.now()}`,
+          previousInteractionId: params.previousInteractionId,
           modelUsed: model,
           outputText: interaction.output_text,
           toolExecutions,
           liveApiCalled: true,
           paypalMode,
+          durationMs: Date.now() - startedAt,
         };
       }
     } catch (err) {
@@ -233,30 +349,63 @@ export async function runNexusPulseAgentInteraction(params: {
     (acc, s) => acc + Number(s.potential_monthly_savings.value),
     0
   );
-  const openBountiesTotal = state.bounties
-    .filter((b) => b.status === "OPEN")
-    .reduce((acc, b) => acc + Number(b.reward.value), 0);
+  const openBounties = state.bounties.filter((b) => b.status === "OPEN");
+  const openBountiesTotal = openBounties.reduce((acc, b) => acc + Number(b.reward.value), 0);
 
-  const summaryLines = [
-    `### NexusPulse (${model}) — Live Financial & Agent Telemetry`,
-    toolExecutions.length > 0
-      ? `**Autonomous PayPal Action Executed:**\n${toolExecutions.map((t) => `- \`${t.toolName}\`: ${t.resultSummary}`).join("\n")}\n`
-      : "",
-    `1. **Autopilot Subscription & Bill Guard (\`/v1/billing/subscriptions\`):** Identified **$${activeSubsSavings.toFixed(2)}/month ($${(activeSubsSavings * 12).toFixed(2)}/year)** in immediate savings across ${state.subscriptions.filter((s) => Number(s.potential_monthly_savings.value) > 0).length} active PayPal subscriptions (including \`I-BW452GLLEP1G\` NebulaCompute Cloud GPU idle for 23 days and \`I-98X11KLMNO2P\` duplicate PixelFlow seat).`,
-    `2. **Channel3 100M+ Catalog Arbitrage (\`/v2/checkout/orders\`):** **NVIDIA Jetson Orin Nano Super** (\`C3-PROD-9001\`) dropped to **$189.00** ($60 below retail and $10 under your $199 cryptographic mandate). Ready for instant PayPal JS SDK v6 or Pay in 4 checkout.`,
-    `3. **Proof-of-Human Oracle Bounties (\`/v1/payments/payouts\`):** **$${openBountiesTotal.toFixed(2)} USD** in instant PayPal Payout bounties are open right now for 30–60 second human ground-truth verifications.`,
-    `4. **A2A Smart Escrow & Dispute Shield (\`/v2/checkout/orders/{id}/authorize\`):** **$3,450.00 USD** protected across 3 milestones; Milestone \`ESCROW-102\` ($1,250.00, PayPal Auth \`0VF52814937998046\`) is ready for deliverable verification and automatic capture.`,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const summaryLines: string[] = [
+    `### NexusPulse (${model}) — Executive Telemetry${params.previousInteractionId ? ` · Thread Continued` : ""}`,
+  ];
+
+  if (toolExecutions.length > 0) {
+    summaryLines.push(
+      `**Autonomous Tool Execution Log:**\n${toolExecutions.map((t) => `- \`${t.toolName}\`: ${t.resultSummary}`).join("\n")}`
+    );
+  }
+
+  if (lower.includes("bount") || lower.includes("oracle")) {
+    const rankedLines = openBounties
+      .slice()
+      .sort((a, b) => Number(b.reward.value) - Number(a.reward.value))
+      .map((b, idx) => {
+        const reward = Number(b.reward.value);
+        const hrRate = Math.round((reward / Math.max(15, b.estimated_seconds)) * 3600);
+        return `${idx + 1}. **${b.id} — $${reward.toFixed(2)} USD** (${b.estimated_seconds}s · ~$${hrRate}/hr yield): *${b.title}* — Requested by \`${b.requester_agent}\``;
+      });
+    summaryLines.push(
+      `**Proof-of-Human Oracle Bounty Ranking (\`/v1/payments/payouts\`):**\n${
+        rankedLines.length > 0
+          ? rankedLines.join("\n")
+          : "All open bounties have been completed and paid out!"
+      }`
+    );
+  }
+
+  if (lower.includes("escrow") || lower.includes("milestone") || lower.includes("dispute")) {
+    const escrowLines = state.escrowMilestones.map(
+      (m) =>
+        `- **${m.id} (${m.project_name}):** $${m.amount.value} USD · Status: \`${m.status}\` · Order \`${m.paypal_order_id}\` · Auth \`${m.paypal_authorization_id}\``
+    );
+    summaryLines.push(
+      `**A2A Smart Escrow & Dispute Shield Audit (\`/v2/checkout/orders/{id}/authorize\`):**\n${escrowLines.join("\n")}\n- **Dispute Shield (\`PP-D-94821\`):** Attached DHL tracking \`${state.disputes[0]?.tracking_attached ?? "DHL-9928172635-PK"}\` with SHA-256 cryptographic delivery manifest.`
+    );
+  }
+
+  summaryLines.push(
+    `1. **Autopilot Subscription & Bill Guard (\`/v1/billing/subscriptions\`):** Identified **$${activeSubsSavings.toFixed(2)}/month ($${(activeSubsSavings * 12).toFixed(2)}/year)** in immediate savings across ${state.subscriptions.filter((s) => Number(s.potential_monthly_savings.value) > 0).length} active PayPal subscriptions.`,
+    `2. **Channel3 100M+ Catalog Arbitrage (\`/v2/checkout/orders\`):** **NVIDIA Jetson Orin Nano Super** (\`C3-PROD-9001\`) is **$189.00** ($60 below retail). Ready for one-click PayPal JS SDK v6 or Pay in 4 checkout.`,
+    `3. **Proof-of-Human Oracle Bounties (\`/v1/payments/payouts\`):** **$${openBountiesTotal.toFixed(2)} USD** in instant PayPal Payout bounties available across ${openBounties.length} open tasks.`,
+    `4. **A2A Smart Escrow & Dispute Shield (\`/v2/checkout/orders/{id}/authorize\`):** **$${state.totalEscrowProtectedUsd.toFixed(2)} USD** protected across ${state.escrowMilestones.length} milestones.`
+  );
 
   return {
     interactionId: `int_nexus_${Date.now()}`,
+    previousInteractionId: params.previousInteractionId,
     modelUsed: model,
-    outputText: summaryLines,
+    outputText: summaryLines.filter(Boolean).join("\n\n"),
     toolExecutions,
     liveApiCalled: false,
     paypalMode,
+    durationMs: Date.now() - startedAt,
   };
 }
 
@@ -307,30 +456,33 @@ Respond with a JSON object containing {"passed": boolean, "score": number (0-100
         });
       }
 
-      const interaction = await client.interactions.create({
-        model: "gemini-3.8-flash",
-        input: [
-          {
-            type: "user_input",
-            content: contentItems as never,
-          },
-        ],
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "bounty_verification",
-            schema: {
-              type: "object",
-              properties: {
-                passed: { type: "boolean" },
-                score: { type: "number" },
-                reasoning: { type: "string" },
-              },
-              required: ["passed", "score", "reasoning"],
+      const interaction = await withGeminiTimeout(
+        client.interactions.create({
+          model: "gemini-3.8-flash",
+          input: [
+            {
+              type: "user_input",
+              content: contentItems as never,
             },
-          },
-        } as never,
-      });
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "bounty_verification",
+              schema: {
+                type: "object",
+                properties: {
+                  passed: { type: "boolean" },
+                  score: { type: "number" },
+                  reasoning: { type: "string" },
+                },
+                required: ["passed", "score", "reasoning"],
+              },
+            },
+          } as never,
+        }),
+        4500
+      );
 
       if (interaction.output_text) {
         const parsed = JSON.parse(interaction.output_text) as {
@@ -388,27 +540,30 @@ export async function generateCfoVoiceBriefingAudio(): Promise<{
   const client = createGeminiClient();
   if (client) {
     try {
-      const interaction = await client.interactions.create({
-        model: "gemini-3.8-flash-tts",
-        input: [
-          {
-            type: "user_input",
-            content: [
-              {
-                type: "text",
-                text: transcript,
-                annotations: [
-                  {
-                    type: "speech_metadata",
-                    speaker: "NexusPulseCFO",
-                    style: "confident, warm, executive financial advisor",
-                  },
-                ],
-              },
-            ],
-          },
-        ] as never,
-      });
+      const interaction = await withGeminiTimeout(
+        client.interactions.create({
+          model: "gemini-3.8-flash-tts",
+          input: [
+            {
+              type: "user_input",
+              content: [
+                {
+                  type: "text",
+                  text: transcript,
+                  annotations: [
+                    {
+                      type: "speech_metadata",
+                      speaker: "NexusPulseCFO",
+                      style: "confident, warm, executive financial advisor",
+                    },
+                  ],
+                },
+              ],
+            },
+          ] as never,
+        }),
+        4500
+      );
 
       if (interaction.output_audio?.data) {
         return {

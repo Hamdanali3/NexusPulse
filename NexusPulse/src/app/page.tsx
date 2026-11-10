@@ -3,13 +3,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Activity,
+  ArrowRight,
   Bot,
   Calendar,
   CheckCircle2,
+  Clock,
+  Info,
   KeyRound,
   Layers,
   Lock,
   RefreshCw,
+  RotateCcw,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -41,7 +45,7 @@ export default function NexusPulseHomePage() {
   const [sandboxClientId, setSandboxClientId] = useState("");
   const [sandboxClientSecret, setSandboxClientSecret] = useState("");
 
-  // Gemini Interactions API Console state
+  // Gemini Interactions API Console state (with multi-turn previousInteractionId continuity)
   const [agentPrompt, setAgentPrompt] = useState(
     "Perform a full Autonomous CFO & AGI Clearinghouse sweep: identify my highest-ROI PayPal subscription optimization, best Channel3 deal mandate, highest hourly Proof-of-Human Oracle bounty, and next A2A Smart Escrow milestone ready for capture."
   );
@@ -49,10 +53,13 @@ export default function NexusPulseHomePage() {
     "deep_cfo_audit"
   );
   const [agentRunning, setAgentRunning] = useState(false);
+  const [turnCount, setTurnCount] = useState(0);
   const [agentResponse, setAgentResponse] = useState<{
     interactionId: string;
+    previousInteractionId?: string;
     modelUsed: string;
     outputText: string;
+    durationMs?: number;
     toolExecutions: Array<{
       toolName: string;
       args: Record<string, unknown>;
@@ -143,6 +150,7 @@ export default function NexusPulseHomePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: promptToUse,
+          previousInteractionId: agentResponse?.interactionId,
           mode: agentMode,
         }),
       });
@@ -150,10 +158,13 @@ export default function NexusPulseHomePage() {
       if (data.interactionId) {
         setAgentResponse({
           interactionId: data.interactionId,
+          previousInteractionId: data.previousInteractionId,
           modelUsed: data.modelUsed,
           outputText: data.outputText,
+          durationMs: data.durationMs,
           toolExecutions: data.toolExecutions ?? [],
         });
+        setTurnCount((c) => c + 1);
         if (data.state) {
           setAppState(data.state);
         }
@@ -238,12 +249,18 @@ export default function NexusPulseHomePage() {
     const data = await res.json();
     if (data.state) {
       setAppState(data.state);
+      setAgentResponse(null);
+      setTurnCount(0);
     }
   }
 
   if (loading || !appState) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+      <div
+        role="status"
+        aria-live="polite"
+        className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center"
+      >
         <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center animate-pulse mb-4">
           <Sparkles className="h-6 w-6 text-indigo-400" />
         </div>
@@ -265,6 +282,11 @@ export default function NexusPulseHomePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
+      {/* Accessibility Skip Link (modern-web-guidance: accessibility) */}
+      <a href="#main-workspace" className="skip-link visually-hidden">
+        Skip to main content
+      </a>
+
       {/* TOP COMMAND HEADER */}
       <header className="sticky top-0 z-40 border-b border-slate-800/90 bg-slate-950/90 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
@@ -274,14 +296,14 @@ export default function NexusPulseHomePage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white">
+                <span className="text-base sm:text-lg font-extrabold tracking-tight text-white">
                   NEXUSPULSE
-                </h1>
-                <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-indigo-300">
+                </span>
+                <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
                   PayPal AI Hackathon Flagship
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-xs text-slate-400">
                 Connecting AI Agents, Human Oracles &amp; Smart Payments on PayPal
               </p>
             </div>
@@ -289,16 +311,21 @@ export default function NexusPulseHomePage() {
 
           {/* Right Controls: Dual-Mode Switcher + Credentials Drawer + Voice Briefing + Reset */}
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1 text-xs">
-              <span className="px-2 text-[11px] text-slate-400 font-medium hidden sm:inline">
+            <div
+              role="group"
+              aria-label="PayPal Execution Mode"
+              className="flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900/90 p-1 text-xs"
+            >
+              <span className="px-2 text-xs text-slate-400 font-medium hidden sm:inline">
                 PayPal Mode:
               </span>
               {(["auto", "sandbox", "mirror"] as const).map((m) => (
                 <button
                   key={m}
                   type="button"
+                  aria-pressed={preferredMode === m}
                   onClick={() => handleSwitchMode(m)}
-                  className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition cursor-pointer ${
+                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                     preferredMode === m
                       ? "bg-indigo-600 text-white shadow"
                       : "text-slate-400 hover:text-white"
@@ -315,8 +342,9 @@ export default function NexusPulseHomePage() {
 
             <button
               type="button"
+              aria-expanded={showCredsDrawer}
               onClick={() => setShowCredsDrawer((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-500/40 bg-indigo-500/15 hover:bg-indigo-500/25 px-3 py-1.5 text-xs font-semibold text-indigo-200 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-500/40 bg-indigo-500/15 hover:bg-indigo-500/25 px-3 py-1.5 text-xs font-semibold text-indigo-200 transition"
             >
               <KeyRound className="h-3.5 w-3.5 text-indigo-400" />
               Sandbox Keys
@@ -326,7 +354,7 @@ export default function NexusPulseHomePage() {
               type="button"
               onClick={handlePlayVoiceBriefing}
               disabled={voiceLoading}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25 px-3 py-1.5 text-xs font-semibold text-sky-200 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25 px-3 py-1.5 text-xs font-semibold text-sky-200 transition"
             >
               <Volume2 className="h-3.5 w-3.5 text-sky-400" />
               {voiceLoading ? "Synthesizing..." : "AI Voice CFO Briefing"}
@@ -335,7 +363,7 @@ export default function NexusPulseHomePage() {
             <button
               type="button"
               onClick={handleResetDemoState}
-              className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition cursor-pointer"
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 transition"
               title="Reset Demo Ledger & Bounties"
             >
               <RefreshCw className="h-3.5 w-3.5" />
@@ -359,16 +387,26 @@ export default function NexusPulseHomePage() {
                 <code className="text-emerald-300">api-m.sandbox.paypal.com</code>:
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <label htmlFor="sandbox-client-id-input" className="visually-hidden">
+                  PayPal Sandbox Client ID
+                </label>
                 <input
+                  id="sandbox-client-id-input"
                   type="text"
+                  autoComplete="off"
                   value={sandboxClientId}
                   onChange={(e) => setSandboxClientId(e.target.value)}
                   placeholder="PAYPAL_CLIENT_ID"
                   className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white font-mono"
                   required
                 />
+                <label htmlFor="sandbox-client-secret-input" className="visually-hidden">
+                  PayPal Sandbox Client Secret
+                </label>
                 <input
+                  id="sandbox-client-secret-input"
                   type="password"
+                  autoComplete="off"
                   value={sandboxClientSecret}
                   onChange={(e) => setSandboxClientSecret(e.target.value)}
                   placeholder="PAYPAL_CLIENT_SECRET"
@@ -377,7 +415,7 @@ export default function NexusPulseHomePage() {
                 />
                 <button
                   type="submit"
-                  className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white transition cursor-pointer"
+                  className="rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white transition"
                 >
                   Activate Live Sandbox
                 </button>
@@ -388,7 +426,7 @@ export default function NexusPulseHomePage() {
 
         {/* Zero-Blocker Dual-Mode Status Bar */}
         <div className="border-t border-slate-800/70 bg-slate-900/60">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex flex-wrap items-center gap-2 text-slate-300">
               <span
                 className={`inline-flex items-center gap-1 font-semibold ${
@@ -411,22 +449,25 @@ export default function NexusPulseHomePage() {
                     : "text-slate-400"
                 }`}
               >
-                <span className={`h-2 w-2 rounded-full ${databaseSource === "supabase_postgres" ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`} />
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    databaseSource === "supabase_postgres"
+                      ? "bg-emerald-400 animate-pulse"
+                      : "bg-slate-500"
+                  }`}
+                />
                 Database:{" "}
                 {databaseSource === "supabase_postgres"
                   ? "SUPABASE POSTGRESQL (LIVE CONNECTED)"
                   : "IN-MEMORY MIRROR STORE"}
               </span>
-              <span className="text-slate-600">|</span>
-              <span className="text-slate-400">
-                Sponsors:{" "}
-                <strong className="text-slate-200">
-                  PayPal (Orders v2, Payouts v1, Subscriptions v1, Trackers, Webhooks, JS SDK v6, MCP) • APIMatic SDK • AG Grid v36 • Bryntum Gantt • Channel3 • Google Gemini Interactions API • Render
-                </strong>
-              </span>
             </div>
             {voiceTranscript && (
-              <div className="text-sky-300 truncate max-w-md">
+              <div
+                role="status"
+                aria-live="polite"
+                className="text-sky-300 truncate max-w-md"
+              >
                 🔊 <em>&ldquo;{voiceTranscript}&rdquo;</em>
               </div>
             )}
@@ -434,11 +475,146 @@ export default function NexusPulseHomePage() {
         </div>
       </header>
 
-      {/* MAIN CONTAINER */}
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 space-y-6">
+      {/* MAIN WORKSPACE */}
+      <main
+        id="main-workspace"
+        className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 space-y-6"
+      >
+        {/* EXECUTIVE PRODUCT VALUE & 3-ENGINE ARCHITECTURE OVERVIEW */}
+        <section
+          aria-labelledby="product-hero-heading"
+          className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900/95 to-indigo-950/30 p-5 sm:p-6 shadow-xl"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-800/80 pb-4">
+            <div className="space-y-1.5 max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-semibold text-emerald-300">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Autonomous Personal AI CFO • Human-Oracle Clearinghouse • Programmable PayPal Escrow
+              </div>
+              <h1
+                id="product-hero-heading"
+                style={{ fontSize: "var(--font-fluid-hero)" }}
+                className="font-extrabold tracking-tight text-white"
+              >
+                Stop Losing Money to Idle Subscriptions &amp; Unverified AI — Automate Savings, Bounties &amp; Escrow on PayPal
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Designed for everyday consumers, independent creators, and autonomous AI procurement teams.{" "}
+                <strong className="text-white">NexusPulse</strong> unites Google Gemini 4 Argon &amp; 3.8 Flash with PayPal&apos;s REST APIs and JS SDK v6 across three closed-loop financial engines:
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => handleRunAgentInteraction()}
+                disabled={agentRunning}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 transition"
+              >
+                <Sparkles className="h-4 w-4" />
+                {agentRunning ? "Running CFO Sweep..." : "Run 1-Click AI CFO Sweep"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("bounties")}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 px-3.5 py-2.5 text-xs font-semibold text-emerald-200 transition"
+              >
+                <span>Earn Instant Payouts</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 3-Step Closed-Loop Architecture Cards */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-fuchsia-300">
+                  <span>1. SAVE — Autonomous CFO &amp; Deal Hunter</span>
+                  <ShoppingBag className="h-4 w-4 text-fuchsia-400" />
+                </div>
+                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
+                  Scans Channel3&apos;s 100M+ SKU catalog against your target price mandate and auto-downgrades idle PayPal subscriptions (<code className="text-slate-200">/v1/billing/subscriptions</code>).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("channel3")}
+                className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-fuchsia-300 hover:text-white"
+              >
+                <span>Open Channel3 &amp; PayPal v6 Checkout</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-emerald-300">
+                  <span>2. EARN — Proof-of-Human Oracle Bounties</span>
+                  <UserCheck className="h-4 w-4 text-emerald-400" />
+                </div>
+                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
+                  AI agents post 30–60s micro-bounties for real-world ground truth and compliance rulings. Gemini 3.8 Flash verifies and triggers instant PayPal Payouts (<code className="text-slate-200">/v1/payments/payouts</code>).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("bounties")}
+                className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-white"
+              >
+                <span>Claim Bounties &amp; Instant Payouts</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-indigo-300">
+                  <span>3. PROTECT — Zero-Dispute Smart Escrow</span>
+                  <Lock className="h-4 w-4 text-indigo-400" />
+                </div>
+                <p className="mt-1.5 text-xs text-slate-300 leading-relaxed">
+                  Locks B2B/freelance funds in PayPal Orders v2 <code className="text-slate-200">AUTHORIZE</code> holds on a Bryntum Gantt timeline and attaches DHL tracking proofs before capture.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("bryntum")}
+                className="mt-2.5 inline-flex items-center gap-1 text-xs font-semibold text-indigo-300 hover:text-white"
+              >
+                <span>Inspect Bryntum Escrow Gantt</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progressive Disclosure Deep-Dive (modern-web-guidance: content-first-noise-reduction) */}
+          <details className="mt-3.5 rounded-xl border border-slate-800/80 bg-slate-950/50 px-4 py-2.5 text-xs text-slate-300">
+            <summary className="flex items-center gap-2 font-semibold text-slate-200 cursor-pointer select-none">
+              <Info className="h-3.5 w-3.5 text-sky-400" />
+              <span>
+                View Full 7-Sponsor Technical Architecture &amp; Dual-Mode Sandbox Verification Matrix
+              </span>
+            </summary>
+            <div className="mt-2.5 pt-2.5 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
+              <div>
+                <strong className="text-white">PayPal &amp; APIMatic Stack:</strong>{" "}
+                Uses <code className="text-indigo-300">@paypal/paypal-server-sdk v2.5.0</code> (Orders v2, Capture/Authorize, Subscriptions v1, Payouts v1, Invoicing v2, Trackers v2, Webhooks v1, JS SDK v6, and PayPal Sandbox MCP Server).
+              </div>
+              <div>
+                <strong className="text-white">Enterprise Telemetry &amp; Persistence:</strong>{" "}
+                AG Grid v36.3.0 multi-endpoint ledger, Bryntum Milestone Gantt, Channel3 100M+ SKU Catalog API, Google Gemini Interactions API (<code className="text-indigo-300">@google/genai v3.0.0</code>), Supabase PostgreSQL, and Render Cloud Blueprint.
+              </div>
+            </div>
+          </details>
+        </section>
+
         {/* KPI TELEMETRY STRIP */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg">
+        <section
+          aria-label="Key Financial Performance Indicators"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
+          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg tabular-nums">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">
                 Engine 1: AI CFO &amp; Channel3 Savings
@@ -459,13 +635,13 @@ export default function NexusPulseHomePage() {
                 /yr impact
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <p className="mt-1 text-xs text-slate-400">
               ${appState.totalSavedByAiUsd.toFixed(2)} Realized + $
               {annualSubSavings.toFixed(0)}/yr Subscription Guard
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg">
+          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg tabular-nums">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">
                 Engine 2: Proof-of-Human Payouts
@@ -480,12 +656,12 @@ export default function NexusPulseHomePage() {
                 Instant Settled
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <p className="mt-1 text-xs text-slate-400">
               Verified by Gemini 3.8 Flash • Paid via PayPal Payouts v1
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg">
+          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg tabular-nums">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">
                 Engine 3: Active A2A Auth Escrow
@@ -500,12 +676,12 @@ export default function NexusPulseHomePage() {
                 AUTHORIZE Hold
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <p className="mt-1 text-xs text-slate-400">
               Bryntum Milestone Gantt + PayPal Orders v2 Auth &amp; Capture
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg">
+          <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-lg tabular-nums">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">
                 PayPal Wallet Balance &amp; Dispute Shield
@@ -523,43 +699,68 @@ export default function NexusPulseHomePage() {
                 (100% Protected)
               </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">
+            <p className="mt-1 text-xs text-slate-400">
               Auto-Trackers v2 + PayPal-Request-Id Idempotency
             </p>
           </div>
         </section>
 
         {/* INTERACTIVE GEMINI 4 ARGON / 3.8 FLASH AGENTIC CFO & MCP CONSOLE */}
-        <section className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 p-5 shadow-xl">
+        <section
+          aria-labelledby="gemini-console-heading"
+          className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 p-5 shadow-xl"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center">
                 <Bot className="h-4 w-4 text-indigo-300" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-white">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 id="gemini-console-heading" className="text-sm font-bold text-white">
                     Google Gemini Interactions API — Autonomous CFO &amp; PayPal MCP Orchestrator
                   </h2>
-                  <span className="rounded-full bg-indigo-500/20 border border-indigo-500/40 px-2 py-0.5 font-mono text-[10px] text-indigo-300">
+                  <span className="rounded-full bg-indigo-500/20 border border-indigo-500/40 px-2 py-0.5 font-mono text-xs text-indigo-300">
                     client.interactions.create()
                   </span>
+                  {turnCount > 0 && (
+                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-xs text-emerald-300">
+                      Turn #{turnCount} Stateful Thread
+                    </span>
+                  )}
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Powered by <code className="text-indigo-300">@google/genai v3.0.0</code> with native <code className="text-indigo-300">@paypal/agent-toolkit</code> MCP tool bindings
+                <p className="text-xs text-slate-400">
+                  Powered by <code className="text-indigo-300">@google/genai v3.0.0</code> with stateful <code className="text-indigo-300">previous_interaction_id</code> and native PayPal tool bindings
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {agentResponse && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAgentResponse(null);
+                    setTurnCount(0);
+                  }}
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-2.5 py-1.5 text-xs text-slate-300"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span>New Thread</span>
+                </button>
+              )}
+
+              <label htmlFor="gemini-model-select" className="visually-hidden">
+                Select Gemini Model
+              </label>
               <select
+                id="gemini-model-select"
                 value={agentMode}
                 onChange={(e) =>
                   setAgentMode(
                     e.target.value as "deep_cfo_audit" | "fast_agent"
                   )
                 }
-                aria-label="Select Gemini Model"
                 className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-indigo-300"
               >
                 <option value="deep_cfo_audit">
@@ -577,17 +778,21 @@ export default function NexusPulseHomePage() {
             className="mt-3.5 space-y-3"
           >
             <div className="flex flex-col md:flex-row gap-2.5">
+              <label htmlFor="gemini-agent-prompt-input" className="visually-hidden">
+                Ask your Autonomous CFO to execute PayPal actions
+              </label>
               <input
+                id="gemini-agent-prompt-input"
                 type="text"
                 value={agentPrompt}
                 onChange={(e) => setAgentPrompt(e.target.value)}
-                className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs text-white focus:border-indigo-500"
                 placeholder="Ask your Autonomous CFO to optimize subscriptions, buy Channel3 deals, verify human bounties, or inspect escrow..."
               />
               <button
                 type="submit"
                 disabled={agentRunning}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 transition cursor-pointer shrink-0"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 transition shrink-0"
               >
                 <Sparkles className="h-4 w-4" />
                 {agentRunning
@@ -597,7 +802,7 @@ export default function NexusPulseHomePage() {
             </div>
 
             {/* Preset Prompt Pills */}
-            <div className="flex flex-wrap items-center gap-2 text-[11px]">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="text-slate-400">One-Click Agent Actions:</span>
               {[
                 "Optimize my unused PayPal subscription and downgrade idle GPU plan to save money",
@@ -609,7 +814,7 @@ export default function NexusPulseHomePage() {
                   key={preset}
                   type="button"
                   onClick={() => handleRunAgentInteraction(preset)}
-                  className="rounded-lg border border-slate-800 bg-slate-950/80 hover:border-indigo-500/50 px-2.5 py-1 text-slate-300 hover:text-white transition cursor-pointer"
+                  className="rounded-lg border border-slate-800 bg-slate-950/80 hover:border-indigo-500/50 px-2.5 py-1 text-slate-300 hover:text-white transition"
                 >
                   {preset}
                 </button>
@@ -619,21 +824,36 @@ export default function NexusPulseHomePage() {
 
           {/* Gemini Interaction Output */}
           {agentResponse && (
-            <div className="mt-4 rounded-xl border border-indigo-500/30 bg-slate-950/90 p-4 space-y-3">
+            <div
+              role="status"
+              aria-live="polite"
+              className="mt-4 rounded-xl border border-indigo-500/30 bg-slate-950/90 p-4 space-y-3"
+            >
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5 text-xs">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-bold text-indigo-300">
                     Interaction ID: <code>{agentResponse.interactionId}</code>
                   </span>
-                  <span className="rounded bg-indigo-500/20 px-2 py-0.5 font-mono text-[10px] text-indigo-200">
+                  {agentResponse.previousInteractionId && (
+                    <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-xs text-slate-300">
+                      prev: {agentResponse.previousInteractionId.slice(0, 14)}...
+                    </span>
+                  )}
+                  <span className="rounded bg-indigo-500/20 px-2 py-0.5 font-mono text-xs text-indigo-200">
                     {agentResponse.modelUsed}
                   </span>
+                  {agentResponse.durationMs !== undefined && (
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-400 tabular-nums">
+                      <Clock className="h-3 w-3" />
+                      {agentResponse.durationMs}ms
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {agentResponse.toolExecutions.map((t, idx) => (
                     <span
                       key={idx}
-                      className="rounded bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-[10px] text-emerald-300"
+                      className="rounded bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-xs text-emerald-300"
                     >
                       Executed: {t.toolName}
                     </span>
@@ -648,8 +868,12 @@ export default function NexusPulseHomePage() {
           )}
         </section>
 
-        {/* NAVIGATION TABS FOR ALL ENGINES & SPONSOR INTEGRATIONS */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+        {/* NAVIGATION TABS FOR ALL ENGINES & SPONSOR INTEGRATIONS (modern-web-guidance: tabs) */}
+        <div
+          role="tablist"
+          aria-label="NexusPulse Financial Engines and Sponsor Workspaces"
+          className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3"
+        >
           {[
             {
               id: "overview",
@@ -683,6 +907,8 @@ export default function NexusPulseHomePage() {
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                aria-selected={active}
                 onClick={() =>
                   setActiveTab(
                     tab.id as
@@ -693,10 +919,10 @@ export default function NexusPulseHomePage() {
                       | "aggrid"
                   )
                 }
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition ${
                   active
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/25"
-                    : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800"
+                    : "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -745,7 +971,7 @@ export default function NexusPulseHomePage() {
               <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
                       <ShieldCheck className="h-3.5 w-3.5" />
                       PayPal Webhooks v1 Security
                     </span>
@@ -772,7 +998,7 @@ export default function NexusPulseHomePage() {
                       type="button"
                       disabled={webhookSimulating}
                       onClick={() => handleSimulateWebhook(evt)}
-                      className="rounded-xl border border-slate-700 bg-slate-950 hover:border-indigo-500 px-3 py-1.5 font-mono text-[11px] text-slate-200 transition cursor-pointer"
+                      className="rounded-xl border border-slate-700 bg-slate-950 hover:border-indigo-500 px-3 py-1.5 font-mono text-xs text-slate-200 transition"
                     >
                       Simulate {evt}
                     </button>
@@ -780,7 +1006,11 @@ export default function NexusPulseHomePage() {
                 </div>
 
                 {webhookResult && (
-                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 text-xs space-y-1">
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3.5 text-xs space-y-1"
+                  >
                     <div className="flex items-center justify-between font-mono">
                       <span className="font-bold text-emerald-300">
                         Signature Verification: {webhookResult.verification_status}
@@ -789,7 +1019,7 @@ export default function NexusPulseHomePage() {
                         Event ID: {webhookResult.eventId}
                       </span>
                     </div>
-                    <p className="text-slate-300 text-[11px]">
+                    <p className="text-slate-300 text-xs">
                       Deduplicated &amp; logged to Webhook Event Ledger (Mode:{" "}
                       {webhookResult.mode.toUpperCase()}).
                     </p>
@@ -800,7 +1030,7 @@ export default function NexusPulseHomePage() {
               <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-indigo-300">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
                       <KeyRound className="h-3.5 w-3.5" />
                       Sponsor: APIMatic SDK + Dual-Mode Gateway Architecture
                     </span>

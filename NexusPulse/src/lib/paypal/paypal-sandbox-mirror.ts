@@ -188,7 +188,7 @@ const INITIAL_STATE: NexusPulseState = {
     },
     {
       id: "INV2-X91K-8MMB-R73P-WTY9",
-      invoice_number: "SOV-2026-1049",
+      invoice_number: "NEX-2026-1049",
       status: "SENT",
       recipient_name: "Helios BioAI Labs",
       recipient_email: "billing-bot@helios-bio.example.com",
@@ -547,6 +547,11 @@ export function getMirrorState(): NexusPulseState {
   if (!globalForNexus.__nexusPulseState) {
     globalForNexus.__nexusPulseState = structuredClone(INITIAL_STATE);
   }
+  return globalForNexus.__nexusPulseState;
+}
+
+export function hydrateMirrorState(externalState: NexusPulseState): NexusPulseState {
+  globalForNexus.__nexusPulseState = structuredClone(externalState);
   return globalForNexus.__nexusPulseState;
 }
 

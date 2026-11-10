@@ -408,3 +408,60 @@ export async function syncEscrowToSupabase(milestone: SmartEscrowMilestone) {
     console.warn("[Supabase Sync] Error syncing escrow:", err);
   }
 }
+
+/**
+ * Persists a Channel3 autonomous shopping mandate deal into Supabase PostgreSQL.
+ */
+export async function syncChannel3DealToSupabase(deal: Channel3ProductDeal) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+
+  try {
+    await supabase.from("channel3_deals").upsert({
+      id: deal.id,
+      title: deal.title,
+      brand: deal.brand,
+      category: deal.category,
+      sku: deal.sku,
+      retail_price: deal.retail_price,
+      channel3_best_price: deal.channel3_best_price,
+      target_mandate_price: deal.target_mandate_price,
+      savings_amount: deal.savings_amount,
+      savings_percent: deal.savings_percent,
+      currency: deal.currency,
+      merchant_name: deal.merchant_name,
+      in_stock: deal.in_stock,
+      rating: deal.rating,
+      review_count: deal.review_count,
+      bnpl_eligible: deal.bnpl_eligible,
+      bnpl_installment_monthly: deal.bnpl_installment_monthly,
+      mandate_status: deal.mandate_status,
+      paypal_order_id: deal.paypal_order_id,
+      ai_price_prediction: deal.ai_price_prediction,
+    });
+  } catch (err) {
+    console.warn("[Supabase Sync] Error syncing Channel3 deal:", err);
+  }
+}
+
+/**
+ * Persists high-level wallet balance and AI KPI totals into Supabase PostgreSQL.
+ */
+export async function syncMetaToSupabase(state: NexusPulseState) {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+
+  try {
+    await supabase.from("sovereign_pulse_meta").upsert({
+      id: "current",
+      wallet_balance_usd: state.walletBalanceUsd,
+      total_saved_by_ai_usd: state.totalSavedByAiUsd,
+      total_earned_from_bounties_usd: state.totalEarnedFromBountiesUsd,
+      total_escrow_protected_usd: state.totalEscrowProtectedUsd,
+      preferred_mode: state.preferredMode,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn("[Supabase Sync] Error syncing meta KPIs:", err);
+  }
+}

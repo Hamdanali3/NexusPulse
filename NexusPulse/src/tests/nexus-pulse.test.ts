@@ -3,11 +3,11 @@ import assert from "node:assert/strict";
 import {
   gatewayCreateOrder,
   gatewayCaptureOrAuthorizeOrder,
-  gatewayCreatePayout,
   gatewayOptimizeSubscription,
 } from "../lib/paypal/paypal-gateway";
 import {
   getMirrorState,
+  hydrateMirrorState,
   resetMirrorState,
 } from "../lib/paypal/paypal-sandbox-mirror";
 import { verifyPayPalWebhookSignature } from "../lib/paypal/paypal-client";
@@ -15,6 +15,12 @@ import {
   runNexusPulseAgentInteraction,
   verifyHumanBountySubmissionWithGemini,
 } from "../lib/ai/gemini-agent";
+import {
+  isAllowedFetchSite,
+  sanitizeText,
+  validateRecipientAccount,
+  validateUsdAmount,
+} from "../lib/security/validation";
 
 describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on PayPal", () => {
   beforeEach(() => {
@@ -165,5 +171,51 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.ok(response.interactionId);
     assert.ok(response.outputText.length > 20);
     assert.ok(response.toolExecutions.length > 0);
+    assert.ok(typeof response.durationMs === "number");
+  });
+
+  it("executes multi-turn Gemini Agentic CFO bounty ranking and escrow audit tools", async () => {
+    const firstTurn = await runNexusPulseAgentInteraction({
+      prompt: "Rank open Proof-of-Human Oracle bounties by hourly PayPal Payout yield",
+      mode: "fast_agent",
+    });
+    assert.ok(
+      firstTurn.toolExecutions.some((t) => t.toolName === "rank_human_oracle_bounties")
+    );
+
+    const secondTurn = await runNexusPulseAgentInteraction({
+      prompt: "Audit A2A Smart Escrow milestones and Dispute Shield tracking status",
+      previousInteractionId: firstTurn.interactionId,
+      mode: "deep_cfo_audit",
+    });
+    assert.equal(secondTurn.previousInteractionId, firstTurn.interactionId);
+    assert.ok(
+      secondTurn.toolExecutions.some((t) => t.toolName === "audit_escrow_and_disputes")
+    );
+  });
+
+  it("hydrates mirror state cleanly from external Supabase PostgreSQL payload", () => {
+    const customState = structuredClone(getMirrorState());
+    customState.walletBalanceUsd = 9999.99;
+    hydrateMirrorState(customState);
+    assert.equal(getMirrorState().walletBalanceUsd, 9999.99);
+  });
+
+  it("validates and sanitizes financial amounts, recipient accounts, and Fetch Metadata headers", () => {
+    assert.equal(sanitizeText("  Hello \u0000World  ", 20), "Hello World");
+    assert.equal(validateUsdAmount("189.50").valid, true);
+    assert.equal(validateUsdAmount("-10").valid, false);
+    assert.equal(validateUsdAmount("999999").valid, false);
+    assert.equal(
+      validateRecipientAccount("sb-buyer-nexus@personal.example.com").valid,
+      true
+    );
+    assert.equal(validateRecipientAccount("@nexus_user").valid, true);
+    assert.equal(validateRecipientAccount("not-an-email").valid, false);
+
+    const sameOriginHeaders = new Headers({ "sec-fetch-site": "same-origin" });
+    const crossSiteHeaders = new Headers({ "sec-fetch-site": "cross-site" });
+    assert.equal(isAllowedFetchSite(sameOriginHeaders), true);
+    assert.equal(isAllowedFetchSite(crossSiteHeaders), false);
   });
 });

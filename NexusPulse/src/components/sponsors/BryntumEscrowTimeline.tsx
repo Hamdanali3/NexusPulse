@@ -168,9 +168,13 @@ export default function BryntumEscrowTimeline({
   }
 
   return (
-    <div className="space-y-6">
+    <section aria-labelledby="engine-3-heading" className="space-y-6">
       {actionBanner && (
-        <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-4 py-3 text-xs text-emerald-200 flex items-center justify-between">
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-4 py-3 text-xs text-emerald-200 flex items-center justify-between"
+        >
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
             <span>{actionBanner.text}</span>
@@ -178,7 +182,7 @@ export default function BryntumEscrowTimeline({
           <button
             type="button"
             onClick={() => setActionBanner(null)}
-            className="text-emerald-400 hover:text-emerald-200 text-[11px] font-medium"
+            className="text-emerald-300 hover:text-white text-xs font-medium"
           >
             Dismiss
           </button>
@@ -189,17 +193,17 @@ export default function BryntumEscrowTimeline({
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-300">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
                 <Calendar className="h-3.5 w-3.5" />
                 Sponsor: Bryntum Gantt &amp; Cashflow Scheduler
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
                 <Lock className="h-3 w-3" />
                 PayPal Orders v2 AUTHORIZE + Trackers API
               </span>
             </div>
-            <h3 className="mt-1.5 text-lg font-bold text-white">
+            <h3 id="engine-3-heading" className="mt-1.5 text-lg font-bold text-white">
               Engine 3: Zero-Dispute A2A Smart Escrow Milestone Gantt
             </h3>
             <p className="text-xs text-slate-400">
@@ -212,14 +216,14 @@ export default function BryntumEscrowTimeline({
           <button
             type="button"
             onClick={() => setShowNewMilestoneModal((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 text-xs font-semibold text-white shadow-lg shadow-indigo-600/20 transition"
           >
             <Plus className="h-4 w-4" />
             New PayPal Auth Escrow Milestone
           </button>
         </div>
 
-        {/* New Milestone Modal / Drawer */}
+        {/* New Milestone Form Drawer */}
         {showNewMilestoneModal && (
           <form
             onSubmit={handleCreateEscrowMilestone}
@@ -239,10 +243,14 @@ export default function BryntumEscrowTimeline({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">
+                <label
+                  htmlFor="milestone-title-input"
+                  className="block text-xs text-slate-300 mb-1"
+                >
                   Milestone Title
                 </label>
                 <input
+                  id="milestone-title-input"
                   type="text"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
@@ -251,10 +259,14 @@ export default function BryntumEscrowTimeline({
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">
+                <label
+                  htmlFor="milestone-client-input"
+                  className="block text-xs text-slate-300 mb-1"
+                >
                   Client Agent Counterparty
                 </label>
                 <input
+                  id="milestone-client-input"
                   type="text"
                   value={newClientAgent}
                   onChange={(e) => setNewClientAgent(e.target.value)}
@@ -263,10 +275,14 @@ export default function BryntumEscrowTimeline({
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-slate-400 mb-1">
+                <label
+                  htmlFor="milestone-amount-input"
+                  className="block text-xs text-slate-300 mb-1"
+                >
                   Escrow Hold Amount (USD)
                 </label>
                 <input
+                  id="milestone-amount-input"
                   type="number"
                   step="0.01"
                   value={newAmount}
@@ -277,10 +293,14 @@ export default function BryntumEscrowTimeline({
               </div>
             </div>
             <div>
-              <label className="block text-[11px] text-slate-400 mb-1">
+              <label
+                htmlFor="milestone-req-input"
+                className="block text-xs text-slate-300 mb-1"
+              >
                 Cryptographic Verification Requirement (Evaluated by Gemini 4 Argon before Capture)
               </label>
               <input
+                id="milestone-req-input"
                 type="text"
                 value={newRequirement}
                 onChange={(e) => setNewRequirement(e.target.value)}
@@ -292,7 +312,7 @@ export default function BryntumEscrowTimeline({
               <button
                 type="submit"
                 disabled={creatingMilestone}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white transition"
               >
                 <Lock className="h-3.5 w-3.5" />
                 {creatingMilestone
@@ -307,7 +327,7 @@ export default function BryntumEscrowTimeline({
         <div className="mt-4 overflow-x-auto">
           <div className="min-w-[780px] rounded-xl border border-slate-800 bg-slate-950/90 overflow-hidden">
             {/* Timeline Date Scale Header */}
-            <div className="grid grid-cols-12 border-b border-slate-800 bg-slate-900/80 text-[11px] font-semibold text-slate-400">
+            <div className="grid grid-cols-12 border-b border-slate-800 bg-slate-900/80 text-xs font-semibold text-slate-400">
               <div className="col-span-4 px-3.5 py-2.5 border-r border-slate-800">
                 Bryntum WBS Task / PayPal Authorization ID
               </div>
@@ -318,7 +338,7 @@ export default function BryntumEscrowTimeline({
                 <div className="py-2.5 border-r border-slate-800/60">Nov 01–05</div>
                 <div className="py-2.5 border-r border-slate-800/60">Nov 06–10</div>
                 <div className="py-2.5 border-r border-slate-800/60 bg-indigo-950/30 text-indigo-300">
-                  Nov 11–15 (Hackathon)
+                  Nov 11–15 (Active)
                 </div>
                 <div className="py-2.5 border-r border-slate-800/60">Nov 16–20</div>
                 <div className="py-2.5 border-r border-slate-800/60">Nov 21–25</div>
@@ -336,7 +356,16 @@ export default function BryntumEscrowTimeline({
                 return (
                   <div
                     key={m.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedMilestoneId(m.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedMilestoneId(m.id);
+                      }
+                    }}
                     className={`grid grid-cols-12 items-center text-xs transition cursor-pointer ${
                       isSelected
                         ? "bg-indigo-950/35"
@@ -345,14 +374,14 @@ export default function BryntumEscrowTimeline({
                   >
                     <div className="col-span-4 px-3.5 py-3 border-r border-slate-800">
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-[10px] font-mono text-slate-300">
+                        <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-xs font-mono text-slate-300">
                           1.{idx + 1}
                         </span>
                         <span className="font-semibold text-white truncate">
                           {m.project_name}
                         </span>
                       </div>
-                      <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-400">
+                      <div className="mt-1 flex items-center gap-2 text-xs text-slate-400">
                         <span className="font-mono text-indigo-300">
                           Auth: {m.paypal_authorization_id}
                         </span>
@@ -361,12 +390,12 @@ export default function BryntumEscrowTimeline({
                       </div>
                     </div>
 
-                    <div className="col-span-2 px-3 py-3 border-r border-slate-800 text-right">
+                    <div className="col-span-2 px-3 py-3 border-r border-slate-800 text-right tabular-nums">
                       <div className="font-mono font-bold text-white">
                         ${m.amount.value} {m.amount.currency_code}
                       </div>
                       <span
-                        className={`inline-block mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                        className={`inline-block mt-0.5 rounded px-1.5 py-0.5 text-[11px] font-semibold ${
                           isCaptured
                             ? "bg-emerald-500/20 text-emerald-300"
                             : "bg-amber-500/20 text-amber-300"
@@ -389,7 +418,7 @@ export default function BryntumEscrowTimeline({
 
                       <div
                         style={{ left: pos.left, width: pos.width }}
-                        className={`relative z-10 h-7 rounded-lg border px-2.5 flex items-center justify-between text-[10px] font-semibold shadow-md transition-all ${
+                        className={`relative z-10 h-7 rounded-lg border px-2.5 flex items-center justify-between text-xs font-semibold shadow-md transition-all ${
                           isCaptured
                             ? "border-emerald-400/50 bg-gradient-to-r from-emerald-600/80 to-teal-600/80 text-white"
                             : "border-amber-400/50 bg-gradient-to-r from-amber-600/75 to-indigo-600/75 text-white"
@@ -399,7 +428,7 @@ export default function BryntumEscrowTimeline({
                           {m.id} ({m.progress_percent}%)
                         </span>
                         {m.dependencies && m.dependencies.length > 0 && (
-                          <span className="ml-1 rounded bg-black/30 px-1 py-0.2 font-mono text-[9px]">
+                          <span className="ml-1 rounded bg-black/30 px-1 py-0.5 font-mono text-[10px]">
                             dep→{m.dependencies.join(",")}
                           </span>
                         )}
@@ -425,11 +454,11 @@ export default function BryntumEscrowTimeline({
                     {selectedMilestone.project_name}
                   </h4>
                 </div>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-300">
                   <strong>Requirement:</strong>{" "}
                   {selectedMilestone.deliverable_requirement}
                 </p>
-                <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
                   <span>
                     PayPal Order:{" "}
                     <code className="text-slate-200">
@@ -460,7 +489,7 @@ export default function BryntumEscrowTimeline({
                 </div>
               </div>
 
-              <div className="text-right">
+              <div className="text-right tabular-nums">
                 <div className="text-xs text-slate-400">Authorized Hold</div>
                 <div className="text-xl font-bold text-white">
                   ${selectedMilestone.amount.value}{" "}
@@ -471,11 +500,15 @@ export default function BryntumEscrowTimeline({
 
             {selectedMilestone.status !== "AI_VERIFIED_CAPTURED" ? (
               <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-3">
-                <label className="block text-xs font-medium text-slate-300">
+                <label
+                  htmlFor="deliverable-proof-input"
+                  className="block text-xs font-medium text-slate-300"
+                >
                   Submit Cryptographic Deliverable Evidence for Gemini 4 Argon Audit &amp; Automatic PayPal Capture:
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2.5">
                   <input
+                    id="deliverable-proof-input"
                     type="text"
                     value={deliverableInput}
                     onChange={(e) => setDeliverableInput(e.target.value)}
@@ -486,7 +519,7 @@ export default function BryntumEscrowTimeline({
                     type="button"
                     disabled={verifyingId === selectedMilestone.id}
                     onClick={() => handleVerifyAndCapture(selectedMilestone)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-600/20 transition cursor-pointer shrink-0"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-600/20 transition shrink-0"
                   >
                     <Sparkles className="h-4 w-4" />
                     {verifyingId === selectedMilestone.id
@@ -515,7 +548,7 @@ export default function BryntumEscrowTimeline({
         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-amber-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
                 <TrendingDown className="h-3.5 w-3.5" />
                 PayPal Subscriptions v1 API
               </span>
@@ -537,11 +570,11 @@ export default function BryntumEscrowTimeline({
             >
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[11px] text-slate-400">
+                  <span className="font-mono text-xs text-slate-400">
                     {sub.id}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                       sub.status === "ACTIVE"
                         ? "bg-emerald-500/15 text-emerald-300"
                         : "bg-slate-700 text-slate-300"
@@ -556,28 +589,28 @@ export default function BryntumEscrowTimeline({
                 </h4>
                 <p className="text-xs text-slate-400">{sub.merchant_name}</p>
 
-                <div className="mt-3 flex items-baseline justify-between border-y border-slate-800/80 py-2">
+                <div className="mt-3 flex items-baseline justify-between border-y border-slate-800/80 py-2 tabular-nums">
                   <div>
-                    <div className="text-[10px] text-slate-400">Current Rate</div>
+                    <div className="text-xs text-slate-400">Current Rate</div>
                     <div className="text-sm font-bold text-white">
                       ${sub.billing_amount.value}/mo
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] text-slate-400">Benchmark</div>
+                    <div className="text-xs text-slate-400">Benchmark</div>
                     <div className="text-sm font-semibold text-emerald-400">
                       ${sub.market_benchmark_amount.value}/mo
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-slate-400">AI Savings</div>
+                    <div className="text-xs text-slate-400">AI Savings</div>
                     <div className="text-sm font-bold text-amber-300">
                       +${sub.potential_monthly_savings.value}/mo
                     </div>
                   </div>
                 </div>
 
-                <p className="mt-2.5 text-[11px] text-slate-300 leading-relaxed">
+                <p className="mt-2.5 text-xs text-slate-300 leading-relaxed">
                   <strong className="text-indigo-300">Gemini Audit:</strong>{" "}
                   {sub.ai_rationale}
                 </p>
@@ -597,7 +630,7 @@ export default function BryntumEscrowTimeline({
                           : "REVISE_DOWNGRADE"
                       )
                     }
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 px-3 py-1.5 text-xs font-semibold text-amber-200 transition cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 px-3 py-2 text-xs font-semibold text-amber-200 transition"
                   >
                     <RefreshCw
                       className={`h-3.5 w-3.5 ${
@@ -611,7 +644,7 @@ export default function BryntumEscrowTimeline({
                       : `Auto-Revise Plan (+$${sub.potential_monthly_savings.value}/mo)`}
                   </button>
                 ) : (
-                  <div className="w-full rounded-lg bg-emerald-950/30 border border-emerald-500/30 px-3 py-1.5 text-center text-[11px] font-medium text-emerald-300">
+                  <div className="w-full rounded-lg bg-emerald-950/30 border border-emerald-500/30 px-3 py-2 text-center text-xs font-medium text-emerald-300">
                     ✓ Optimized via PayPal Subscriptions API
                   </div>
                 )}
@@ -620,6 +653,6 @@ export default function BryntumEscrowTimeline({
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

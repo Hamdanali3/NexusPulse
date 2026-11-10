@@ -219,22 +219,25 @@ export default function AgGridFinancialCommandCenter({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+    <section
+      aria-labelledby="aggrid-heading"
+      className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl"
+    >
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-300">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
               <Layers className="h-3 w-3" />
               Sponsor Integration: AG Grid Enterprise Telemetry (v36.3.0)
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-300">
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
               <ShieldCheck className="h-3 w-3" />
-              PayPal Reporting & Orders v2 Synced
+              PayPal Reporting &amp; Orders v2 Synced
             </span>
           </div>
-          <h2 className="mt-1.5 text-lg font-bold text-white">
-            AG Grid Unified PayPal Financial & Agentic Telemetry Command Center
+          <h2 id="aggrid-heading" className="mt-1.5 text-lg font-bold text-white">
+            AG Grid Unified PayPal Financial &amp; Agentic Telemetry Command Center
           </h2>
           <p className="text-xs text-slate-400">
             Real-time multi-endpoint relational grid across{" "}
@@ -272,7 +275,11 @@ export default function AgGridFinancialCommandCenter({
 
       {/* Endpoint Tabs + Quick Search + Engine Filter */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div
+          role="tablist"
+          aria-label="PayPal Ledger Endpoint Views"
+          className="flex flex-wrap gap-1.5"
+        >
           {(
             [
               {
@@ -300,8 +307,10 @@ export default function AgGridFinancialCommandCenter({
             <button
               key={t.id}
               type="button"
+              role="tab"
+              aria-selected={activeTab === t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-xl px-3 py-2 text-xs font-semibold transition ${
                 activeTab === t.id
                   ? "bg-sky-500 text-slate-950 shadow"
                   : "border border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800"
@@ -314,9 +323,13 @@ export default function AgGridFinancialCommandCenter({
 
         <div className="flex flex-wrap items-center gap-2">
           {activeTab === "transactions" && (
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950/80 px-2.5 py-1 text-xs">
+            <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950/80 px-2.5 py-1.5 text-xs">
               <Filter className="h-3.5 w-3.5 text-slate-400" />
+              <label htmlFor="aggrid-engine-filter" className="visually-hidden">
+                Filter transactions by Nexus Engine
+              </label>
               <select
+                id="aggrid-engine-filter"
                 value={engineFilter}
                 onChange={(e) => setEngineFilter(e.target.value)}
                 className="bg-transparent text-xs text-slate-200 focus:outline-none"
@@ -325,7 +338,7 @@ export default function AgGridFinancialCommandCenter({
                   All Engines
                 </option>
                 <option value="AUTOPILOT_CFO" className="bg-slate-900">
-                  Autopilot CFO & Deal-Hunter
+                  Autopilot CFO &amp; Deal-Hunter
                 </option>
                 <option value="PROOF_OF_HUMAN_BOUNTY" className="bg-slate-900">
                   Proof-of-Human Bounties
@@ -341,13 +354,17 @@ export default function AgGridFinancialCommandCenter({
           )}
 
           <div className="relative">
+            <label htmlFor="aggrid-quick-search" className="visually-hidden">
+              Quick search PayPal IDs, T-codes, and amounts
+            </label>
             <Search className="pointer-events-none absolute left-3 top-2 h-3.5 w-3.5 text-slate-400" />
             <input
-              type="text"
+              id="aggrid-quick-search"
+              type="search"
               value={quickFilterText}
               onChange={(e) => setQuickFilterText(e.target.value)}
               placeholder="Search PayPal IDs, T-codes, amounts..."
-              className="w-64 rounded-xl border border-slate-800 bg-slate-950/90 py-1.5 pl-8 pr-3 text-xs text-slate-100 placeholder-slate-500 focus:border-sky-500 focus:outline-none"
+              className="w-64 rounded-xl border border-slate-800 bg-slate-950/90 py-1.5 pl-8 pr-3 text-xs text-slate-100 placeholder-slate-500 focus:border-sky-500"
             />
           </div>
         </div>
@@ -396,6 +413,6 @@ export default function AgGridFinancialCommandCenter({
           />
         )}
       </div>
-    </div>
+    </section>
   );
 }

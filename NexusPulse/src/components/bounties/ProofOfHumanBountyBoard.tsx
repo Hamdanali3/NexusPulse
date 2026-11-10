@@ -91,21 +91,21 @@ export default function ProofOfHumanBountyBoard({
   }
 
   return (
-    <div className="space-y-6">
+    <section aria-labelledby="engine-2-heading" className="space-y-6">
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-300">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
                 <UserCheck className="h-3.5 w-3.5" />
                 50-Year AGI Bridge: Proof-of-Human Oracle Protocol
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 text-[11px] font-medium text-sky-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 text-xs font-medium text-sky-300">
                 <DollarSign className="h-3 w-3" />
                 PayPal Payouts v1 API (POST /v1/payments/payouts)
               </span>
             </div>
-            <h3 className="mt-1.5 text-lg font-bold text-white">
+            <h3 id="engine-2-heading" className="mt-1.5 text-lg font-bold text-white">
               Engine 2: Proof-of-Human Oracle Micro-Bounties &amp; Instant PayPal Payouts
             </h3>
             <p className="text-xs text-slate-400">
@@ -120,11 +120,23 @@ export default function ProofOfHumanBountyBoard({
             {bounties.map((bounty) => {
               const isSelected = selectedBounty?.id === bounty.id;
               const isPaid = bounty.status === "PAID_OUT";
+              const hourlyYield = Math.round(
+                (Number(bounty.reward.value) / Math.max(15, bounty.estimated_seconds)) * 3600
+              );
 
               return (
                 <div
                   key={bounty.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected}
                   onClick={() => handleSelectBounty(bounty)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleSelectBounty(bounty);
+                    }
+                  }}
                   className={`rounded-xl border p-4 transition cursor-pointer ${
                     isSelected
                       ? "border-emerald-500/60 bg-emerald-950/20 shadow-lg shadow-emerald-950/30"
@@ -134,13 +146,13 @@ export default function ProofOfHumanBountyBoard({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-[10px] text-slate-300">
+                        <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-xs text-slate-300">
                           {bounty.id}
                         </span>
-                        <span className="rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2 py-0.5 text-[10px] font-semibold text-indigo-300">
+                        <span className="rounded-full bg-indigo-500/15 border border-indigo-500/30 px-2 py-0.5 text-xs font-semibold text-indigo-300">
                           {bounty.category.replace(/_/g, " ")}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-400">
+                        <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                           <MapPin className="h-3 w-3 text-slate-500" />
                           {bounty.location_scope}
                         </span>
@@ -148,7 +160,7 @@ export default function ProofOfHumanBountyBoard({
                       <h4 className="mt-1.5 text-sm font-bold text-white">
                         {bounty.title}
                       </h4>
-                      <p className="mt-0.5 text-[11px] text-slate-400">
+                      <p className="mt-0.5 text-xs text-slate-400">
                         Requester:{" "}
                         <strong className="text-slate-200">
                           {bounty.requester_agent}
@@ -157,28 +169,31 @@ export default function ProofOfHumanBountyBoard({
                       </p>
                     </div>
 
-                    <div className="text-right shrink-0">
+                    <div className="text-right shrink-0 tabular-nums">
                       <div className="text-lg font-extrabold text-emerald-400">
                         +${bounty.reward.value}
                       </div>
-                      <div className="inline-flex items-center gap-1 text-[10px] text-slate-400">
+                      <div className="inline-flex items-center gap-1 text-xs text-slate-400">
                         <Clock className="h-3 w-3" />~{bounty.estimated_seconds}s
-                        task
+                        {" · "}
+                        <span className="text-emerald-300 font-semibold">
+                          ~${hourlyYield.toLocaleString()}/hr
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
                     <span className="text-slate-400 truncate max-w-[65%]">
                       {bounty.prompt_instructions}
                     </span>
                     {isPaid ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300 shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 shrink-0">
                         <CheckCircle2 className="h-3 w-3" />
                         PAID ({bounty.payout_batch_id})
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-sky-300 shrink-0">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 text-xs font-semibold text-sky-300 shrink-0">
                         OPEN FOR ORACLE
                       </span>
                     )}
@@ -197,15 +212,15 @@ export default function ProofOfHumanBountyBoard({
               >
                 <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
                   <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
                       Oracle Verification &amp; Instant Payout Console
                     </span>
                     <h4 className="mt-0.5 text-base font-bold text-white">
                       {selectedBounty.title}
                     </h4>
                   </div>
-                  <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-right">
-                    <div className="text-[10px] text-emerald-300">
+                  <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-right tabular-nums shrink-0">
+                    <div className="text-xs text-emerald-300">
                       Instant Reward
                     </div>
                     <div className="text-base font-extrabold text-emerald-400">
@@ -224,7 +239,7 @@ export default function ProofOfHumanBountyBoard({
                       (criterion, idx) => (
                         <li
                           key={idx}
-                          className="flex items-center gap-2 text-xs text-slate-400"
+                          className="flex items-center gap-2 text-xs text-slate-300"
                         >
                           <ShieldCheck className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
                           <span>{criterion}</span>
@@ -235,28 +250,37 @@ export default function ProofOfHumanBountyBoard({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label
+                    htmlFor="bounty-evidence-textarea"
+                    className="block text-xs font-semibold text-slate-300 mb-1.5"
+                  >
                     Human Ground-Truth Telemetry / Audit Evidence:
                   </label>
                   <textarea
+                    id="bounty-evidence-textarea"
                     rows={4}
                     value={evidenceText}
                     onChange={(e) => setEvidenceText(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 p-3 text-xs text-white leading-relaxed focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-900 p-3 text-xs text-white leading-relaxed focus:border-emerald-500"
                     placeholder="Enter your ground-truth observation, sensor telemetry, or code review findings..."
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label
+                    htmlFor="bounty-recipient-email"
+                    className="block text-xs font-semibold text-slate-300 mb-1"
+                  >
                     PayPal / Venmo Payout Recipient Email:
                   </label>
                   <input
+                    id="bounty-recipient-email"
                     type="email"
+                    autoComplete="email"
                     value={receiverEmail}
                     onChange={(e) => setReceiverEmail(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs text-white focus:border-emerald-500"
                     required
                   />
                 </div>
@@ -264,7 +288,7 @@ export default function ProofOfHumanBountyBoard({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 transition cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 transition"
                 >
                   <Sparkles className="h-4 w-4" />
                   {submitting
@@ -274,7 +298,11 @@ export default function ProofOfHumanBountyBoard({
 
                 {/* Verification & Payout Receipt */}
                 {(lastResult || selectedBounty.verification_result) && (
-                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/25 p-3.5 space-y-2 text-xs">
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-xl border border-emerald-500/40 bg-emerald-950/25 p-3.5 space-y-2 text-xs"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="inline-flex items-center gap-1.5 font-bold text-emerald-300">
                         <Award className="h-4 w-4 text-emerald-400" />
@@ -283,19 +311,19 @@ export default function ProofOfHumanBountyBoard({
                           selectedBounty.verification_result?.score}
                         /100 (PASSED)
                       </span>
-                      <span className="font-mono text-[11px] text-indigo-300">
+                      <span className="font-mono text-xs text-indigo-300">
                         Model:{" "}
                         {lastResult?.gemini_model ??
                           selectedBounty.verification_result?.gemini_model}
                       </span>
                     </div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                    <p className="text-slate-200 text-xs leading-relaxed">
                       {lastResult?.reasoning ??
                         selectedBounty.verification_result?.reasoning}
                     </p>
                     {(lastResult?.payout_batch_id ||
                       selectedBounty.payout_batch_id) && (
-                      <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-[11px] text-emerald-300 font-mono">
+                      <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300 font-mono">
                         <span>
                           PayPal Payout Batch:{" "}
                           {lastResult?.payout_batch_id ??
@@ -314,7 +342,7 @@ export default function ProofOfHumanBountyBoard({
 
       {/* RECENT PAYPAL PAYOUTS V1 BATCH HISTORY */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 shadow-xl">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Send className="h-4 w-4 text-emerald-400" />
             <h4 className="text-sm font-bold text-white">
@@ -336,11 +364,11 @@ export default function ProofOfHumanBountyBoard({
                 <span className="font-mono font-bold text-emerald-400">
                   {p.payout_batch_id}
                 </span>
-                <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-300">
                   {p.batch_status}
                 </span>
               </div>
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline justify-between tabular-nums">
                 <span className="text-slate-400 truncate max-w-[65%]">
                   {p.receiver}
                 </span>
@@ -348,8 +376,8 @@ export default function ProofOfHumanBountyBoard({
                   +${p.amount.value} {p.amount.currency_code}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 truncate">{p.note}</p>
-              <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-1 border-t border-slate-800/70">
+              <p className="text-xs text-slate-400 truncate">{p.note}</p>
+              <div className="flex items-center justify-between text-xs text-slate-400 font-mono pt-1 border-t border-slate-800/70">
                 <span>ReqID: {p.paypal_request_id.slice(0, 14)}...</span>
                 <span>Mode: {p.mode.toUpperCase()}</span>
               </div>
@@ -357,6 +385,6 @@ export default function ProofOfHumanBountyBoard({
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
