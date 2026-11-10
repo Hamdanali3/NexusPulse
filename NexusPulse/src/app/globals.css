@@ -1,22 +1,69 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: dark;
+/* =========================================================================
+   NEXUSPULSE WHITE BACKGROUND DESIGN SYSTEM (STRIPE, MERCURY & NORDIC)
+   ========================================================================= */
+
+:root,
+[data-theme="stripe"] {
+  color-scheme: light;
   interpolate-size: allow-keywords;
   --font-fluid-hero: clamp(1.4rem, 1.05rem + 1.25vw, 2.05rem);
   --font-fluid-title: clamp(1.05rem, 0.95rem + 0.45vw, 1.35rem);
-  --surface-primary: #030712;
-  --surface-elevated: #080c16;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --in-oklab: ;
-  --in-oklch: ;
+
+  /* Theme 1: Stripe Pure Light (Default) */
+  --theme-bg-canvas: #ffffff;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-hover: #f8fafc;
+  --theme-bg-subtle: #f8fafc;
+  --theme-border-card: #e2e8f0;
+  --theme-border-subtle: #f1f5f9;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #64748b;
+  --theme-brand-accent: #0284c7;
+  --theme-brand-accent-bg: #f0f9ff;
+  --theme-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 10px 25px -5px rgba(0, 0, 0, 0.04);
+  --theme-ambient-glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14, 165, 233, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 15%, rgba(99, 102, 241, 0.05), transparent 50%);
 }
 
-@supports (background: linear-gradient(in oklab, white, black)) {
-  :root {
-    --in-oklab: in oklab;
-    --in-oklch: in oklch;
-  }
+[data-theme="mercury"] {
+  color-scheme: light;
+  /* Theme 2: Mercury Ivory Light */
+  --theme-bg-canvas: #fafaf8;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-hover: #fcfcfb;
+  --theme-bg-subtle: #f5f5f3;
+  --theme-border-card: #e7e5e4;
+  --theme-border-subtle: #f5f5f4;
+  --theme-text-primary: #1c1917;
+  --theme-text-secondary: #57534e;
+  --theme-text-muted: #78716c;
+  --theme-brand-accent: #d97706;
+  --theme-brand-accent-bg: #fffbeb;
+  --theme-shadow-card: 0 1px 3px 0 rgba(28, 25, 23, 0.05), 0 10px 25px -5px rgba(28, 25, 23, 0.04);
+  --theme-ambient-glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217, 119, 6, 0.08), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 15%, rgba(180, 83, 9, 0.05), transparent 50%);
+}
+
+[data-theme="nordic"] {
+  color-scheme: light;
+  /* Theme 3: Nordic Frost Light */
+  --theme-bg-canvas: #f8fafc;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-hover: #f1f5f9;
+  --theme-bg-subtle: #f1f5f9;
+  --theme-border-card: #cbd5e1;
+  --theme-border-subtle: #e2e8f0;
+  --theme-text-primary: #020617;
+  --theme-text-secondary: #334155;
+  --theme-text-muted: #64748b;
+  --theme-brand-accent: #0284c7;
+  --theme-brand-accent-bg: #e0f2fe;
+  --theme-shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+  --theme-ambient-glow: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6, 182, 212, 0.09), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 15%, rgba(59, 130, 246, 0.06), transparent 50%);
 }
 
 html {
@@ -27,20 +74,17 @@ html {
 }
 
 body {
-  background-color: var(--surface-primary);
-  background-image: radial-gradient(
-    ellipse 80% 50% at 50% -15%,
-    rgba(56, 189, 248, 0.09),
-    transparent
-  );
-  color: #f8fafc;
+  background-color: var(--theme-bg-canvas) !important;
+  background-image: var(--theme-ambient-glow) !important;
+  color: var(--theme-text-primary) !important;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   overflow-x: clip;
+  transition: background-color 250ms ease, color 250ms ease;
 }
 
-/* Text wrapping & legibility (modern-web-guidance: typography & improve-text-layout-and-legibility) */
+/* Typography balancing */
 h1,
 h2,
 h3,
@@ -56,12 +100,78 @@ dd {
   text-wrap: pretty;
 }
 
-/* Tabular numbers for financial amounts, metrics, and counters */
+/* Tabular numbers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Screen-reader-only utility that reveals on focus (modern-web-guidance: accessibility) */
+/* Universal Light Theme Card & Container Rules */
+section[aria-labelledby],
+section[aria-label],
+.rounded-3xl.border,
+.rounded-2xl.border,
+.rounded-xl.border {
+  background-color: var(--theme-bg-card) !important;
+  border-color: var(--theme-border-card) !important;
+  box-shadow: var(--theme-shadow-card) !important;
+  color: var(--theme-text-primary);
+}
+
+/* Universal Text Contrast Overrides for White Background */
+.text-white,
+.text-slate-100 {
+  color: var(--theme-text-primary) !important;
+}
+
+.text-slate-400,
+.text-slate-300 {
+  color: var(--theme-text-secondary) !important;
+}
+
+/* Inputs & Form Controls */
+input, select, textarea {
+  background-color: var(--theme-bg-subtle) !important;
+  border-color: var(--theme-border-card) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  background-color: #ffffff !important;
+  border-color: var(--theme-brand-accent) !important;
+  outline: 2px solid var(--theme-brand-accent) !important;
+  outline-offset: 1px;
+}
+
+/* Solid Dark Action Buttons on White Background */
+.btn-primary {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover {
+  background-color: #1e293b !important;
+}
+
+/* Badge Refinements on White Background */
+.badge-sky {
+  background-color: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+
+.badge-emerald {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #15803d !important;
+}
+
+.badge-indigo {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #4338ca !important;
+}
+
+/* Accessibility Skip Link */
 .visually-hidden:where(:not(:focus-within, :active)) {
   clip-path: inset(50%);
   height: 1px;
@@ -78,22 +188,22 @@ dd {
   z-index: 9999;
   padding: 0.625rem 1rem;
   border-radius: 0.75rem;
-  background-color: #10b981;
-  color: #020617;
+  background-color: #0284c7;
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5);
-  outline: 2px solid #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.5);
+  outline: 2px solid #0f172a;
   outline-offset: 2px;
 }
 
-/* High-contrast keyboard focus indicator (modern-web-guidance: accessibility & natural-interactions) */
+/* Keyboard focus indicators */
 :where(a, button, input, select, textarea, summary, [role="tab"], [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid #0284c7;
   outline-offset: 2px;
 }
 
-/* Individual transform properties with base identity transforms (modern-web-guidance: individual-transform-properties) */
+/* Micro-transitions */
 .logo-mark,
 .interactive-card,
 .kpi-card {
@@ -127,7 +237,7 @@ dd {
   0%,
   100% {
     stroke-dashoffset: 0;
-    opacity: 0.92;
+    opacity: 0.95;
   }
   50% {
     stroke-dashoffset: 18;
@@ -135,9 +245,9 @@ dd {
   }
 }
 
-/* Smooth Entrance Animation for Minimalist Sections & Drawers */
+/* Smooth Entrance Animation */
 .nexus-fade-in {
-  animation: nexusFadeUp 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: nexusFadeUp 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes nexusFadeUp {
@@ -151,7 +261,7 @@ dd {
   }
 }
 
-/* Subtle tactile press feedback for interactive buttons (modern-web-guidance: natural-interactions) */
+/* Natural interactions */
 button:not(:disabled) {
   cursor: pointer;
   translate: 0px 0px;
@@ -169,7 +279,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Balanced pill rows (modern-web-guidance: css-layout) */
+/* Balanced pills */
 .balanced-pills {
   display: flex;
   flex-wrap: wrap;
@@ -177,40 +287,7 @@ button:disabled {
   gap: 0.5rem;
 }
 
-/* Non-color-only active tab indicator (modern-web-guidance: tabs & accessibility) */
-[role="tab"] {
-  position: relative;
-}
-
-[role="tab"][aria-selected="true"]::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0;
-  height: 2px;
-  border-radius: 9999px;
-  background-color: currentColor;
-}
-
-/* Native <dialog> modal scroll containment & backdrop (modern-web-guidance: dialog) */
-dialog:modal {
-  overscroll-behavior: contain;
-  margin: auto;
-  border: none;
-  background: transparent;
-  padding: 0;
-  max-width: min(92vw, 30rem);
-  width: 100%;
-}
-
-dialog::backdrop {
-  overscroll-behavior: contain;
-  background: rgba(2, 6, 23, 0.82);
-  backdrop-filter: blur(6px);
-}
-
-/* MANDATORY Motion-Sensitivity Safety (modern-web-guidance: animate-to-intrinsic-sizes) */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -222,21 +299,21 @@ dialog::backdrop {
   }
 }
 
-/* Custom sleek scrollbar for AG Grid and Bryntum Timeline */
+/* Clean light scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #94a3b8;
 }

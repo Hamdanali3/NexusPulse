@@ -10,9 +10,9 @@ interface NexusPulseLogoProps {
 }
 
 /**
- * World-class bespoke SVG brand emblem for NexusPulse.
+ * World-class bespoke brand emblem for NexusPulse.
  * Geometric squircle housing the 3-node clearinghouse network with an animated pulse wave.
- * Clicking the logo smoothly navigates to the homepage and resets to the overview.
+ * High-contrast, sharp, and pixel-perfect on both light and white background themes.
  */
 export default function NexusPulseLogo({
   onNavigateHome,
@@ -43,7 +43,7 @@ export default function NexusPulseLogo({
       className="group inline-flex items-center gap-2.5 rounded-lg py-1 pr-1 focus:outline-none transition-transform duration-200"
     >
       <div
-        className={`logo-mark relative ${dimensions} shrink-0 rounded-xl bg-slate-950 p-0.5 shadow-sm shadow-sky-500/10 ring-1 ring-white/10 transition-all duration-300 group-hover:ring-sky-400/50 group-hover:shadow-sky-500/20`}
+        className={`logo-mark relative ${dimensions} shrink-0 rounded-xl bg-slate-950 p-0.5 shadow-sm shadow-sky-500/10 ring-1 ring-slate-800 transition-all duration-300 group-hover:ring-sky-500/60 group-hover:shadow-sky-500/20`}
       >
         <svg
           viewBox="0 0 64 64"
@@ -94,8 +94,8 @@ export default function NexusPulseLogo({
           {/* Isometric Hexagon Clearinghouse Mesh */}
           <polygon
             points="32,12 49,22 49,42 32,52 15,42 15,22"
-            fill="rgba(14, 165, 233, 0.06)"
-            stroke="rgba(148, 163, 184, 0.2)"
+            fill="rgba(14, 165, 233, 0.08)"
+            stroke="rgba(148, 163, 184, 0.25)"
             strokeWidth="1.2"
           />
 
@@ -117,11 +117,11 @@ export default function NexusPulseLogo({
       </div>
 
       <div className="flex flex-col text-left">
-        <span className="text-base sm:text-lg font-bold tracking-tight text-white transition-colors group-hover:text-sky-100">
-          Nexus<span className="text-sky-400">Pulse</span>
+        <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 transition-colors group-hover:text-sky-600">
+          Nexus<span className="text-sky-600">Pulse</span>
         </span>
         {showTagline && (
-          <span className="text-[11px] font-medium text-slate-400">
+          <span className="text-[11px] font-medium text-slate-500">
             Autonomous Financial Clearinghouse
           </span>
         )}

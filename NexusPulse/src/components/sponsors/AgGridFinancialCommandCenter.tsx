@@ -15,14 +15,14 @@ import type {
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const darkGridTheme = themeQuartz.withParams({
-  backgroundColor: "#090d16",
-  foregroundColor: "#e2e8f0",
-  headerBackgroundColor: "#0f172a",
-  headerTextColor: "#94a3b8",
-  oddRowBackgroundColor: "#0b1120",
-  borderColor: "#1e293b",
-  accentColor: "#38bdf8",
+const lightGridTheme = themeQuartz.withParams({
+  backgroundColor: "#ffffff",
+  foregroundColor: "#0f172a",
+  headerBackgroundColor: "#f8fafc",
+  headerTextColor: "#475569",
+  oddRowBackgroundColor: "#fbfcfd",
+  borderColor: "#e2e8f0",
+  accentColor: "#0284c7",
   fontSize: 12,
 });
 
@@ -371,10 +371,10 @@ export default function AgGridFinancialCommandCenter({
       </div>
 
       {/* AG Grid Canvas */}
-      <div className="mt-3 h-[340px] w-full overflow-hidden rounded-xl border border-slate-800">
+      <div className="mt-3 h-[340px] w-full overflow-hidden rounded-xl border border-slate-200">
         {activeTab === "transactions" && (
           <AgGridReact<PayPalLedgerTransaction>
-            theme={darkGridTheme}
+            theme={lightGridTheme}
             rowData={filteredTransactions}
             columnDefs={transactionCols}
             quickFilterText={quickFilterText}
@@ -384,7 +384,7 @@ export default function AgGridFinancialCommandCenter({
         )}
         {activeTab === "orders" && (
           <AgGridReact<PayPalOrderRecord>
-            theme={darkGridTheme}
+            theme={lightGridTheme}
             rowData={state.orders}
             columnDefs={orderCols}
             quickFilterText={quickFilterText}
@@ -394,7 +394,7 @@ export default function AgGridFinancialCommandCenter({
         )}
         {activeTab === "payouts" && (
           <AgGridReact<PayPalPayoutRecord>
-            theme={darkGridTheme}
+            theme={lightGridTheme}
             rowData={state.payouts}
             columnDefs={payoutCols}
             quickFilterText={quickFilterText}
@@ -404,7 +404,7 @@ export default function AgGridFinancialCommandCenter({
         )}
         {activeTab === "invoices" && (
           <AgGridReact<PayPalInvoiceRecord>
-            theme={darkGridTheme}
+            theme={lightGridTheme}
             rowData={state.invoices}
             columnDefs={invoiceCols}
             quickFilterText={quickFilterText}
