@@ -5,6 +5,7 @@ import {
   resolveActivePayPalMode,
 } from "@/lib/paypal/paypal-gateway";
 import { generatePayPalId, getMirrorState } from "@/lib/paypal/paypal-sandbox-mirror";
+import { syncEscrowToSupabase } from "@/lib/db/supabase-client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
       };
 
       state.escrowMilestones.unshift(newMilestone);
+      syncEscrowToSupabase(newMilestone).catch(() => {});
       state.totalEscrowProtectedUsd = Number(
         (state.totalEscrowProtectedUsd + Number(amountVal)).toFixed(2)
       );
@@ -105,6 +107,7 @@ export async function POST(req: NextRequest) {
       body.submittedProof ||
       "Deliverable verified with SHA-256 artifact hash and shipment tracking attached via POST /v2/checkout/orders/{id}/track.";
     ms.ai_audit_notes = `Gemini 4 Argon audited deliverable against contract requirement ('${ms.deliverable_requirement.slice(0, 60)}...'). Shipment Tracker ${trackingNum} (${carrier}) attached. PayPal Capture #${capturedOrder.capture_id} completed.`;
+    syncEscrowToSupabase(ms).catch(() => {});
 
     // Mark linked invoice as PAID
     const linkedInvoice = state.invoices.find((inv) => inv.escrow_milestone_id === ms.id);

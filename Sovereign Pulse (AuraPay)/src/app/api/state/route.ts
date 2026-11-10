@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateBrowserClientToken, hasLiveSandboxCredentials } from "@/lib/paypal/paypal-client";
 import { resolveActivePayPalMode, setRuntimePayPalCredentials } from "@/lib/paypal/paypal-gateway";
 import { getMirrorState, resetMirrorState } from "@/lib/paypal/paypal-sandbox-mirror";
+import { isSupabaseConfigured, loadStateFromSupabase } from "@/lib/db/supabase-client";
 
 export async function GET() {
-  const state = getMirrorState();
+  const supabaseState = isSupabaseConfigured() ? await loadStateFromSupabase() : null;
+  const state = supabaseState || getMirrorState();
   const activeMode = resolveActivePayPalMode();
   const hasLive = hasLiveSandboxCredentials();
   const clientToken = await generateBrowserClientToken().catch(() => "mirror_client_token");
@@ -17,6 +19,8 @@ export async function GET() {
     paypalClientId: process.env.PAYPAL_CLIENT_ID || "sb-mirror-client-id",
     clientToken,
     geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+    supabaseConfigured: isSupabaseConfigured(),
+    database: isSupabaseConfigured() ? "supabase_postgres" : "in_memory_mirror",
     state,
   });
 }
@@ -36,14 +40,19 @@ export async function POST(req: NextRequest) {
       activeMode: resolveActivePayPalMode(),
       hasLiveCredentials: hasLiveSandboxCredentials(),
       preferredMode: fresh.preferredMode,
+      supabaseConfigured: isSupabaseConfigured(),
+      database: isSupabaseConfigured() ? "supabase_postgres" : "in_memory_mirror",
       state: fresh,
     });
   }
 
   const updated = setRuntimePayPalCredentials(body);
+  const supabaseState = isSupabaseConfigured() ? await loadStateFromSupabase() : null;
   return NextResponse.json({
     ok: true,
     ...updated,
-    state: getMirrorState(),
+    supabaseConfigured: isSupabaseConfigured(),
+    database: isSupabaseConfigured() ? "supabase_postgres" : "in_memory_mirror",
+    state: supabaseState || getMirrorState(),
   });
 }

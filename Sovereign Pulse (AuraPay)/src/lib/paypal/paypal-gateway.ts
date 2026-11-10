@@ -12,6 +12,11 @@ import {
   mirrorCreatePayout,
   mirrorOptimizeSubscription,
 } from "./paypal-sandbox-mirror";
+import {
+  syncOrderToSupabase,
+  syncPayoutToSupabase,
+  syncSubscriptionToSupabase,
+} from "../db/supabase-client";
 import type {
   PayPalExecutionMode,
   PayPalOrderRecord,
@@ -81,16 +86,19 @@ export async function gatewayCreateOrder(params: {
       if (order.id) {
         record.id = order.id;
       }
+      syncOrderToSupabase(record).catch(() => {});
       return record;
     } catch (err) {
       console.warn("[Dual-Mode Gateway] Live Sandbox createOrder fell back to Mirror:", err);
     }
   }
 
-  return mirrorCreateOrder({
+  const record = mirrorCreateOrder({
     ...params,
     mode: "mirror",
   });
+  syncOrderToSupabase(record).catch(() => {});
+  return record;
 }
 
 /**
@@ -125,20 +133,24 @@ export async function gatewayCaptureOrAuthorizeOrder(params: {
             prefer: "return=representation",
           });
         }
-        return mirrorCaptureOrAuthorizeOrder({
+        const captured = mirrorCaptureOrAuthorizeOrder({
           ...params,
           mode: "sandbox",
         });
+        syncOrderToSupabase(captured).catch(() => {});
+        return captured;
       } catch (err) {
         console.warn("[Dual-Mode Gateway] Live Sandbox capture/authorize fell back to Mirror:", err);
       }
     }
   }
 
-  return mirrorCaptureOrAuthorizeOrder({
+  const captured = mirrorCaptureOrAuthorizeOrder({
     ...params,
     mode: "mirror",
   });
+  syncOrderToSupabase(captured).catch(() => {});
+  return captured;
 }
 
 /**
@@ -195,16 +207,19 @@ export async function gatewayCreatePayout(params: {
       if (data.batch_header?.payout_batch_id) {
         record.payout_batch_id = data.batch_header.payout_batch_id;
       }
+      syncPayoutToSupabase(record).catch(() => {});
       return record;
     } catch (err) {
       console.warn("[Dual-Mode Gateway] Live Sandbox Payout fell back to Mirror:", err);
     }
   }
 
-  return mirrorCreatePayout({
+  const record = mirrorCreatePayout({
     ...params,
     mode: "mirror",
   });
+  syncPayoutToSupabase(record).catch(() => {});
+  return record;
 }
 
 /**
@@ -225,11 +240,15 @@ export async function gatewayOptimizeSubscription(params: {
           body: { reason: "Cancelled automatically by Sovereign Pulse AI CFO (Unused >30 days)" },
         });
       }
-      return mirrorOptimizeSubscription({ ...params, mode: "sandbox" });
+      const result = mirrorOptimizeSubscription({ ...params, mode: "sandbox" });
+      syncSubscriptionToSupabase(result.subscription).catch(() => {});
+      return result;
     } catch (err) {
       console.warn("[Dual-Mode Gateway] Live Sandbox Subscription action fell back to Mirror:", err);
     }
   }
 
-  return mirrorOptimizeSubscription({ ...params, mode: "mirror" });
+  const result = mirrorOptimizeSubscription({ ...params, mode: "mirror" });
+  syncSubscriptionToSupabase(result.subscription).catch(() => {});
+  return result;
 }

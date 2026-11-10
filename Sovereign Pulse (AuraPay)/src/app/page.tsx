@@ -72,6 +72,8 @@ export default function SovereignPulseHomePage() {
     mode: string;
   } | null>(null);
 
+  const [databaseSource, setDatabaseSource] = useState<string>("in_memory_mirror");
+
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch("/api/state", { cache: "no-store" });
@@ -80,6 +82,7 @@ export default function SovereignPulseHomePage() {
         setAppState(data.state);
         setActiveMode(data.activeMode ?? "mirror");
         setPreferredMode(data.preferredMode ?? "auto");
+        setDatabaseSource(data.database || "in_memory_mirror");
       }
     } finally {
       setLoading(false);
@@ -400,6 +403,20 @@ export default function SovereignPulseHomePage() {
                 {activeMode === "sandbox"
                   ? "LIVE PAYPAL SANDBOX REST API (api-m.sandbox.paypal.com)"
                   : "DETERMINISTIC PAYPAL SANDBOX MIRROR (100% Schema-Identical v1/v2 + JS SDK v6)"}
+              </span>
+              <span className="text-slate-600">|</span>
+              <span
+                className={`inline-flex items-center gap-1 font-semibold ${
+                  databaseSource === "supabase_postgres"
+                    ? "text-emerald-400"
+                    : "text-slate-400"
+                }`}
+              >
+                <span className={`h-2 w-2 rounded-full ${databaseSource === "supabase_postgres" ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`} />
+                Database:{" "}
+                {databaseSource === "supabase_postgres"
+                  ? "SUPABASE POSTGRESQL (LIVE CONNECTED)"
+                  : "IN-MEMORY MIRROR STORE"}
               </span>
               <span className="text-slate-600">|</span>
               <span className="text-slate-400">
