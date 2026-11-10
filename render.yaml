@@ -1,10 +1,10 @@
-# Render Blueprint — Sovereign Pulse (AuraPay)
+# Render Blueprint — NexusPulse
 # Qualifies for "Best Use of Render" Sponsor Prize in the PayPal AI Hackathon
 services:
   - type: web
-    name: sovereign-pulse-web
+    name: nexus-pulse-web
     runtime: node
-    rootDir: "Sovereign Pulse (AuraPay)"
+    rootDir: NexusPulse
     plan: starter
     buildCommand: npm install && npm run build
     startCommand: npm run start
@@ -28,9 +28,9 @@ services:
         sync: false
 
   - type: cron
-    name: sovereign-pulse-autonomous-cfo-sweeper
+    name: nexus-pulse-autonomous-cfo-sweeper
     runtime: node
-    rootDir: "Sovereign Pulse (AuraPay)"
+    rootDir: NexusPulse
     schedule: "*/15 * * * *"
     buildCommand: npm install
     startCommand: node scripts/autonomous-sweep.mjs
