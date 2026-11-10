@@ -38,7 +38,7 @@ export default function NexusFooter({
 
   return (
     <footer className="mt-20 border-t border-slate-200 bg-white text-slate-600 shadow-[0_-1px_3px_rgba(0,0,0,0.02)]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-200">
           {/* Column 1: Brand Identity & Mission */}
           <div className="lg:col-span-4 space-y-4">

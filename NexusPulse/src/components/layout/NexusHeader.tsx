@@ -158,7 +158,7 @@ export default function NexusHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 h-14 sm:h-16 flex items-center justify-between gap-4">
         {/* Left: Brand Logo (Always directs to Homepage "/" and resets to Overview) */}
         <NexusPulseLogo
           onNavigateHome={() => {
@@ -322,7 +322,7 @@ export default function NexusHeader({
       {/* Gateway & Hot-Swap Drawer */}
       {showGatewayDrawer && (
         <div className="nexus-fade-in border-t border-slate-200 bg-slate-50/95 px-4 sm:px-6 py-3.5 backdrop-blur-xl">
-          <div className="mx-auto max-w-7xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 text-xs">
+          <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 text-xs">
             {/* Mode Switcher */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-semibold text-slate-700">Gateway Mode:</span>

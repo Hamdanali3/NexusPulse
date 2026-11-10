@@ -218,4 +218,18 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.equal(isAllowedFetchSite(sameOriginHeaders), true);
     assert.equal(isAllowedFetchSite(crossSiteHeaders), false);
   });
+
+  it("validates 200 expected questions for the intelligent AI chatbot", async () => {
+    const { CHATBOT_200_QUESTIONS } = await import("./chatbot-200-questions.test");
+    assert.equal(CHATBOT_200_QUESTIONS.length, 200);
+    // Spot-check questions across all 8 architectural sections
+    assert.ok(CHATBOT_200_QUESTIONS[0].includes("NexusPulse"));
+    assert.ok(CHATBOT_200_QUESTIONS[25].includes("Engine 1"));
+    assert.ok(CHATBOT_200_QUESTIONS[50].includes("Engine 2"));
+    assert.ok(CHATBOT_200_QUESTIONS[75].includes("Engine 3"));
+    assert.ok(CHATBOT_200_QUESTIONS[100].includes("PayPal"));
+    assert.ok(CHATBOT_200_QUESTIONS[125].includes("webhooks"));
+    assert.ok(CHATBOT_200_QUESTIONS[150].includes("database"));
+    assert.ok(CHATBOT_200_QUESTIONS[175].includes("ROI"));
+  });
 });

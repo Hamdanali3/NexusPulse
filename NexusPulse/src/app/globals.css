@@ -374,6 +374,43 @@ button:disabled {
   }
 }
 
+/* Full Width Professional Container */
+.full-bleed-container {
+  width: 100%;
+  max-width: 1680px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1rem, 2vw + 0.5rem, 3.5rem);
+  padding-right: clamp(1rem, 2vw + 0.5rem, 3.5rem);
+}
+
+/* Staggered One-By-One Cascade Animations */
+@keyframes cascadeEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateY(-2px) scale(1.003);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-cascade-1 { animation: cascadeEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both; }
+.animate-cascade-2 { animation: cascadeEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) 140ms both; }
+.animate-cascade-3 { animation: cascadeEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both; }
+.animate-cascade-4 { animation: cascadeEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both; }
+.animate-cascade-5 { animation: cascadeEnter 650ms cubic-bezier(0.16, 1, 0.3, 1) 380ms both; }
+.animate-cascade-6 { animation: cascadeEnter 650ms cubic-bezier(0.16, 1, 0.3, 1) 460ms both; }
+.animate-cascade-7 { animation: cascadeEnter 650ms cubic-bezier(0.16, 1, 0.3, 1) 540ms both; }
+.animate-cascade-8 { animation: cascadeEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) 620ms both; }
+.animate-cascade-9 { animation: cascadeEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) 700ms both; }
+.animate-cascade-10 { animation: cascadeEnter 700ms cubic-bezier(0.16, 1, 0.3, 1) 780ms both; }
+
 /* Clean light scrollbars */
 ::-webkit-scrollbar {
   width: 7px;

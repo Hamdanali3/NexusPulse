@@ -28,6 +28,7 @@ import Channel3DealHunterPanel from "@/components/sponsors/Channel3DealHunterPan
 import ProofOfHumanBountyBoard from "@/components/bounties/ProofOfHumanBountyBoard";
 import BryntumEscrowTimeline from "@/components/sponsors/BryntumEscrowTimeline";
 import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialCommandCenter";
+import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
 
 export default function NexusPulseHomePage() {
   const [appState, setAppState] = useState<NexusPulseState | null>(null);
@@ -299,61 +300,61 @@ export default function NexusPulseHomePage() {
       {/* MAIN WORKSPACE */}
       <main
         id="main-workspace"
-        className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 pt-8 space-y-8"
+        className="flex-1 mx-auto w-full max-w-[1600px] px-4 sm:px-8 lg:px-12 pt-6 space-y-8"
       >
-        {/* WORLD-CLASS MINIMALIST HERO (WHITE BACKGROUND FINTECH PARADIGM) */}
+        {/* WORLD-CLASS MINIMALIST HERO (WHITE BACKGROUND FINTECH PARADIGM — FULL WIDTH) */}
         <section
           aria-labelledby="product-hero-heading"
-          className="relative text-center pt-4 pb-2 sm:pt-8 sm:pb-4 max-w-4xl mx-auto"
+          className="relative text-center pt-6 pb-4 sm:pt-12 sm:pb-8 max-w-6xl mx-auto w-full"
         >
           {/* Subtle ambient light beam */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-72 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(14,165,233,0.1),transparent_70%)]"
+            className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-80 bg-[radial-gradient(ellipse_75%_55%_at_50%_0%,rgba(14,165,233,0.12),transparent_70%)]"
           />
 
-          {/* Minimalist Micro-Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 shadow-xs">
+          {/* Cascade Item 1: Minimalist Micro-Badge */}
+          <div className="animate-cascade-1 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3.5 py-1 text-xs font-semibold text-sky-800 shadow-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse" />
             <span>Autonomous Financial Clearinghouse on PayPal</span>
           </div>
 
-          {/* High-Impact Confident Headline */}
+          {/* Cascade Item 2: High-Impact Confident Headline */}
           <h1
             id="product-hero-heading"
-            className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.1] text-balance"
+            className="animate-cascade-2 mt-5 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.1] text-balance"
           >
             Autonomous Commerce, Oracle Bounties &amp; Programmable Escrow.
           </h1>
 
-          {/* Crisp, Balanced Subheadline */}
-          <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed text-balance">
+          {/* Cascade Item 3: Crisp, Balanced Subheadline */}
+          <p className="animate-cascade-3 mt-4 text-sm sm:text-base lg:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed text-balance">
             Connecting Google Gemini with PayPal REST APIs &amp; JS SDK v6. Orchestrating autonomous deal-hunting, physical verification bounties, and zero-dispute milestone escrow.
           </p>
 
-          {/* Action CTAs */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {/* Cascade Item 4: Action CTAs */}
+          <div className="animate-cascade-4 mt-7 flex flex-wrap items-center justify-center gap-3.5">
             <button
               type="button"
               onClick={() => handleRunAgentInteraction()}
               disabled={agentRunning}
-              className="btn-primary inline-flex items-center gap-2 rounded-lg bg-slate-950 hover:bg-slate-800 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition"
+              className="btn-primary inline-flex items-center gap-2 rounded-xl bg-slate-950 hover:bg-slate-800 px-6 py-3 text-xs font-bold text-white shadow-sm transition hover:scale-105 active:scale-95"
             >
-              <Sparkles className="h-3.5 w-3.5 text-sky-400" />
+              <Sparkles className="h-4 w-4 text-sky-400" />
               <span>{agentRunning ? "Running CFO Sweep..." : "Run AI CFO Sweep"}</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("bounties")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-semibold text-slate-800 shadow-xs transition"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition hover:scale-105 active:scale-95"
             >
               <span>Explore Human Bounties</span>
-              <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+              <ArrowRight className="h-4 w-4 text-slate-500" />
             </button>
           </div>
 
-          {/* Sleek 3-Engine Feature Strip (White Background Cards) */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
+          {/* Cascade Items 5-7: Sleek 3-Engine Feature Cards (Expanded Full-Width Responsive Grid) */}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 text-left w-full">
             <div
               role="button"
               tabIndex={0}
@@ -364,19 +365,19 @@ export default function NexusPulseHomePage() {
                   setActiveTab("channel3");
                 }
               }}
-              className="group rounded-xl border border-slate-200 bg-white hover:border-sky-400 hover:shadow-md p-4 transition-all cursor-pointer shadow-xs"
+              className="animate-cascade-5 group rounded-2xl border border-slate-200 bg-white hover:border-sky-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 font-semibold">01 / Deal Hunter</span>
-                <ShoppingBag className="h-3.5 w-3.5 text-slate-400 group-hover:text-sky-600 transition-colors" />
+                <span className="text-[11px] font-mono uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200 font-bold">01 / Deal Hunter</span>
+                <ShoppingBag className="h-4 w-4 text-slate-400 group-hover:text-sky-600 transition-colors" />
               </div>
-              <h3 className="mt-2 text-xs font-bold text-slate-950">Deal &amp; Subscription Guard</h3>
-              <p className="mt-1 text-[11px] text-slate-600 leading-normal">
-                Channel3 100M+ catalog monitor &amp; PayPal subscription optimizer.
+              <h3 className="mt-3 text-sm font-bold text-slate-950">Deal &amp; Subscription Guard</h3>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                Channel3 100M+ catalog monitor &amp; PayPal subscription optimizer. Automatically downgrades idle tier services.
               </p>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-sky-600 group-hover:text-sky-700">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-sky-600 group-hover:text-sky-700">
                 <span>Open Engine</span>
-                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
 
@@ -390,19 +391,19 @@ export default function NexusPulseHomePage() {
                   setActiveTab("bounties");
                 }
               }}
-              className="group rounded-xl border border-slate-200 bg-white hover:border-emerald-400 hover:shadow-md p-4 transition-all cursor-pointer shadow-xs"
+              className="animate-cascade-6 group rounded-2xl border border-slate-200 bg-white hover:border-emerald-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-semibold">02 / Proof-of-Human</span>
-                <UserCheck className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 font-bold">02 / Proof-of-Human</span>
+                <UserCheck className="h-4 w-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
               </div>
-              <h3 className="mt-2 text-xs font-bold text-slate-950">Oracle Micro-Bounties</h3>
-              <p className="mt-1 text-[11px] text-slate-600 leading-normal">
-                30-60s physical verifications verified by Gemini &amp; paid via Payouts v1.
+              <h3 className="mt-3 text-sm font-bold text-slate-950">Oracle Micro-Bounties</h3>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                30-60s physical verifications verified by Gemini 3.8 Flash &amp; paid immediately via PayPal Payouts v1 batches.
               </p>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-emerald-600 group-hover:text-emerald-700">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
                 <span>Open Engine</span>
-                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
 
@@ -416,48 +417,48 @@ export default function NexusPulseHomePage() {
                   setActiveTab("bryntum");
                 }
               }}
-              className="group rounded-xl border border-slate-200 bg-white hover:border-indigo-400 hover:shadow-md p-4 transition-all cursor-pointer shadow-xs"
+              className="animate-cascade-7 group rounded-2xl border border-slate-200 bg-white hover:border-indigo-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200 font-semibold">03 / Smart Escrow</span>
-                <Lock className="h-3.5 w-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                <span className="text-[11px] font-mono uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200 font-bold">03 / Smart Escrow</span>
+                <Lock className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
               </div>
-              <h3 className="mt-2 text-xs font-bold text-slate-950">Bryntum Milestone Escrow</h3>
-              <p className="mt-1 text-[11px] text-slate-600 leading-normal">
-                Orders v2 AUTHORIZE holds tracked on a Gantt timeline with DHL proofs.
+              <h3 className="mt-3 text-sm font-bold text-slate-950">Bryntum Milestone Escrow</h3>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                Orders v2 AUTHORIZE holds tracked on an interactive Gantt timeline with DHL carrier proofs and Dispute Shield.
               </p>
-              <div className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 group-hover:text-indigo-700">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-indigo-600 group-hover:text-indigo-700">
                 <span>Open Engine</span>
-                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* INSTITUTIONAL FINANCIAL TELEMETRY RIBBON (MERCURY / STRIPE STYLE) */}
+        {/* Cascade Item 8: INSTITUTIONAL FINANCIAL TELEMETRY RIBBON (FULL WIDTH) */}
         <section
           aria-label="Key Financial Performance Indicators"
-          className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden"
+          className="animate-cascade-8 rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all overflow-hidden w-full"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
             <button
               type="button"
               onClick={() => setActiveTab("channel3")}
-              className="p-4 text-left hover:bg-slate-50/80 transition-colors"
+              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
                   Annual AI Savings
                 </span>
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                <TrendingUp className="h-4 w-4 text-emerald-600 transition-transform group-hover:scale-110" />
               </div>
-              <div className="mt-1.5 text-xl font-bold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
                 ${(appState.totalSavedByAiUsd + annualSubSavings).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
+              <div className="mt-1 text-xs text-slate-500">
                 ${appState.totalSavedByAiUsd.toFixed(2)} Realized + ${annualSubSavings.toFixed(0)}/yr Guard
               </div>
             </button>
@@ -465,18 +466,18 @@ export default function NexusPulseHomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("bounties")}
-              className="p-4 text-left hover:bg-slate-50/80 transition-colors"
+              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
                   Proof-of-Human Payouts
                 </span>
-                <UserCheck className="h-3.5 w-3.5 text-sky-600" />
+                <UserCheck className="h-4 w-4 text-sky-600 transition-transform group-hover:scale-110" />
               </div>
-              <div className="mt-1.5 text-xl font-bold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
                 ${appState.totalEarnedFromBountiesUsd.toFixed(2)}
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
+              <div className="mt-1 text-xs text-slate-500">
                 Gemini 3.8 Flash Verified • Instant Payouts v1
               </div>
             </button>
@@ -484,18 +485,18 @@ export default function NexusPulseHomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("bryntum")}
-              className="p-4 text-left hover:bg-slate-50/80 transition-colors"
+              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
                   Active Escrow Holds
                 </span>
-                <Lock className="h-3.5 w-3.5 text-indigo-600" />
+                <Lock className="h-4 w-4 text-indigo-600 transition-transform group-hover:scale-110" />
               </div>
-              <div className="mt-1.5 text-xl font-bold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
                 ${appState.totalEscrowProtectedUsd.toFixed(2)}
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
+              <div className="mt-1 text-xs text-slate-500">
                 PayPal Orders v2 AUTHORIZE Hold
               </div>
             </button>
@@ -503,31 +504,31 @@ export default function NexusPulseHomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("aggrid")}
-              className="p-4 text-left hover:bg-slate-50/80 transition-colors"
+              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
                   Protected Wallet
                 </span>
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <ShieldCheck className="h-4 w-4 text-emerald-600 transition-transform group-hover:scale-110" />
               </div>
-              <div className="mt-1.5 text-xl font-bold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
                 ${appState.walletBalanceUsd.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">
+              <div className="mt-1 text-xs text-slate-500">
                 Trackers v2 Proofs &amp; Idempotency Active
               </div>
             </button>
           </div>
         </section>
 
-        {/* INTERACTIVE GEMINI AGENTIC CFO & MCP COMMAND CONSOLE (WHITE BACKGROUND THEME) */}
+        {/* Cascade Item 9: INTERACTIVE GEMINI AGENTIC CFO & MCP COMMAND CONSOLE (FULL WIDTH) */}
         <section
           aria-labelledby="gemini-console-heading"
-          className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs"
+          className="animate-cascade-9 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition-all w-full"
         >
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-100">
             <div className="flex items-center gap-3">
@@ -898,6 +899,12 @@ export default function NexusPulseHomePage() {
       <NexusFooter
         activeMode={activeMode}
         databaseSource={databaseSource}
+        onSelectTab={setActiveTab}
+      />
+
+      {/* DEDICATED ADVANCED AI CHATBOT (GROQ 120B FRONTIER MODEL) */}
+      <NexusAiChatbot
+        appState={appState}
         onSelectTab={setActiveTab}
       />
     </div>
