@@ -437,13 +437,13 @@ export default function NexusPulseHomePage() {
     ) * 12;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900">
-      {/* Accessibility Skip Link (modern-web-guidance: accessibility) */}
+    <div className="min-h-screen flex flex-col bg-zinc-50/50 text-zinc-950">
+      {/* Accessibility Skip Link */}
       <a href="#main-workspace" className="skip-link visually-hidden">
         Skip to main content
       </a>
 
-      {/* MINIMALIST EXECUTIVE HEADER */}
+      {/* MINIMALIST HEADER */}
       <NexusHeader
         activeTab={activeTab}
         onSelectTab={navigateTo}
@@ -461,9 +461,9 @@ export default function NexusPulseHomePage() {
       {/* MAIN WORKSPACE */}
       <main
         id="main-workspace"
-        className="flex-1 mx-auto w-full max-w-[1600px] px-4 sm:px-8 lg:px-12 pt-6 space-y-8"
+        className="flex-1 mx-auto w-full max-w-6xl px-5 sm:px-8 pt-6 space-y-8"
       >
-        {/* DEDICATED FEATURE PAGE HEADER (shown when a specific engine is selected) */}
+        {/* FEATURE PAGE HEADER (shown when a specific engine is selected) */}
         {activeTab !== "overview" && (
           <FeaturePageHeader tab={activeTab} onNavigate={navigateTo} />
         )}
@@ -471,45 +471,39 @@ export default function NexusPulseHomePage() {
         {/* HOMEPAGE-ONLY SECTIONS (hero, KPI ribbon, Gemini console) */}
         {activeTab === "overview" && (
         <>
-        {/* WORLD-CLASS MINIMALIST HERO (WHITE BACKGROUND FINTECH PARADIGM — FULL WIDTH) */}
+        {/* MINIMAL STARTUP HERO */}
         <section
           aria-labelledby="product-hero-heading"
-          className="relative text-center pt-6 pb-6 sm:pt-12 sm:pb-10 px-4 sm:px-8 max-w-6xl mx-auto w-full overflow-hidden"
+          className="relative text-center pt-8 pb-4 sm:pt-14 sm:pb-8 px-4 max-w-4xl mx-auto w-full"
         >
-          {/* Subtle ambient light beam */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 -top-16 -z-10 h-80 bg-[radial-gradient(ellipse_75%_55%_at_50%_0%,rgba(14,165,233,0.12),transparent_70%)]"
-          />
-
-          {/* Cascade Item 1: Minimalist Micro-Badge */}
-          <div className="animate-cascade-1 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3.5 py-1 text-xs font-semibold text-sky-800 shadow-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse" />
-            <span>Autonomous Financial Clearinghouse on PayPal</span>
+          {/* Subtle micro-pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-2xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>Autonomous Clearinghouse on PayPal</span>
           </div>
 
-          {/* Cascade Item 2: High-Impact Confident Headline */}
+          {/* Clean headline */}
           <h1
             id="product-hero-heading"
-            className="animate-cascade-2 mt-5 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.1] text-balance"
+            className="mt-5 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 leading-[1.08] text-balance"
           >
-            Autonomous Commerce, Oracle Bounties &amp; Programmable Escrow.
+            Autonomous commerce, task bounties &amp; escrow.
           </h1>
 
-          {/* Cascade Item 3: Crisp, Balanced Subheadline */}
-          <p className="animate-cascade-3 mt-4 text-sm sm:text-base lg:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed text-balance">
-            Connecting Google Gemini with PayPal REST APIs &amp; JS SDK v6. Orchestrating autonomous deal-hunting, physical verification bounties, and zero-dispute milestone escrow.
+          {/* Crisp subheadline */}
+          <p className="mt-4 text-sm sm:text-base lg:text-lg text-zinc-500 max-w-2xl mx-auto leading-relaxed text-balance">
+            Connecting Google Gemini AI with PayPal smart payment rails to automate deal-hunting, physical task verification bounties, and zero-dispute milestone escrow.
           </p>
 
-          {/* Action CTAs */}
-          <div className="animate-cascade-4 mt-7 flex flex-wrap items-center justify-center gap-3.5">
+          {/* Restrained CTAs */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
             <button
               type="button"
               onClick={() => handleRunAgentInteraction()}
               disabled={agentRunning}
-              className="btn-primary inline-flex items-center gap-2 rounded-xl bg-slate-950 hover:bg-slate-800 px-6 py-3 text-xs font-bold text-white shadow-sm transition hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors"
             >
-              <Sparkles className="h-4 w-4 text-sky-400" />
+              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
               <span>{agentRunning ? "Running CFO Sweep..." : "Run AI CFO Sweep"}</span>
             </button>
             <button
@@ -522,150 +516,146 @@ export default function NexusPulseHomePage() {
                   navigateTo("channel3");
                 }
               }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-800 shadow-2xs transition-colors"
             >
-              <span>Explore 3 Engines</span>
-              <ArrowRight className="h-4 w-4 text-slate-500" />
+              <span>Explore Engines</span>
+              <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
             </button>
           </div>
         </section>
 
-        {/* Cascade Item 8: INSTITUTIONAL FINANCIAL TELEMETRY RIBBON (FULL WIDTH) */}
+        {/* MINIMAL FINANCIAL TELEMETRY STRIP */}
         <section
           id="kpi-telemetry-ribbon"
           aria-label="Key Financial Performance Indicators"
-          className="animate-cascade-8 rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all overflow-hidden w-full"
+          className="rounded-xl border border-zinc-200 bg-white shadow-2xs overflow-hidden w-full"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-zinc-100">
             <button
               type="button"
               onClick={() => navigateTo("channel3")}
-              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
+              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
-                  Annual AI Savings
+                <span className="text-xs font-medium text-zinc-500">
+                  Annual Savings
                 </span>
-                <TrendingUp className="h-4 w-4 text-emerald-600 transition-transform group-hover:scale-110" />
+                <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
               </div>
-              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
                 ${(appState.totalSavedByAiUsd + annualSubSavings).toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
-                ${appState.totalSavedByAiUsd.toFixed(2)} Realized + ${annualSubSavings.toFixed(0)}/yr Guard
+              <div className="mt-1 text-[11px] text-zinc-400">
+                ${appState.totalSavedByAiUsd.toFixed(2)} realized
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => navigateTo("bounties")}
-              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
+              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
-                  Proof-of-Human Payouts
+                <span className="text-xs font-medium text-zinc-500">
+                  Bounties Paid
                 </span>
-                <UserCheck className="h-4 w-4 text-sky-600 transition-transform group-hover:scale-110" />
+                <UserCheck className="h-3.5 w-3.5 text-indigo-600" />
               </div>
-              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
                 ${appState.totalEarnedFromBountiesUsd.toFixed(2)}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
-                Gemini 3.8 Flash Verified • Instant Payouts v1
+              <div className="mt-1 text-[11px] text-zinc-400">
+                Instant PayPal Payouts
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => navigateTo("bryntum")}
-              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
+              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
+                <span className="text-xs font-medium text-zinc-500">
                   Active Escrow Holds
                 </span>
-                <Lock className="h-4 w-4 text-indigo-600 transition-transform group-hover:scale-110" />
+                <Lock className="h-3.5 w-3.5 text-indigo-600" />
               </div>
-              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
                 ${appState.totalEscrowProtectedUsd.toFixed(2)}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
-                PayPal Orders v2 AUTHORIZE Hold
+              <div className="mt-1 text-[11px] text-zinc-400">
+                PayPal Orders v2 Auth
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => navigateTo("aggrid")}
-              className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
+              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold group-hover:text-slate-800 transition-colors">
+                <span className="text-xs font-medium text-zinc-500">
                   Protected Wallet
                 </span>
-                <ShieldCheck className="h-4 w-4 text-emerald-600 transition-transform group-hover:scale-110" />
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
               </div>
-              <div className="mt-2 text-2xl lg:text-3xl font-extrabold text-slate-950 tabular-nums">
+              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
                 ${appState.walletBalanceUsd.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
-                Trackers v2 Proofs &amp; Idempotency Active
+              <div className="mt-1 text-[11px] text-zinc-400">
+                Verified Ledger Balance
               </div>
             </button>
           </div>
         </section>
 
-        {/* Cascade Item 9: INTERACTIVE AI CFO COMMAND BAR (MINIMALIST & CLEAN) */}
+        {/* INTERACTIVE AI CFO COMMAND BAR */}
         <section
           aria-labelledby="gemini-console-heading"
-          className="animate-cascade-9 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs hover:shadow-md transition-all w-full"
+          className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs w-full"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center">
-                <Bot className="h-3.5 w-3.5 text-indigo-600" />
-              </div>
-              <h2 id="gemini-console-heading" className="text-xs font-bold text-slate-950">
-                Autonomous AI CFO
+          <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-100">
+            <div className="flex items-center gap-2">
+              <Bot className="h-4 w-4 text-indigo-600" />
+              <h2 id="gemini-console-heading" className="text-xs font-semibold text-zinc-950">
+                Autonomous CFO
               </h2>
-              <span className="rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 font-mono text-[10px] text-indigo-700 font-semibold">
+              <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 font-medium">
                 gemini-4-argon
               </span>
               {turnCount > 0 && (
-                <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-mono text-[10px] text-emerald-800 font-semibold">
+                <span className="rounded bg-emerald-50 text-emerald-700 font-mono text-[10px] px-1.5 py-0.5 font-medium">
                   Turn #{turnCount}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              {agentResponse && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAgentResponse(null);
-                    setTurnCount(0);
-                  }}
-                  className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1 text-xs text-slate-700 font-medium shadow-xs transition"
-                >
-                  <RotateCcw className="h-3 w-3 text-slate-500" />
-                  <span>Reset</span>
-                </button>
-              )}
-            </div>
+            {agentResponse && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAgentResponse(null);
+                  setTurnCount(0);
+                }}
+                className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2 py-1 text-xs text-zinc-600 transition"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span>Reset</span>
+              </button>
+            )}
           </div>
 
           <form
             onSubmit={(e) => handleRunAgentInteraction(undefined, e)}
-            className="mt-3.5 space-y-3"
+            className="mt-3 space-y-2.5"
           >
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <label htmlFor="gemini-agent-prompt-input" className="visually-hidden">
                 Ask your Autonomous CFO
               </label>
@@ -674,22 +664,22 @@ export default function NexusPulseHomePage() {
                 type="text"
                 value={agentPrompt}
                 onChange={(e) => setAgentPrompt(e.target.value)}
-                className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-sky-500 shadow-xs"
+                className="flex-1 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:border-indigo-500 shadow-2xs"
                 placeholder="Ask your Autonomous CFO to audit subscriptions, buy deals, or verify escrow..."
               />
               <button
                 type="submit"
                 disabled={agentRunning}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950 hover:bg-slate-800 px-4 py-2 text-xs font-semibold text-white shadow-xs transition shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-3.5 py-2 text-xs font-medium text-white shadow-2xs transition shrink-0"
               >
-                <Sparkles className="h-3.5 w-3.5 text-sky-400" />
-                {agentRunning ? "Running..." : "Run AI Sweep"}
+                <Sparkles className="h-3 w-3 text-indigo-400" />
+                <span>{agentRunning ? "Running..." : "Run AI Sweep"}</span>
               </button>
             </div>
 
             {/* Quick Action Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs pt-0.5">
-              <span className="text-slate-400 text-[11px] mr-1">Quick:</span>
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="text-zinc-400 text-[11px]">Quick:</span>
               {[
                 { label: "Audit Subscriptions", prompt: "Optimize my unused PayPal subscription and downgrade idle GPU plan to save money" },
                 { label: "Best Deal", prompt: "Buy the NVIDIA Jetson Orin Nano deal on Channel3 via PayPal Order v2" },
@@ -700,7 +690,7 @@ export default function NexusPulseHomePage() {
                   key={chip.label}
                   type="button"
                   onClick={() => handleRunAgentInteraction(chip.prompt)}
-                  className="rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-2.5 py-1 text-[11px] text-slate-700 hover:text-slate-950 transition font-medium shadow-2xs"
+                  className="rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2 py-0.5 text-[11px] text-zinc-600 hover:text-zinc-950 transition font-medium"
                 >
                   {chip.label}
                 </button>
@@ -719,11 +709,11 @@ export default function NexusPulseHomePage() {
         </>
         )}
 
-        {/* MOBILE / TABLET WORKSPACE NAVIGATION (4 CLEAN OPTIONS: Overview, Engines, About, Contact) */}
+        {/* MOBILE / TABLET WORKSPACE NAVIGATION */}
         <div
           role="tablist"
           aria-label="NexusPulse Main Navigation"
-          className="flex lg:hidden flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3"
+          className="flex lg:hidden flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-3"
         >
           <div className="flex flex-wrap items-center gap-1.5">
             <button
@@ -731,10 +721,10 @@ export default function NexusPulseHomePage() {
               role="tab"
               aria-selected={activeTab === "overview"}
               onClick={() => navigateTo("overview")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 activeTab === "overview"
-                  ? "bg-slate-950 text-white shadow-sm"
-                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+                  ? "bg-zinc-950 text-white"
+                  : "bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
@@ -750,10 +740,10 @@ export default function NexusPulseHomePage() {
                   navigateTo("channel3");
                 }
               }}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 activeTab !== "overview"
-                  ? "bg-slate-950 text-white shadow-sm"
-                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+                  ? "bg-zinc-950 text-white"
+                  : "bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
               }`}
             >
               <ShoppingBag className="h-3.5 w-3.5" />
@@ -762,24 +752,24 @@ export default function NexusPulseHomePage() {
 
             <Link
               href="/about"
-              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
             >
-              <Info className="h-3.5 w-3.5 text-sky-600" />
+              <Info className="h-3.5 w-3.5 text-indigo-600" />
               <span>About</span>
             </Link>
 
             <Link
               href="/contact"
-              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
             >
-              <Mail className="h-3.5 w-3.5 text-indigo-600" />
+              <Mail className="h-3.5 w-3.5 text-zinc-600" />
               <span>Contact</span>
             </Link>
           </div>
 
           {/* Quick Engine Selector Pill on Mobile when in Engines */}
           {activeTab !== "overview" && (
-            <div className="flex items-center gap-1 text-[11px] font-medium bg-slate-100 p-1 rounded-lg">
+            <div className="flex items-center gap-1 text-[11px] font-medium bg-zinc-100 p-1 rounded-lg">
               {[
                 { id: "channel3", label: "Deals" },
                 { id: "bounties", label: "Bounties" },
@@ -792,8 +782,8 @@ export default function NexusPulseHomePage() {
                   onClick={() => navigateTo(sub.id as WorkspaceTabId)}
                   className={`px-2 py-0.5 rounded font-semibold transition ${
                     activeTab === sub.id
-                      ? "bg-white text-slate-950 shadow-xs"
-                      : "text-slate-600 hover:text-slate-950"
+                      ? "bg-white text-zinc-950 shadow-2xs"
+                      : "text-zinc-600 hover:text-zinc-950"
                   }`}
                 >
                   {sub.label}
@@ -803,72 +793,63 @@ export default function NexusPulseHomePage() {
           )}
         </div>
 
-        {/* OVERVIEW TAB: 3-ENGINE EXECUTIVE BENTO GRID (MINIMALIST & VISUAL) */}
+        {/* OVERVIEW TAB: 3-ENGINE HUB */}
         {activeTab === "overview" && (
           <section
             id="autonomous-engines-hub"
             aria-label="NexusPulse 3-Engine Clearinghouse Hub"
-            className="space-y-6 pt-2"
+            className="space-y-4 pt-2"
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950 tracking-tight">
+                <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
                   Autonomous Engines
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                <p className="text-xs text-zinc-500">
                   Three automated financial protocols connecting Gemini AI with PayPal.
                 </p>
               </div>
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  All 3 Engines Live &amp; Operational
-                </span>
-              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Engine 01 Bento Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Engine 01 Card */}
               <div
                 id="engine-channel3"
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
-                      <ShoppingBag className="h-3.5 w-3.5 text-sky-600" />
-                      Engine 01 · Deal Hunter
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
+                      <ShoppingBag className="h-4 w-4 text-indigo-600" />
+                      Deal Hunter
                     </span>
-                    <span className="text-xs font-mono font-bold text-sky-700">100M+ SKUs</span>
+                    <span className="text-[11px] font-mono text-zinc-500 font-medium">100M+ SKUs</span>
                   </div>
 
-                  <h3 className="mt-3.5 text-lg font-bold text-slate-950">
-                    Deal &amp; Subscription Guard
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                    Automated price drop monitoring with instant PayPal v6 checkout and idle SaaS downgrades.
+                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
+                    Automated price drop monitoring with instant PayPal v6 checkout and SaaS plan downgrades.
                   </p>
 
-                  {/* Visual Deal Previews */}
-                  <div className="mt-4 space-y-2.5">
+                  {/* Compact Deal Previews */}
+                  <div className="mt-4 space-y-2">
                     {appState.channel3Deals.slice(0, 2).map((deal) => (
                       <div
                         key={deal.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
                       >
-                        <div className="truncate pr-3">
-                          <div className="font-semibold text-slate-900 truncate">
+                        <div className="truncate pr-2">
+                          <div className="font-medium text-zinc-900 truncate">
                             {deal.title}
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-zinc-400">
                             Retail: ${deal.retail_price.toFixed(2)}
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-extrabold text-emerald-600">
+                          <div className="font-bold text-emerald-600">
                             ${deal.channel3_best_price.toFixed(2)}
                           </div>
-                          <span className="inline-block mt-0.5 rounded bg-emerald-100/90 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2">
+                          <span className="text-[10px] text-zinc-500">
                             Save {deal.savings_percent}%
                           </span>
                         </div>
@@ -880,54 +861,51 @@ export default function NexusPulseHomePage() {
                 <button
                   type="button"
                   onClick={() => navigateTo("channel3")}
-                  className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 py-2.5 text-xs font-bold text-white transition hover:scale-[1.01] active:scale-[0.99] shadow-xs"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>Open Deal Hunter</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-3 w-3 text-zinc-400" />
                 </button>
               </div>
 
-              {/* Engine 02 Bento Card */}
+              {/* Engine 02 Card */}
               <div
                 id="engine-bounties"
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                      <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      Engine 02 · Human Oracle
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
+                      <UserCheck className="h-4 w-4 text-emerald-600" />
+                      Human Bounties
                     </span>
-                    <span className="text-xs font-mono font-bold text-emerald-700">Instant Payouts</span>
+                    <span className="text-[11px] font-mono text-zinc-500 font-medium">Instant Payouts</span>
                   </div>
 
-                  <h3 className="mt-3.5 text-lg font-bold text-slate-950">
-                    60-Second Bounties
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
                     Physical verification tasks audited by Gemini AI with immediate PayPal disbursements.
                   </p>
 
-                  {/* Visual Bounty Previews */}
-                  <div className="mt-4 space-y-2.5">
+                  {/* Compact Bounty Previews */}
+                  <div className="mt-4 space-y-2">
                     {appState.bounties.slice(0, 2).map((b) => (
                       <div
                         key={b.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
                       >
-                        <div className="truncate pr-3">
-                          <div className="font-semibold text-slate-900 truncate">
+                        <div className="truncate pr-2">
+                          <div className="font-medium text-zinc-900 truncate">
                             {b.title}
                           </div>
-                          <div className="text-[11px] text-slate-500">
-                            ~{b.estimated_seconds}s verification
+                          <div className="text-[11px] text-zinc-400">
+                            ~{b.estimated_seconds}s check
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-extrabold text-emerald-600">
+                          <div className="font-bold text-emerald-600">
                             +${b.reward.value}
                           </div>
-                          <span className="inline-block mt-0.5 rounded bg-sky-100/90 text-sky-800 text-[10px] font-bold px-1.5 py-0.2">
+                          <span className="text-[10px] text-zinc-500">
                             PayPal Payout
                           </span>
                         </div>
@@ -939,60 +917,51 @@ export default function NexusPulseHomePage() {
                 <button
                   type="button"
                   onClick={() => navigateTo("bounties")}
-                  className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 py-2.5 text-xs font-bold text-white transition hover:scale-[1.01] active:scale-[0.99] shadow-xs"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>Explore Bounties</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-3 w-3 text-zinc-400" />
                 </button>
               </div>
 
-              {/* Engine 03 Bento Card */}
+              {/* Engine 03 Card */}
               <div
                 id="engine-bryntum"
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
-                      <Lock className="h-3.5 w-3.5 text-indigo-600" />
-                      Engine 03 · Smart Escrow
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
+                      <Lock className="h-4 w-4 text-indigo-600" />
+                      Smart Escrow
                     </span>
-                    <span className="text-xs font-mono font-bold text-indigo-700">Dispute Shield</span>
+                    <span className="text-[11px] font-mono text-zinc-500 font-medium">Dispute Shield</span>
                   </div>
 
-                  <h3 className="mt-3.5 text-lg font-bold text-slate-950">
-                    Bryntum Escrow Gantt
-                  </h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                    PayPal authorization holds released on deliverable proof with shipment tracking dispute shield.
+                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
+                    PayPal authorization holds released on deliverable proof with automated shipment tracking.
                   </p>
 
-                  {/* Visual Escrow Previews */}
-                  <div className="mt-4 space-y-2.5">
+                  {/* Compact Escrow Previews */}
+                  <div className="mt-4 space-y-2">
                     {appState.escrowMilestones.slice(0, 2).map((m) => (
                       <div
                         key={m.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
                       >
-                        <div className="truncate pr-3">
-                          <div className="font-semibold text-slate-900 truncate">
+                        <div className="truncate pr-2">
+                          <div className="font-medium text-zinc-900 truncate">
                             {m.project_name}
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-zinc-400">
                             Progress: {m.progress_percent}%
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-extrabold text-slate-900">
+                          <div className="font-bold text-zinc-900">
                             ${m.amount.value}
                           </div>
-                          <span
-                            className={`inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                              m.status === "AI_VERIFIED_CAPTURED"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-900"
-                            }`}
-                          >
+                          <span className="text-[10px] text-zinc-500">
                             {m.status === "AI_VERIFIED_CAPTURED" ? "Captured" : "Auth Locked"}
                           </span>
                         </div>
@@ -1004,10 +973,10 @@ export default function NexusPulseHomePage() {
                 <button
                   type="button"
                   onClick={() => navigateTo("bryntum")}
-                  className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 py-2.5 text-xs font-bold text-white transition hover:scale-[1.01] active:scale-[0.99] shadow-xs"
+                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>View Escrow Gantt</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-3 w-3 text-zinc-400" />
                 </button>
               </div>
             </div>

@@ -116,15 +116,15 @@ export default function PayPalV6CheckoutWidget({
       <div
         role="status"
         aria-live="polite"
-        className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-xs shadow-xs nexus-fade-in"
+        className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 text-xs shadow-2xs nexus-fade-in"
       >
-        <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm">
+        <div className="flex items-center gap-2 font-semibold text-emerald-900 text-sm">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
           <span>PayPal v6 Capture Completed (#{completedOrder.id})</span>
         </div>
-        <div className="mt-1.5 text-xs text-emerald-800 font-medium">
-          Capture ID: <code className="font-mono font-bold">{completedOrder.capture_id}</code> • Mode:{" "}
-          <span className="font-bold uppercase text-emerald-900">{completedOrder.mode}</span>
+        <div className="mt-1 text-xs text-emerald-800">
+          Capture ID: <code className="font-mono font-medium">{completedOrder.capture_id}</code> · Mode:{" "}
+          <span className="font-semibold uppercase">{completedOrder.mode}</span>
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export default function PayPalV6CheckoutWidget({
       {errorMessage && (
         <div
           role="alert"
-          className="flex items-center gap-2 rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-xs text-rose-800 shadow-xs"
+          className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-3 py-2 text-xs text-rose-800"
         >
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
           <span>{errorMessage}</span>
@@ -144,13 +144,13 @@ export default function PayPalV6CheckoutWidget({
 
       {/* PayPal JS SDK v6 <paypal-message> BNPL Messaging Banner */}
       {numericAmount >= 30 && numericAmount <= 1500 && (
-        <div className="flex items-center justify-between rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900 shadow-2xs">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 text-xs text-zinc-700">
           <span>
-            <strong className="text-sky-800">PayPal Pay Later:</strong> 4 interest-free payments of{" "}
-            <strong className="tabular-nums text-slate-950 font-bold">${installment.toFixed(2)}</strong>
+            <strong className="text-zinc-900 font-medium">Pay Later:</strong> 4 payments of{" "}
+            <strong className="tabular-nums text-zinc-900 font-semibold">${installment.toFixed(2)}</strong>
           </span>
-          <span className="rounded bg-sky-100 border border-sky-200 px-1.5 py-0.5 font-mono text-[11px] text-sky-800 font-bold">
-            &lt;paypal-message&gt; v6
+          <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500 font-medium">
+            &lt;paypal-message&gt;
           </span>
         </div>
       )}
@@ -161,7 +161,7 @@ export default function PayPalV6CheckoutWidget({
           type="button"
           disabled={loading}
           onClick={() => initiatePayPalV6Session("paypal")}
-          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FFC439] px-3 py-2.5 text-xs font-bold text-[#003087] shadow-xs transition hover:bg-[#f5b82e] hover:scale-102 active:scale-98 disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FFC439] hover:bg-[#f5b82e] px-3 py-2 text-xs font-semibold text-[#003087] transition disabled:opacity-50"
         >
           <Wallet className="h-3.5 w-3.5" />
           <span>PayPal</span>
@@ -171,7 +171,7 @@ export default function PayPalV6CheckoutWidget({
           type="button"
           disabled={loading}
           onClick={() => initiatePayPalV6Session("paylater")}
-          className="flex items-center justify-center gap-1 rounded-lg bg-[#0070BA] px-2.5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-[#005ea6] hover:scale-102 active:scale-98 disabled:opacity-50"
+          className="flex items-center justify-center gap-1 rounded-lg bg-[#0070BA] hover:bg-[#005ea6] px-2.5 py-2 text-xs font-semibold text-white transition disabled:opacity-50"
         >
           <Sparkles className="h-3.5 w-3.5" />
           <span>Pay in 4</span>
@@ -181,7 +181,7 @@ export default function PayPalV6CheckoutWidget({
           type="button"
           disabled={loading}
           onClick={() => initiatePayPalV6Session("venmo")}
-          className="flex items-center justify-center gap-1 rounded-lg bg-[#008CFF] px-2.5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-[#0074d4] hover:scale-102 active:scale-98 disabled:opacity-50"
+          className="flex items-center justify-center gap-1 rounded-lg bg-[#008CFF] hover:bg-[#0074d4] px-2.5 py-2 text-xs font-semibold text-white transition disabled:opacity-50"
         >
           <span>Venmo</span>
         </button>
@@ -197,71 +197,72 @@ export default function PayPalV6CheckoutWidget({
             setModalOpen(false);
           }
         }}
-        className="rounded-2xl text-left shadow-2xl"
+        className="rounded-2xl text-left shadow-2xl backdrop:bg-zinc-950/40"
       >
         {createdOrder && (
-          <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 bg-[#003087] px-5 py-3.5 text-white">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-900 px-5 py-3.5 text-white">
               <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-[#FFC439]" />
-                <h3 id="paypal-v6-dialog-title" className="text-sm font-bold tracking-tight">
-                  PayPal Sandbox Checkout (JS SDK v6 Session)
+                <Lock className="h-4 w-4 text-indigo-400" />
+                <h3 id="paypal-v6-dialog-title" className="text-sm font-semibold tracking-tight">
+                  PayPal Checkout Session
                 </h3>
               </div>
               <button
                 type="button"
                 aria-label="Close checkout dialog"
                 onClick={() => setModalOpen(false)}
-                className="rounded-lg p-1 text-white/80 hover:bg-white/10"
+                className="rounded-lg p-1 text-zinc-400 hover:text-white transition"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-4 p-5 text-xs text-slate-800">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-medium">Order ID (`data.orderId`)</span>
-                  <code className="font-mono font-bold text-indigo-700">{createdOrder.id}</code>
+            <div className="space-y-4 p-5 text-xs text-zinc-800">
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <span>Order ID</span>
+                  <code className="font-mono font-medium text-zinc-900">{createdOrder.id}</code>
                 </div>
-                <div className="mt-1.5 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-medium">Idempotency (`PayPal-Request-Id`)</span>
-                  <code className="font-mono text-slate-700">
-                    {createdOrder.paypal_request_id.slice(0, 22)}...
+                <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <span>Idempotency</span>
+                  <code className="font-mono text-zinc-500">
+                    {createdOrder.paypal_request_id.slice(0, 18)}...
                   </code>
                 </div>
-                <div className="mt-2 border-t border-slate-200 pt-2 text-sm font-bold text-slate-950">
+                <div className="border-t border-zinc-200 pt-2 text-xs font-semibold text-zinc-900">
                   {description}
                 </div>
-                <div className="mt-1 flex items-baseline justify-between">
-                  <span className="text-slate-500 font-medium">Total Amount (USD)</span>
-                  <span className="tabular-nums text-lg font-extrabold text-emerald-700">
-                    ${createdOrder.amount.value} USD
+                <div className="flex items-baseline justify-between pt-1">
+                  <span className="text-zinc-500">Total</span>
+                  <span className="tabular-nums text-lg font-bold text-zinc-900">
+                    ${createdOrder.amount.value}{" "}
+                    <span className="text-xs font-normal text-zinc-500">USD</span>
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Sandbox Buyer Account &amp; Funding Source
+              <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3.5">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                  Account &amp; Funding
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Buyer Login:</span>
-                  <code className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">{createdOrder.payer_email}</code>
+                  <span className="text-zinc-500">Buyer:</span>
+                  <code className="font-mono text-zinc-800 bg-white px-1.5 py-0.5 rounded border border-zinc-200">{createdOrder.payer_email}</code>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Selected Method:</span>
-                  <span className="rounded bg-sky-100 border border-sky-200 px-2 py-0.5 font-bold uppercase text-sky-800">
+                  <span className="text-zinc-500">Method:</span>
+                  <span className="rounded bg-zinc-100 px-2 py-0.5 font-medium text-zinc-800">
                     {selectedFunding === "paylater"
-                      ? `PayPal Pay in 4 (4x $${installment.toFixed(2)})`
+                      ? `Pay in 4 (${installment.toFixed(2)}/ea)`
                       : selectedFunding === "venmo"
-                        ? "Pay with Venmo (USD)"
-                        : "PayPal Sandbox Wallet"}
+                        ? "Venmo"
+                        : "PayPal"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Gateway Mode:</span>
-                  <span className="font-mono font-bold uppercase text-emerald-700">{activeMode}</span>
+                  <span className="text-zinc-500">Mode:</span>
+                  <span className="font-mono font-medium uppercase text-indigo-600">{activeMode}</span>
                 </div>
               </div>
 
@@ -269,13 +270,13 @@ export default function PayPalV6CheckoutWidget({
                 type="button"
                 disabled={loading}
                 onClick={approveAndCaptureOrder}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FFC439] hover:bg-[#f5b82e] px-4 py-3 text-sm font-extrabold text-[#003087] shadow-sm transition hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 px-4 py-2.5 text-xs font-semibold text-white transition disabled:opacity-50"
               >
                 <ShieldCheck className="h-4 w-4" />
                 <span>
                   {loading
-                    ? "Capturing via POST /v2/checkout/orders/{id}/capture..."
-                    : `Approve & Capture $${createdOrder.amount.value} USD Now`}
+                    ? "Capturing payment..."
+                    : `Approve & Capture $${createdOrder.amount.value} USD`}
                 </span>
               </button>
             </div>

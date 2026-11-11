@@ -397,7 +397,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-950 antialiased">
       {/* Header */}
       <NexusHeader
         activeTab="contact"
@@ -413,53 +413,45 @@ export default function ContactPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-[1400px] px-4 sm:px-8 lg:px-12 py-8 space-y-10">
+      <main className="flex-1 mx-auto w-full max-w-5xl px-5 sm:px-8 py-8 space-y-8">
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
           <Link
             href="/"
-            className="inline-flex items-center gap-1 hover:text-slate-900 font-medium transition"
+            className="inline-flex items-center gap-1 hover:text-zinc-900 font-medium transition"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Clearinghouse Overview</span>
+            <span>Overview</span>
           </Link>
-          <span className="text-slate-300">/</span>
-          <span className="font-semibold text-slate-900">Contact &amp; Judge Desk</span>
+          <span className="text-zinc-300">/</span>
+          <span className="font-medium text-zinc-900">Contact &amp; Judge Desk</span>
         </nav>
 
         {/* Hero Section */}
-        <section className="relative rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-xs overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-10 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/10 via-indigo-400/10 to-transparent blur-2xl"
-          />
-          <div className="relative max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3.5 py-1 text-xs font-semibold text-sky-800 shadow-xs">
-              <span className="h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
-              <span>Communications &amp; Operations Clearinghouse</span>
+        <section className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-0.5 text-xs font-medium text-zinc-700">
+              <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+              <span>Judge &amp; Developer Desk</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-950 leading-[1.1]">
-              Get in Touch with the NexusPulse Team
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-950">
+              Contact NexusPulse
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               Direct channel for <strong>PayPal AI Hackathon judges</strong>, developers integrating{" "}
-              <strong>APIMatic &amp; PayPal SDKs</strong>, human oracle contributors, and enterprise partners deploying{" "}
-              <strong>A2A Smart Escrow</strong>. Every inquiry is cryptographically logged with an SLA guarantee.
+              <strong>PayPal SDKs</strong>, oracle contributors, and partners deploying{" "}
+              <strong>Smart Escrow</strong>. Every inquiry is logged with an SLA guarantee.
             </p>
 
             {/* SLA Badges */}
-            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-              <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-900 font-medium">
-                <Clock className="h-3.5 w-3.5 text-emerald-600" />
-                <span>Hackathon Judge Priority: <strong>&lt; 2 Hours</strong></span>
+            <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs">
+              <div className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-emerald-800 text-[11px] font-medium">
+                <Clock className="h-3 w-3 text-emerald-600" />
+                <span>Judge Review SLA: &lt; 2 Hours</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-slate-700 font-medium">
-                <ShieldCheck className="h-3.5 w-3.5 text-sky-600" />
-                <span>Fetch Metadata Isolated</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-slate-700 font-medium">
-                <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-                <span>Ticket ID Tracking Active</span>
+              <div className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2.5 py-1 text-zinc-700 text-[11px] font-medium">
+                <ShieldCheck className="h-3 w-3 text-zinc-500" />
+                <span>Cryptographic Inquiry Receipt</span>
               </div>
             </div>
           </div>

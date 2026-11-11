@@ -609,26 +609,25 @@ export default function NexusAiChatbot({
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className={`fixed bottom-5 right-5 z-50 inline-flex items-center gap-2.5 rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 ${
+          className={`fixed bottom-5 right-5 z-50 inline-flex items-center gap-2.5 rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-lg transition duration-200 ${
             isOpen
-              ? "bg-slate-900 text-white ring-2 ring-sky-400"
-              : "bg-slate-950 text-white hover:bg-slate-800 border border-slate-700"
+              ? "bg-zinc-900 text-white"
+              : "bg-zinc-950 text-white hover:bg-zinc-800 border border-zinc-800"
           }`}
           title="Open NexusPulse AI Assistant"
           aria-expanded={isOpen}
           aria-haspopup="dialog"
         >
           <div className="relative flex items-center justify-center">
-            <span className="absolute -inset-1 rounded-full bg-sky-500 opacity-60 animate-ping" />
-            <div className="relative h-6 w-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center">
+            <div className="h-6 w-6 rounded-full bg-indigo-600 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-white" />
             </div>
           </div>
           <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-bold leading-tight">NexusPulse AI</span>
-            <span className="text-[10px] text-sky-300 leading-tight flex items-center gap-1 font-mono">
+            <span className="text-xs font-semibold leading-tight">NexusPulse AI</span>
+            <span className="text-[10px] text-zinc-400 leading-tight flex items-center gap-1 font-mono">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {savedApiKey ? "Personal Key Active" : "Intelligent Assistant"}
+              {savedApiKey ? "BYOK Active" : "Online"}
             </span>
           </div>
         </button>
@@ -640,58 +639,58 @@ export default function NexusAiChatbot({
           role="dialog"
           aria-label="NexusPulse AI Assistant Window"
           aria-modal="true"
-          className={`fixed z-50 flex flex-col rounded-2xl border border-slate-200 bg-white/98 shadow-2xl backdrop-blur-2xl transition-all duration-300 animate-cascade-1 ${
+          className={`fixed z-50 flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-2xl transition duration-200 ${
             isExpanded
               ? "inset-4 sm:inset-8"
-              : "bottom-20 right-4 sm:right-6 w-[94vw] sm:w-[480px] h-[610px] max-h-[85vh]"
+              : "bottom-20 right-4 sm:right-6 w-[94vw] sm:w-[460px] h-[600px] max-h-[85vh]"
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 bg-slate-50/90 rounded-t-2xl">
+          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 bg-white rounded-t-2xl">
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-xs">
+              <div className="h-7 w-7 rounded-lg bg-zinc-900 flex items-center justify-center">
                 <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs font-extrabold text-slate-950">
-                    NexusPulse AI Assistant
+                  <h3 className="text-xs font-semibold text-zinc-900">
+                    NexusPulse AI
                   </h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 text-[10px] font-bold text-emerald-800">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.2 text-[10px] font-medium text-emerald-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Online
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-600">
+                <p className="text-[10px] text-zinc-400">
                   {savedApiKey
-                    ? `Personal API Key Connected (${maskApiKey(savedApiKey)})`
-                    : "Autonomous Financial Clearinghouse Assistant"}
+                    ? `BYOK (${maskApiKey(savedApiKey)})`
+                    : "Autonomous Financial Guide"}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-slate-500">
+            <div className="flex items-center gap-1 text-zinc-500">
               <button
                 type="button"
                 onClick={() => setShowKeySettings((prev) => !prev)}
-                title="Bring Your Own Groq API Key (BYOK) Settings"
+                title="API Key Settings"
                 aria-expanded={showKeySettings}
-                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold transition ${
+                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition ${
                   showKeySettings
-                    ? "bg-sky-600 text-white shadow-xs"
+                    ? "bg-zinc-900 text-white"
                     : savedApiKey
-                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
-                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                    ? "bg-emerald-50 text-emerald-800"
+                    : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                 }`}
               >
                 <KeyRound className="h-3 w-3" />
-                <span>{savedApiKey ? "Key Active" : "API Key"}</span>
+                <span>{savedApiKey ? "Key" : "API Key"}</span>
               </button>
               <button
                 type="button"
                 onClick={handleClearChat}
                 title="Clear conversation"
-                className="rounded-lg p-1.5 hover:bg-slate-200/60 hover:text-slate-800 transition"
+                className="rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -699,7 +698,7 @@ export default function NexusAiChatbot({
                 type="button"
                 onClick={() => setIsExpanded((prev) => !prev)}
                 title={isExpanded ? "Restore size" : "Maximize"}
-                className="hidden sm:inline-flex rounded-lg p-1.5 hover:bg-slate-200/60 hover:text-slate-800 transition"
+                className="hidden sm:inline-flex rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
                 {isExpanded ? (
                   <Minimize2 className="h-3.5 w-3.5" />
@@ -711,7 +710,7 @@ export default function NexusAiChatbot({
                 type="button"
                 onClick={() => setIsOpen(false)}
                 title="Close chat"
-                className="rounded-lg p-1.5 hover:bg-slate-200/60 hover:text-slate-800 transition"
+                className="rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
                 <X className="h-4 w-4" />
               </button>

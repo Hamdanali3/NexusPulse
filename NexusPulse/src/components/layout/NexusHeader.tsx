@@ -2,20 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  Activity,
-  Calendar,
-  ChevronDown,
-  Database,
-  Info,
-  KeyRound,
-  Layers,
-  Mail,
-  RefreshCw,
-  ShoppingBag,
-  UserCheck,
-  Volume2,
-} from "lucide-react";
+import { ChevronDown, Menu, RotateCcw, Settings2, Volume2, X } from "lucide-react";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
@@ -42,42 +29,20 @@ interface NexusHeaderProps {
   onResetDemoState: () => void;
 }
 
-const ENGINE_ITEMS: Array<{
-  id: WorkspaceTabId;
+export const ENGINE_ITEMS: Array<{
+  id: Exclude<WorkspaceTabId, "overview">;
   label: string;
-  badge: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
 }> = [
-  {
-    id: "channel3",
-    label: "Deal Hunter",
-    badge: "Engine 01",
-    description: "100M+ SKU Catalog & PayPal v6 Checkout",
-    icon: ShoppingBag,
-  },
-  {
-    id: "bounties",
-    label: "Human Bounties",
-    badge: "Engine 02",
-    description: "60-Second Tasks & Instant PayPal Payouts",
-    icon: UserCheck,
-  },
-  {
-    id: "bryntum",
-    label: "Escrow Gantt",
-    badge: "Engine 03",
-    description: "Interactive Milestones & Dispute Shield",
-    icon: Calendar,
-  },
-  {
-    id: "aggrid",
-    label: "Telemetry",
-    badge: "Ledger",
-    description: "AG Grid Financial Ledger & Webhooks",
-    icon: Activity,
-  },
+  { id: "channel3", label: "Deal Hunter", description: "Buy at your target price" },
+  { id: "bounties", label: "Human Bounties", description: "Quick tasks, instant payouts" },
+  { id: "bryntum", label: "Smart Escrow", description: "Release funds on proof" },
+  { id: "aggrid", label: "Ledger", description: "Every transaction, one table" },
 ];
+
+const linkBase = "rounded-md px-3 py-1.5 text-sm transition-colors";
+const linkIdle = "text-zinc-500 hover:text-zinc-950";
+const linkActive = "text-zinc-950 font-medium";
 
 export default function NexusHeader({
   activeTab,
@@ -92,439 +57,229 @@ export default function NexusHeader({
   onPlayVoiceBriefing,
   onResetDemoState,
 }: NexusHeaderProps) {
-  const [showGatewayDrawer, setShowGatewayDrawer] = useState(false);
-  const [showEnginesMenu, setShowEnginesMenu] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showEngines, setShowEngines] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [sandboxClientId, setSandboxClientId] = useState("");
   const [sandboxClientSecret, setSandboxClientSecret] = useState("");
   const [savingCreds, setSavingCreds] = useState(false);
-  const enginesMenuRef = useRef<HTMLDivElement | null>(null);
+  const enginesRef = useRef<HTMLDivElement | null>(null);
 
-  const isEngineActive =
-    activeTab === "channel3" ||
-    activeTab === "bounties" ||
-    activeTab === "bryntum" ||
-    activeTab === "aggrid";
+  const isEngineActive = ENGINE_ITEMS.some((e) => e.id === activeTab);
 
-  const activeEngineMeta = ENGINE_ITEMS.find((e) => e.id === activeTab);
-
-  // Close engines dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        enginesMenuRef.current &&
-        !enginesMenuRef.current.contains(e.target as Node)
-      ) {
-        setShowEnginesMenu(false);
+    function onDown(e: MouseEvent) {
+      if (enginesRef.current && !enginesRef.current.contains(e.target as Node)) {
+        setShowEngines(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
   }, []);
+
+  function go(tab: WorkspaceTabId) {
+    setShowEngines(false);
+    setMobileOpen(false);
+    if (onSelectTab) {
+      onSelectTab(tab);
+    } else if (typeof window !== "undefined") {
+      window.location.href = tab === "overview" ? "/" : `/?tab=${tab}`;
+    }
+  }
 
   async function handleCredsSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSavingCreds(true);
     try {
       await onSaveRuntimeCredentials(sandboxClientId, sandboxClientSecret);
-      setShowGatewayDrawer(false);
+      setShowSettings(false);
     } finally {
       setSavingCreds(false);
     }
   }
 
-  function handleSelectEngine(id: WorkspaceTabId) {
-    setShowEnginesMenu(false);
-    setMobileMenuOpen(false);
-    if (onSelectTab) {
-      onSelectTab(id);
-    } else if (typeof window !== "undefined") {
-      window.location.href = `/?tab=${id}`;
-    }
-  }
-
-  function handleSelectOverview() {
-    setMobileMenuOpen(false);
-    if (onSelectTab) {
-      onSelectTab("overview");
-    } else if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-  }
-
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 h-14 sm:h-16 flex items-center justify-between gap-4">
-        {/* Left: Redesigned Purpose Logo */}
-        <NexusPulseLogo
-          onNavigateHome={() => {
-            if (onSelectTab) {
-              onSelectTab("overview");
-            }
-          }}
-        />
+    <header className="sticky top-0 z-40 border-b border-zinc-200/70 bg-white/80 backdrop-blur-lg">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
+        <div className="flex items-center gap-8">
+          <NexusPulseLogo onNavigateHome={() => onSelectTab?.("overview")} />
 
-        {/* Center: Exactly 4 Clean Navigation Options (Overview, Engines, About, Contact) */}
-        <nav
-          aria-label="Main Navigation"
-          className="hidden md:flex items-center gap-1.5"
-        >
-          {/* Option 1: Overview */}
-          <button
-            type="button"
-            onClick={handleSelectOverview}
-            className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
-              activeTab === "overview"
-                ? "text-slate-950 bg-slate-100/90 shadow-xs"
-                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
-            }`}
-          >
-            <Layers
-              className={`h-3.5 w-3.5 ${
-                activeTab === "overview" ? "text-sky-600" : "text-slate-500"
-              }`}
-            />
-            <span>Overview</span>
-            {activeTab === "overview" && (
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
-              />
-            )}
-          </button>
-
-          {/* Option 2: Engines (Consolidates all engines in 1 single option with sleek dropdown) */}
-          <div className="relative" ref={enginesMenuRef}>
+          {/* Primary navigation — 4 items */}
+          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
             <button
               type="button"
-              aria-expanded={showEnginesMenu}
-              aria-haspopup="true"
-              onClick={() => setShowEnginesMenu((v) => !v)}
-              className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
-                isEngineActive
-                  ? "text-slate-950 bg-slate-100/90 shadow-xs"
-                  : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
-              }`}
+              onClick={() => go("overview")}
+              aria-current={activeTab === "overview" ? "page" : undefined}
+              className={`${linkBase} ${activeTab === "overview" ? linkActive : linkIdle}`}
             >
-              <ShoppingBag
-                className={`h-3.5 w-3.5 ${
-                  isEngineActive ? "text-sky-600" : "text-slate-500"
-                }`}
-              />
-              <span>Engines</span>
-              {activeEngineMeta && (
-                <span className="rounded bg-sky-100 text-sky-800 text-[10px] font-bold px-1.5 py-0.2">
-                  {activeEngineMeta.label}
-                </span>
-              )}
-              <ChevronDown
-                className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
-                  showEnginesMenu ? "rotate-180" : ""
-                }`}
-              />
-              {isEngineActive && (
-                <span
-                  aria-hidden="true"
-                  className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
-                />
-              )}
+              Overview
             </button>
 
-            {/* Engines Dropdown Menu */}
-            {showEnginesMenu && (
-              <div
-                role="menu"
-                className="nexus-fade-in absolute left-0 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 z-50 divide-y divide-slate-100"
+            <div className="relative" ref={enginesRef}>
+              <button
+                type="button"
+                aria-expanded={showEngines}
+                aria-haspopup="menu"
+                onClick={() => setShowEngines((v) => !v)}
+                className={`${linkBase} inline-flex items-center gap-1 ${isEngineActive ? linkActive : linkIdle}`}
               >
-                <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Autonomous Financial Engines
+                Engines
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showEngines ? "rotate-180" : ""}`} />
+              </button>
+
+              {showEngines && (
+                <div
+                  role="menu"
+                  className="nexus-fade-in absolute left-0 mt-2 w-64 rounded-xl border border-zinc-200 bg-white p-1.5 shadow-lg shadow-zinc-950/5"
+                >
+                  {ENGINE_ITEMS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => go(item.id)}
+                      className={`flex w-full flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-zinc-50 ${
+                        activeTab === item.id ? "bg-zinc-50" : ""
+                      }`}
+                    >
+                      <span className="text-sm font-medium text-zinc-950">{item.label}</span>
+                      <span className="text-xs text-zinc-500">{item.description}</span>
+                    </button>
+                  ))}
                 </div>
+              )}
+            </div>
 
-                <div className="py-1 space-y-1">
-                  {ENGINE_ITEMS.map((item) => {
-                    const Icon = item.icon;
-                    const isCur = activeTab === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleSelectEngine(item.id)}
-                        className={`w-full flex items-start gap-3 rounded-lg px-2.5 py-2 text-left transition ${
-                          isCur
-                            ? "bg-sky-50 text-sky-950 font-semibold border border-sky-200/60"
-                            : "text-slate-700 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="p-1.5 rounded-lg bg-slate-100 border border-slate-200 shrink-0 mt-0.5">
-                          <Icon className="h-4 w-4 text-sky-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-900">
-                              {item.label}
-                            </span>
-                            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
-                              {item.badge}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 mt-0.5 truncate">
-                            {item.description}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
+            <Link href="/about" className={`${linkBase} ${activeTab === "about" ? linkActive : linkIdle}`}>
+              About
+            </Link>
+            <Link href="/contact" className={`${linkBase} ${activeTab === "contact" ? linkActive : linkIdle}`}>
+              Contact
+            </Link>
+          </nav>
+        </div>
 
-          <div className="h-4 w-[1px] bg-slate-200 mx-1" aria-hidden="true" />
-
-          {/* Option 3: About */}
-          <Link
-            href="/about"
-            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
-              activeTab === "about"
-                ? "text-slate-950 bg-slate-100/90 shadow-xs"
-                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
-            }`}
-          >
-            <Info
-              className={`h-3.5 w-3.5 ${
-                activeTab === "about" ? "text-sky-600" : "text-slate-500"
-              }`}
-            />
-            <span>About</span>
-            {activeTab === "about" && (
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
-              />
-            )}
-          </Link>
-
-          {/* Option 4: Contact */}
-          <Link
-            href="/contact"
-            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
-              activeTab === "contact"
-                ? "text-slate-950 bg-slate-100/90 shadow-xs"
-                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
-            }`}
-          >
-            <Mail
-              className={`h-3.5 w-3.5 ${
-                activeTab === "contact" ? "text-sky-600" : "text-slate-500"
-              }`}
-            />
-            <span>Contact</span>
-            {activeTab === "contact" && (
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
-              />
-            )}
-          </Link>
-        </nav>
-
-        {/* Right: Sleek Status & Control Cluster (Theme switcher removed for single theme) */}
-        <div className="flex items-center gap-2">
-          {/* Mobile Navigation Trigger Button */}
+        {/* Quiet controls */}
+        <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setMobileMenuOpen((v) => !v)}
-            aria-label="Toggle navigation menu"
-            className="inline-flex md:hidden items-center justify-center p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-xs"
-          >
-            <Layers className="h-4 w-4" />
-          </button>
-
-          {/* Gateway Status Badge & Drawer Trigger */}
-          <button
-            type="button"
-            aria-expanded={showGatewayDrawer}
-            onClick={() => setShowGatewayDrawer((v) => !v)}
-            title="Configure PayPal Gateway & Database runtime"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition"
+            onClick={() => setShowSettings((v) => !v)}
+            aria-expanded={showSettings}
+            title="PayPal connection settings"
+            className="hidden items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-950 sm:inline-flex"
           >
             <span
-              className={`h-2 w-2 rounded-full shrink-0 ${
-                activeMode === "sandbox"
-                  ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"
-                  : "bg-sky-500 shadow-[0_0_6px_rgba(14,165,233,0.5)]"
-              }`}
+              className={`h-1.5 w-1.5 rounded-full ${activeMode === "sandbox" ? "bg-emerald-500" : "bg-zinc-400"}`}
             />
-            <span className="hidden sm:inline text-slate-700 font-medium">
-              {activeMode === "sandbox" ? "PayPal Sandbox" : "PayPal Mirror"}
-            </span>
-            <ChevronDown
-              className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
-                showGatewayDrawer ? "rotate-180" : ""
-              }`}
-            />
+            {activeMode === "sandbox" ? "Sandbox" : "Demo mode"}
           </button>
 
-          {/* Voice CFO Trigger */}
           <button
             type="button"
             onClick={onPlayVoiceBriefing}
             disabled={voiceLoading}
-            title="Listen to Executive Audio Briefing from Gemini"
-            className="group inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-700 shadow-xs transition active:scale-95"
+            aria-label="Play voice briefing"
+            title="Voice briefing"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
           >
             {voiceLoading ? (
-              <div className="audio-bars text-sky-600" aria-hidden="true">
+              <span className="audio-bars text-indigo-600" aria-hidden="true">
                 <span className="audio-bar" />
                 <span className="audio-bar" />
                 <span className="audio-bar" />
                 <span className="audio-bar" />
-              </div>
+              </span>
             ) : (
-              <Volume2 className="h-3.5 w-3.5 text-sky-600 transition-transform group-hover:scale-110" />
+              <Volume2 className="h-4 w-4" />
             )}
-            <span className="hidden sm:inline">
-              {voiceLoading ? "Speaking..." : "Voice CFO"}
-            </span>
           </button>
 
-          {/* Reset Demo State Button */}
           <button
             type="button"
             onClick={onResetDemoState}
-            aria-label="Reset Demo State"
-            title="Reset All Sandbox State to Clean Baseline"
-            className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 p-1.5 text-slate-600 hover:text-slate-900 shadow-xs transition"
+            aria-label="Reset demo data"
+            title="Reset demo data"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowSettings((v) => !v)}
+            aria-label="Settings"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950 sm:hidden"
+          >
+            <Settings2 className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Menu"
+            aria-expanded={mobileOpen}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-700 hover:bg-zinc-100 md:hidden"
+          >
+            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer (4 Clean Options: Overview, Engines, About, Contact) */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2 shadow-lg nexus-fade-in">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
-            Navigation (4 Core Options)
-          </div>
-          <button
-            type="button"
-            onClick={handleSelectOverview}
-            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-left ${
-              activeTab === "overview"
-                ? "bg-slate-950 text-white"
-                : "text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <Layers className="h-4 w-4" />
-            <span>1. Overview</span>
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <nav aria-label="Mobile" className="nexus-fade-in border-t border-zinc-200 bg-white px-5 py-3 md:hidden">
+          <button type="button" onClick={() => go("overview")} className="block w-full py-2 text-left text-sm font-medium text-zinc-950">
+            Overview
           </button>
-
-          <div className="pl-2 space-y-1">
-            <div className="text-[11px] font-bold text-slate-700 px-1 py-1">
-              2. Engines Hub:
-            </div>
-            {ENGINE_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => handleSelectEngine(item.id)}
-                className={`w-full flex items-center justify-between rounded-lg px-3 py-1.5 text-xs text-left ${
-                  activeTab === item.id
-                    ? "bg-sky-50 text-sky-950 font-bold border border-sky-200"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <span>{item.label}</span>
-                <span className="text-[10px] text-slate-400 font-mono">
-                  {item.badge}
-                </span>
-              </button>
-            ))}
+          <p className="pt-3 pb-1 text-xs text-zinc-400">Engines</p>
+          {ENGINE_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => go(item.id)}
+              className={`block w-full py-2 text-left text-sm ${activeTab === item.id ? "font-medium text-zinc-950" : "text-zinc-600"}`}
+            >
+              {item.label}
+            </button>
+          ))}
+          <div className="mt-2 border-t border-zinc-100 pt-2">
+            <Link href="/about" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-zinc-600">
+              About
+            </Link>
+            <Link href="/contact" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-zinc-600">
+              Contact
+            </Link>
           </div>
-
-          <Link
-            href="/about"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
-              activeTab === "about"
-                ? "bg-slate-950 text-white"
-                : "text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <Info className="h-4 w-4 text-sky-600" />
-            <span>3. About</span>
-          </Link>
-
-          <Link
-            href="/contact"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
-              activeTab === "contact"
-                ? "bg-slate-950 text-white"
-                : "text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-            <Mail className="h-4 w-4 text-indigo-600" />
-            <span>4. Contact</span>
-          </Link>
-        </div>
+        </nav>
       )}
 
-      {/* Gateway & Hot-Swap Drawer */}
-      {showGatewayDrawer && (
-        <div className="nexus-fade-in border-t border-slate-200 bg-slate-50/95 px-4 sm:px-6 py-3.5 backdrop-blur-xl">
-          <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 text-xs">
-            {/* Mode Switcher */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-semibold text-slate-700">Gateway Mode:</span>
-              <div
-                role="group"
-                aria-label="PayPal Execution Mode"
-                className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white p-0.5 shadow-xs"
-              >
+      {/* Connection settings */}
+      {showSettings && (
+        <div className="nexus-fade-in border-t border-zinc-200 bg-white">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-4 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <span className="text-zinc-500">Mode</span>
+              <div role="group" aria-label="PayPal mode" className="inline-flex rounded-lg bg-zinc-100 p-0.5">
                 {(["auto", "sandbox", "mirror"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
                     aria-pressed={preferredMode === m}
                     onClick={() => onSwitchMode(m)}
-                    className={`rounded px-2.5 py-1 text-xs font-medium transition ${
-                      preferredMode === m
-                        ? "bg-slate-900 text-white font-semibold shadow-xs"
-                        : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+                    className={`rounded-md px-3 py-1 text-xs transition-colors ${
+                      preferredMode === m ? "bg-white font-medium text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-zinc-950"
                     }`}
                   >
-                    {m === "auto"
-                      ? `Auto (${activeMode})`
-                      : m === "sandbox"
-                        ? "Live Sandbox"
-                        : "Deterministic Mirror"}
+                    {m === "auto" ? "Auto" : m === "sandbox" ? "Sandbox" : "Demo"}
                   </button>
                 ))}
               </div>
-              <span className="text-slate-400">•</span>
-              <span className="inline-flex items-center gap-1 text-slate-600">
-                <Database className="h-3 w-3 text-emerald-600" />
-                Store:{" "}
-                <span className="font-semibold text-slate-800">
-                  {databaseSource === "supabase_postgres"
-                    ? "Supabase PostgreSQL"
-                    : "Local Mirror"}
-                </span>
+              <span className="text-xs text-zinc-400">
+                {databaseSource === "supabase_postgres" ? "Supabase" : "Local data"}
               </span>
             </div>
 
-            {/* Hot-Swap Credentials Form */}
-            <form
-              onSubmit={handleCredsSubmit}
-              className="flex flex-wrap items-center gap-2"
-            >
-              <span className="inline-flex items-center gap-1 text-slate-700 font-medium">
-                <KeyRound className="h-3.5 w-3.5 text-indigo-600" />
-                Hot-Swap Keys:
-              </span>
+            <form onSubmit={handleCredsSubmit} className="flex flex-wrap items-center gap-2">
               <label htmlFor="header-sandbox-id" className="visually-hidden">
                 PayPal Sandbox Client ID
               </label>
@@ -534,8 +289,8 @@ export default function NexusHeader({
                 autoComplete="off"
                 value={sandboxClientId}
                 onChange={(e) => setSandboxClientId(e.target.value)}
-                placeholder="Sandbox Client ID"
-                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs text-slate-900 font-mono placeholder:text-slate-400 shadow-xs"
+                placeholder="Sandbox client ID"
+                className="h-8 w-44 rounded-md border border-zinc-200 bg-white px-2.5 text-xs placeholder:text-zinc-400"
                 required
               />
               <label htmlFor="header-sandbox-secret" className="visually-hidden">
@@ -547,30 +302,25 @@ export default function NexusHeader({
                 autoComplete="off"
                 value={sandboxClientSecret}
                 onChange={(e) => setSandboxClientSecret(e.target.value)}
-                placeholder="Sandbox Secret"
-                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs text-slate-900 font-mono placeholder:text-slate-400 shadow-xs"
+                placeholder="Secret"
+                className="h-8 w-36 rounded-md border border-zinc-200 bg-white px-2.5 text-xs placeholder:text-zinc-400"
                 required
               />
               <button
                 type="submit"
                 disabled={savingCreds}
-                className="rounded-md bg-slate-900 hover:bg-slate-800 px-3 py-1 text-xs font-semibold text-white shadow-xs transition"
+                className="h-8 rounded-md bg-zinc-950 px-3 text-xs font-medium text-white transition-colors hover:bg-zinc-800"
               >
-                {savingCreds ? "Saving..." : "Connect"}
+                {savingCreds ? "Connecting…" : "Connect"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Voice Transcript Bar */}
       {voiceTranscript && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="nexus-fade-in border-t border-sky-200 bg-sky-50 px-4 sm:px-6 py-1.5 text-center text-xs font-medium text-sky-800"
-        >
-          🔊 <em>&ldquo;{voiceTranscript}&rdquo;</em>
+        <div role="status" aria-live="polite" className="border-t border-zinc-200 bg-white px-5 py-2 text-center text-xs text-zinc-500">
+          “{voiceTranscript}”
         </div>
       )}
     </header>

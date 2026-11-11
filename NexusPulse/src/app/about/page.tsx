@@ -312,7 +312,7 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-950 antialiased">
       {/* Header */}
       <NexusHeader
         activeTab="about"
@@ -328,78 +328,78 @@ export default function AboutPage() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-[1500px] px-4 sm:px-8 lg:px-12 py-8 space-y-16">
+      <main className="flex-1 mx-auto w-full max-w-5xl px-5 sm:px-8 py-8 space-y-12">
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
           <Link
             href="/"
-            className="inline-flex items-center gap-1 hover:text-slate-900 font-medium transition"
+            className="inline-flex items-center gap-1 hover:text-zinc-900 font-medium transition"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Clearinghouse Overview</span>
+            <span>Overview</span>
           </Link>
-          <span className="text-slate-300">/</span>
-          <span className="font-semibold text-slate-900">About NexusPulse &amp; Architecture</span>
+          <span className="text-zinc-300">/</span>
+          <span className="font-medium text-zinc-900">About NexusPulse</span>
         </nav>
 
-        {/* HERO SECTION: High-Impact Brand Story */}
-        <section className="relative text-center pt-4 pb-8 max-w-5xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold text-sky-800 shadow-xs">
-            <span className="h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
-            <span>PayPal AI Hackathon Flagship · &ldquo;Build What&rsquo;s Next with PayPal and AI&rdquo;</span>
+        {/* HERO SECTION */}
+        <section className="text-center pt-2 pb-6 max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs font-medium text-zinc-700 shadow-2xs">
+            <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+            <span>PayPal AI Hackathon Flagship</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-[1.1] text-balance">
-            Connecting AI Agents, Human Oracles &amp; Smart Payments on PayPal.
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-zinc-950 leading-tight">
+            Connecting AI Agents, Human Oracles &amp; Smart Payments
           </h1>
 
-          <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed text-balance">
-            NexusPulse is the autonomous financial clearinghouse built to bridge consumer savings, physical-world human ground truth, and zero-dispute agent-to-agent smart escrow using the <strong>PayPal Developer Platform</strong> and <strong>Google Gemini Frontier Intelligence</strong>.
+          <p className="text-sm sm:text-base text-zinc-600 leading-relaxed">
+            NexusPulse is the autonomous financial clearinghouse built to bridge consumer savings, physical-world human ground truth, and zero-dispute agent-to-agent smart escrow using the <strong>PayPal Platform</strong> and <strong>Google Gemini Frontier AI</strong>.
           </p>
 
           {/* Quick Metrics Bar */}
-          <div className="pt-4 grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-4xl mx-auto text-left">
-            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">Engines</span>
-              <div className="text-xl font-extrabold text-slate-950">3 Unified</div>
-              <div className="text-[11px] text-slate-500">Full Autonomy</div>
+          <div className="pt-2 grid grid-cols-2 sm:grid-cols-5 gap-3 text-left">
+            <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Engines</span>
+              <div className="text-lg font-bold text-zinc-900">3 Unified</div>
+              <div className="text-[11px] text-zinc-500">Full Autonomy</div>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">Sponsors</span>
-              <div className="text-xl font-extrabold text-sky-600">All 7 Integrated</div>
-              <div className="text-[11px] text-slate-500">Full Stack Matrix</div>
+            <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Sponsors</span>
+              <div className="text-lg font-bold text-zinc-900">All 7 Built</div>
+              <div className="text-[11px] text-zinc-500">Full Stack Matrix</div>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">SKU Catalog</span>
-              <div className="text-xl font-extrabold text-fuchsia-600">100M+ SKUs</div>
-              <div className="text-[11px] text-slate-500">Channel3 Engine</div>
+            <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Catalog</span>
+              <div className="text-lg font-bold text-zinc-900">100M+ SKUs</div>
+              <div className="text-[11px] text-zinc-500">Channel3 Feed</div>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">Audit Speed</span>
-              <div className="text-xl font-extrabold text-emerald-600">&lt; 2.0s</div>
-              <div className="text-[11px] text-slate-500">Gemini 3.8 Flash</div>
+            <div className="rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Audit Speed</span>
+              <div className="text-lg font-bold text-zinc-900">&lt; 2.0s</div>
+              <div className="text-[11px] text-zinc-500">Gemini 3.8 Flash</div>
             </div>
-            <div className="col-span-2 sm:col-span-1 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">Gateway</span>
-              <div className="text-xl font-extrabold text-indigo-600">Dual-Mode</div>
-              <div className="text-[11px] text-slate-500">Zero-Blocker Parity</div>
+            <div className="col-span-2 sm:col-span-1 rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Gateway</span>
+              <div className="text-lg font-bold text-zinc-900">Dual-Mode</div>
+              <div className="text-[11px] text-zinc-500">Zero Blocker</div>
             </div>
           </div>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/?tab=overview"
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-950 hover:bg-slate-800 px-6 py-3 text-xs font-bold text-white shadow-sm transition active:scale-95"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-5 text-xs font-medium text-white transition"
             >
-              <Sparkles className="h-4 w-4 text-sky-400" />
-              <span>Launch Live Clearinghouse</span>
+              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Launch Clearinghouse</span>
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-6 py-3 text-xs font-bold text-slate-800 shadow-xs transition active:scale-95"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-5 text-xs font-medium text-zinc-700 transition"
             >
-              <Mail className="h-4 w-4 text-slate-500" />
-              <span>Contact Operations &amp; Judge Desk</span>
+              <Mail className="h-3.5 w-3.5 text-zinc-400" />
+              <span>Contact Team</span>
             </Link>
           </div>
         </section>
