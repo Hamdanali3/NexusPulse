@@ -29,6 +29,26 @@ import ProofOfHumanBountyBoard from "@/components/bounties/ProofOfHumanBountyBoa
 import BryntumEscrowTimeline from "@/components/sponsors/BryntumEscrowTimeline";
 import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialCommandCenter";
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
+import EngineShowcase from "@/components/home/EngineShowcase";
+import FeaturePageHeader from "@/components/layout/FeaturePageHeader";
+
+// URL hash <-> workspace tab mapping so every feature has its own shareable "page"
+// (e.g. /#deal-hunter) and the browser Back button works between features.
+const TAB_TO_HASH: Record<WorkspaceTabId, string> = {
+  overview: "",
+  channel3: "deal-hunter",
+  bounties: "human-bounties",
+  bryntum: "escrow-gantt",
+  aggrid: "telemetry",
+};
+
+function tabFromHash(hash: string): WorkspaceTabId {
+  const clean = hash.replace(/^#/, "");
+  const match = (Object.keys(TAB_TO_HASH) as WorkspaceTabId[]).find(
+    (t) => TAB_TO_HASH[t] === clean && clean !== ""
+  );
+  return match ?? "overview";
+}
 
 export default function NexusPulseHomePage() {
   const [appState, setAppState] = useState<NexusPulseState | null>(null);
@@ -93,6 +113,29 @@ export default function NexusPulseHomePage() {
   useEffect(() => {
     fetchState();
   }, [fetchState]);
+
+  // Sync the active feature page with the URL hash (deep links + Back/Forward).
+  useEffect(() => {
+    const syncFromHash = () => setActiveTab(tabFromHash(window.location.hash));
+    syncFromHash();
+    window.addEventListener("popstate", syncFromHash);
+    window.addEventListener("hashchange", syncFromHash);
+    return () => {
+      window.removeEventListener("popstate", syncFromHash);
+      window.removeEventListener("hashchange", syncFromHash);
+    };
+  }, []);
+
+  /** Navigate to a feature page: switch view, update URL, and scroll to the top of it. */
+  const navigateTo = useCallback((tab: WorkspaceTabId) => {
+    setActiveTab(tab);
+    const hash = TAB_TO_HASH[tab];
+    const url = hash ? `#${hash}` : window.location.pathname + window.location.search;
+    if (window.location.hash.replace(/^#/, "") !== hash) {
+      window.history.pushState(null, "", url);
+    }
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }, []);
 
   async function handleSwitchMode(nextPref: "auto" | "sandbox" | "mirror") {
     setPreferredMode(nextPref);
@@ -285,7 +328,7 @@ export default function NexusPulseHomePage() {
       {/* MINIMALIST EXECUTIVE HEADER */}
       <NexusHeader
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={navigateTo}
         activeMode={activeMode}
         preferredMode={preferredMode}
         databaseSource={databaseSource}
@@ -302,10 +345,18 @@ export default function NexusPulseHomePage() {
         id="main-workspace"
         className="flex-1 mx-auto w-full max-w-[1600px] px-4 sm:px-8 lg:px-12 pt-6 space-y-8"
       >
+        {/* DEDICATED FEATURE PAGE HEADER (shown when a specific engine is selected) */}
+        {activeTab !== "overview" && (
+          <FeaturePageHeader tab={activeTab} onNavigate={navigateTo} />
+        )}
+
+        {/* HOMEPAGE-ONLY SECTIONS (hero, KPI ribbon, Gemini console) */}
+        {activeTab === "overview" && (
+        <>
         {/* WORLD-CLASS MINIMALIST HERO (WHITE BACKGROUND FINTECH PARADIGM — FULL WIDTH) */}
         <section
           aria-labelledby="product-hero-heading"
-          className="relative text-center pt-6 pb-4 sm:pt-12 sm:pb-8 max-w-6xl mx-auto w-full"
+          className="relative text-center pt-6 pb-6 sm:pt-12 sm:pb-10 px-4 sm:px-8 max-w-6xl mx-auto w-full overflow-hidden"
         >
           {/* Subtle ambient light beam */}
           <div
@@ -345,7 +396,7 @@ export default function NexusPulseHomePage() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("bounties")}
+              onClick={() => navigateTo("bounties")}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition hover:scale-105 active:scale-95"
             >
               <span>Explore Human Bounties</span>
@@ -353,85 +404,9 @@ export default function NexusPulseHomePage() {
             </button>
           </div>
 
-          {/* Cascade Items 5-7: Sleek 3-Engine Feature Cards (Expanded Full-Width Responsive Grid) */}
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 text-left w-full">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setActiveTab("channel3")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setActiveTab("channel3");
-                }
-              }}
-              className="animate-cascade-5 group rounded-2xl border border-slate-200 bg-white hover:border-sky-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200 font-bold">01 / Deal Hunter</span>
-                <ShoppingBag className="h-4 w-4 text-slate-400 group-hover:text-sky-600 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-slate-950">Deal &amp; Subscription Guard</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Channel3 100M+ catalog monitor &amp; PayPal subscription optimizer. Automatically downgrades idle tier services.
-              </p>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-sky-600 group-hover:text-sky-700">
-                <span>Open Engine</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </div>
-
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setActiveTab("bounties")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setActiveTab("bounties");
-                }
-              }}
-              className="animate-cascade-6 group rounded-2xl border border-slate-200 bg-white hover:border-emerald-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 font-bold">02 / Proof-of-Human</span>
-                <UserCheck className="h-4 w-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-slate-950">Oracle Micro-Bounties</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                30-60s physical verifications verified by Gemini 3.8 Flash &amp; paid immediately via PayPal Payouts v1 batches.
-              </p>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
-                <span>Open Engine</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </div>
-
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setActiveTab("bryntum")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setActiveTab("bryntum");
-                }
-              }}
-              className="animate-cascade-7 group rounded-2xl border border-slate-200 bg-white hover:border-indigo-400 hover:shadow-xl hover:-translate-y-1 p-5 transition-all duration-300 cursor-pointer shadow-xs"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200 font-bold">03 / Smart Escrow</span>
-                <Lock className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
-              </div>
-              <h3 className="mt-3 text-sm font-bold text-slate-950">Bryntum Milestone Escrow</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Orders v2 AUTHORIZE holds tracked on an interactive Gantt timeline with DHL carrier proofs and Dispute Shield.
-              </p>
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-indigo-600 group-hover:text-indigo-700">
-                <span>Open Engine</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </div>
+          {/* Cascade Items 5-7: Animated, looping 3-Engine Spotlight (one engine after another) */}
+          <div className="animate-cascade-5">
+            <EngineShowcase onOpenEngine={navigateTo} />
           </div>
         </section>
 
@@ -443,7 +418,7 @@ export default function NexusPulseHomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
             <button
               type="button"
-              onClick={() => setActiveTab("channel3")}
+              onClick={() => navigateTo("channel3")}
               className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
@@ -465,7 +440,7 @@ export default function NexusPulseHomePage() {
 
             <button
               type="button"
-              onClick={() => setActiveTab("bounties")}
+              onClick={() => navigateTo("bounties")}
               className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
@@ -484,7 +459,7 @@ export default function NexusPulseHomePage() {
 
             <button
               type="button"
-              onClick={() => setActiveTab("bryntum")}
+              onClick={() => navigateTo("bryntum")}
               className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
@@ -503,7 +478,7 @@ export default function NexusPulseHomePage() {
 
             <button
               type="button"
-              onClick={() => setActiveTab("aggrid")}
+              onClick={() => navigateTo("aggrid")}
               className="p-5 sm:p-6 text-left hover:bg-slate-50/80 transition-colors group"
             >
               <div className="flex items-center justify-between">
@@ -687,6 +662,8 @@ export default function NexusPulseHomePage() {
             </div>
           )}
         </section>
+        </>
+        )}
 
         {/* MOBILE / TABLET WORKSPACE TABS (modern-web-guidance: tabs) */}
         <div
@@ -729,7 +706,7 @@ export default function NexusPulseHomePage() {
                 type="button"
                 role="tab"
                 aria-selected={active}
-                onClick={() => setActiveTab(tab.id as WorkspaceTabId)}
+                onClick={() => navigateTo(tab.id as WorkspaceTabId)}
                 className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-xs ${
                   active
                     ? "bg-slate-950 text-white shadow-sm"
@@ -899,13 +876,13 @@ export default function NexusPulseHomePage() {
       <NexusFooter
         activeMode={activeMode}
         databaseSource={databaseSource}
-        onSelectTab={setActiveTab}
+        onSelectTab={navigateTo}
       />
 
       {/* DEDICATED ADVANCED AI CHATBOT (GROQ 120B FRONTIER MODEL) */}
       <NexusAiChatbot
         appState={appState}
-        onSelectTab={setActiveTab}
+        onSelectTab={navigateTo}
       />
     </div>
   );

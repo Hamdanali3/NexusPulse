@@ -374,6 +374,166 @@ button:disabled {
   }
 }
 
+/* =========================================================================
+   ENGINE SHOWCASE — looping animated spotlight (src/components/home/EngineShowcase.tsx)
+   ========================================================================= */
+
+/* Edgeless ambient glow: fades out softly on every side (no hard card edges) */
+.es-edge-fade {
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 40%, transparent 100%);
+}
+
+/* Slide transitions: incoming from the right, outgoing to the left */
+.engine-slide {
+  opacity: 0;
+  transform: translate3d(48px, 0, 0) scale(0.97);
+  filter: blur(8px);
+  pointer-events: none;
+  transition: opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 800ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 650ms ease;
+}
+
+.engine-slide[data-state="prev"] {
+  transform: translate3d(-48px, 0, 0) scale(0.97);
+}
+
+.engine-slide[data-state="active"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Progress bar driving the auto-rotation */
+.es-progress {
+  transform-origin: left center;
+  animation-name: esProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes esProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Staggered copy entrance (re-triggers whenever a slide becomes active) */
+.engine-slide[data-state="active"] .es-rise {
+  animation: esRise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes esRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Visual card pop */
+.engine-slide[data-state="active"] .es-pop {
+  animation: esPop 800ms cubic-bezier(0.34, 1.56, 0.64, 1) 120ms both;
+}
+
+@keyframes esPop {
+  from { opacity: 0; transform: translateY(18px) scale(0.9) rotate(-2deg); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Floating chip that lands after the card */
+.engine-slide[data-state="active"] .es-chip {
+  animation: esChip 650ms cubic-bezier(0.34, 1.56, 0.64, 1) 900ms both;
+}
+
+@keyframes esChip {
+  from { opacity: 0; transform: translateY(12px) scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Gentle float + orbit rings */
+.es-float { animation: esFloat 5s ease-in-out infinite; }
+.es-orbit { animation: esSpin 26s linear infinite; }
+.es-orbit-rev { animation: esSpin 18s linear infinite reverse; }
+
+@keyframes esFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
+
+@keyframes esSpin {
+  to { rotate: 360deg; }
+}
+
+/* Deal Hunter: sparkline draw, dot ping, price + badge */
+.es-draw { stroke-dasharray: 260; stroke-dashoffset: 260; }
+.engine-slide[data-state="active"] .es-draw {
+  animation: esDraw 1400ms cubic-bezier(0.65, 0, 0.35, 1) 350ms forwards;
+}
+@keyframes esDraw { to { stroke-dashoffset: 0; } }
+
+.es-fade-late, .es-dot { opacity: 0; }
+.engine-slide[data-state="active"] .es-fade-late {
+  animation: esFadeIn 600ms ease 1400ms forwards;
+}
+.engine-slide[data-state="active"] .es-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: esFadeIn 300ms ease 1650ms forwards, esDotPulse 1.6s ease-in-out 1950ms infinite;
+}
+@keyframes esFadeIn { to { opacity: 1; } }
+@keyframes esDotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.6); }
+}
+
+.engine-slide[data-state="active"] .es-price {
+  animation: esRise 600ms cubic-bezier(0.16, 1, 0.3, 1) 1500ms both;
+}
+.engine-slide[data-state="active"] .es-badge {
+  animation: esChip 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 1700ms both;
+}
+
+/* Proof-of-Human: scanning laser then verified overlay */
+.es-scan { top: 12%; opacity: 0; }
+.engine-slide[data-state="active"] .es-scan {
+  animation: esScan 1700ms ease-in-out 400ms 1 both;
+}
+@keyframes esScan {
+  0% { top: 12%; opacity: 0; }
+  10% { opacity: 1; }
+  50% { top: 86%; }
+  90% { opacity: 1; }
+  100% { top: 12%; opacity: 0; }
+}
+
+.es-verified { opacity: 0; }
+.engine-slide[data-state="active"] .es-verified {
+  animation: esVerified 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 2100ms forwards;
+}
+@keyframes esVerified {
+  from { opacity: 0; transform: scale(1.15); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Smart Escrow: Gantt bars fill in sequence */
+.es-bar { width: 0; }
+.engine-slide[data-state="active"] .es-bar {
+  animation-name: esBar;
+  animation-duration: 1100ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes esBar { to { width: var(--es-w, 80%); } }
+
+/* Feature page entrance */
+.feature-page-enter {
+  animation: featurePageEnter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes featurePageEnter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
 /* Full Width Professional Container */
 .full-bleed-container {
   width: 100%;
