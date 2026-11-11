@@ -308,7 +308,7 @@ export async function runNexusPulseAgentInteraction(params: {
     toolExecutions.length > 0
       ? `Tools just executed in this turn: ${JSON.stringify(toolExecutions)}`
       : "",
-    "Provide a concise, high-impact executive response citing exact PayPal Order IDs, Subscription IDs, Payout Batch IDs, and dollar amounts.",
+    "Format your response strictly as a clear, professional executive financial audit memorandum. Use clear markdown section headers (### 1. Executive Summary & Telemetry, ### 2. Findings & Optimization Plan, ### 3. Immediate Action Items). Do NOT dump raw JSON text or unformatted curly brackets. Present all figures, PayPal Order IDs, and recommendations in clean, human-readable document style with bold highlights and bullet points.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -353,12 +353,12 @@ export async function runNexusPulseAgentInteraction(params: {
   const openBountiesTotal = openBounties.reduce((acc, b) => acc + Number(b.reward.value), 0);
 
   const summaryLines: string[] = [
-    `### NexusPulse (${model}) — Executive Telemetry${params.previousInteractionId ? ` · Thread Continued` : ""}`,
+    `### 1. Executive Summary & Clearinghouse Telemetry\n- **Protected Wallet Balance:** $${state.walletBalanceUsd.toFixed(2)} USD\n- **Identified Subscription Savings:** $${activeSubsSavings.toFixed(2)}/mo ($${(activeSubsSavings * 12).toFixed(2)}/yr)\n- **Active Escrow Under Dispute Shield:** $${state.totalEscrowProtectedUsd.toFixed(2)} USD across ${state.escrowMilestones.length} milestones\n- **Available Proof-of-Human Yield:** $${openBountiesTotal.toFixed(2)} USD across ${openBounties.length} open micro-tasks`,
   ];
 
   if (toolExecutions.length > 0) {
     summaryLines.push(
-      `**Autonomous Tool Execution Log:**\n${toolExecutions.map((t) => `- \`${t.toolName}\`: ${t.resultSummary}`).join("\n")}`
+      `### 2. Autonomous Tool Execution & Audit Ledger\n${toolExecutions.map((t) => `- **${t.toolName}:** ${t.resultSummary}`).join("\n")}`
     );
   }
 
@@ -369,13 +369,13 @@ export async function runNexusPulseAgentInteraction(params: {
       .map((b, idx) => {
         const reward = Number(b.reward.value);
         const hrRate = Math.round((reward / Math.max(15, b.estimated_seconds)) * 3600);
-        return `${idx + 1}. **${b.id} — $${reward.toFixed(2)} USD** (${b.estimated_seconds}s · ~$${hrRate}/hr yield): *${b.title}* — Requested by \`${b.requester_agent}\``;
+        return `${idx + 1}. **${b.id} — $${reward.toFixed(2)} USD** (${b.estimated_seconds}s · ~$${hrRate}/hr yield): ${b.title} (Requested by \`${b.requester_agent}\`)`;
       });
     summaryLines.push(
-      `**Proof-of-Human Oracle Bounty Ranking (\`/v1/payments/payouts\`):**\n${
+      `### 3. Proof-of-Human Bounty Yield Ranking (/v1/payments/payouts)\n${
         rankedLines.length > 0
           ? rankedLines.join("\n")
-          : "All open bounties have been completed and paid out!"
+          : "All open bounties have been verified and paid out."
       }`
     );
   }
@@ -386,15 +386,12 @@ export async function runNexusPulseAgentInteraction(params: {
         `- **${m.id} (${m.project_name}):** $${m.amount.value} USD · Status: \`${m.status}\` · Order \`${m.paypal_order_id}\` · Auth \`${m.paypal_authorization_id}\``
     );
     summaryLines.push(
-      `**A2A Smart Escrow & Dispute Shield Audit (\`/v2/checkout/orders/{id}/authorize\`):**\n${escrowLines.join("\n")}\n- **Dispute Shield (\`PP-D-94821\`):** Attached DHL tracking \`${state.disputes[0]?.tracking_attached ?? "DHL-9928172635-PK"}\` with SHA-256 cryptographic delivery manifest.`
+      `### 4. A2A Smart Escrow & Dispute Shield Audit (/v2/checkout/orders/{id}/authorize)\n${escrowLines.join("\n")}\n- **Dispute Shield (PP-D-94821):** Attached carrier tracking \`${state.disputes[0]?.tracking_attached ?? "DHL-9928172635-PK"}\` with SHA-256 cryptographic delivery manifest.`
     );
   }
 
   summaryLines.push(
-    `1. **Autopilot Subscription & Bill Guard (\`/v1/billing/subscriptions\`):** Identified **$${activeSubsSavings.toFixed(2)}/month ($${(activeSubsSavings * 12).toFixed(2)}/year)** in immediate savings across ${state.subscriptions.filter((s) => Number(s.potential_monthly_savings.value) > 0).length} active PayPal subscriptions.`,
-    `2. **Channel3 100M+ Catalog Arbitrage (\`/v2/checkout/orders\`):** **NVIDIA Jetson Orin Nano Super** (\`C3-PROD-9001\`) is **$189.00** ($60 below retail). Ready for one-click PayPal JS SDK v6 or Pay in 4 checkout.`,
-    `3. **Proof-of-Human Oracle Bounties (\`/v1/payments/payouts\`):** **$${openBountiesTotal.toFixed(2)} USD** in instant PayPal Payout bounties available across ${openBounties.length} open tasks.`,
-    `4. **A2A Smart Escrow & Dispute Shield (\`/v2/checkout/orders/{id}/authorize\`):** **$${state.totalEscrowProtectedUsd.toFixed(2)} USD** protected across ${state.escrowMilestones.length} milestones.`
+    `### 5. Recommended Strategic Financial Actions\n1. **Autopilot Subscription Guard (/v1/billing/subscriptions):** Identified **$${activeSubsSavings.toFixed(2)}/month ($${(activeSubsSavings * 12).toFixed(2)}/year)** in immediate savings across ${state.subscriptions.filter((s) => Number(s.potential_monthly_savings.value) > 0).length} active PayPal subscriptions.\n2. **Channel3 100M+ Catalog Arbitrage (/v2/checkout/orders):** **NVIDIA Jetson Orin Nano Super** (\`C3-PROD-9001\`) is **$189.00** ($60 below retail). Ready for 1-click PayPal JS SDK v6 or Pay in 4 checkout.\n3. **Proof-of-Human Oracle Tasks (/v1/payments/payouts):** **$${openBountiesTotal.toFixed(2)} USD** in instant PayPal Payout bounties available across ${openBounties.length} open tasks.\n4. **A2A Smart Escrow & Dispute Shield (/v2/checkout/orders/{id}/authorize):** **$${state.totalEscrowProtectedUsd.toFixed(2)} USD** protected across ${state.escrowMilestones.length} milestones.`
   );
 
   return {

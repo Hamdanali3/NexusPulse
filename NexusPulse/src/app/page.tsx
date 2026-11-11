@@ -33,6 +33,7 @@ import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialC
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
 import EngineShowcase from "@/components/home/EngineShowcase";
 import FeaturePageHeader from "@/components/layout/FeaturePageHeader";
+import CfoExecutiveDocumentOutput from "@/components/ai/CfoExecutiveDocumentOutput";
 
 // URL hash <-> workspace tab mapping so every feature has its own shareable "page"
 // (e.g. /#deal-hunter) and the browser Back button works between features.
@@ -626,43 +627,12 @@ export default function NexusPulseHomePage() {
             </div>
           </form>
 
-          {/* Gemini Interaction Output */}
+          {/* Autonomous AI CFO Formatted Document Output */}
           {agentResponse && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="nexus-fade-in mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900">
-                    Interaction Output
-                  </span>
-                  <span className="rounded bg-indigo-100 px-2 py-0.5 font-mono text-[10px] text-indigo-800 font-semibold">
-                    {agentResponse.modelUsed}
-                  </span>
-                  {agentResponse.durationMs !== undefined && (
-                    <span className="text-[11px] text-slate-500 tabular-nums">
-                      {agentResponse.durationMs}ms
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-1">
-                  {agentResponse.toolExecutions.map((t, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 font-mono text-[10px] text-emerald-800 font-semibold"
-                    >
-                      {t.toolName}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
-                {agentResponse.outputText}
-              </div>
-            </div>
+            <CfoExecutiveDocumentOutput
+              response={agentResponse}
+              onNavigate={navigateTo}
+            />
           )}
         </section>
         </>
