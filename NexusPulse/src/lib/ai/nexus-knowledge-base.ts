@@ -15,9 +15,11 @@ export interface KnowledgeDocument {
     | "security_webhooks"
     | "byok_settings"
     | "navigation"
-    | "limitations";
+    | "limitations"
+    | "about_page"
+    | "contact_page";
   route: string;
-  tabId: "overview" | "channel3" | "bounties" | "bryntum" | "aggrid";
+  tabId: "overview" | "channel3" | "bounties" | "bryntum" | "aggrid" | "about" | "contact";
   sectionId: string;
   keywords: string[];
   summary: string;
@@ -85,12 +87,99 @@ export const VERIFIED_NAVIGATION_LINKS = {
     tabId: "aggrid" as const,
     description: "Interactive SHA256withRSA webhook signature verifier and APIMatic SDK inspector.",
   },
+  about: {
+    label: "About NexusPulse & 50-Year AGI Thesis",
+    url: "/about",
+    hashUrl: "/about",
+    tabId: "about" as const,
+    description: "Comprehensive architectural breakdown, 50-year AGI macroeconomic thesis, and 7-sponsor matrix.",
+  },
+  contact: {
+    label: "Contact & Judge Support Desk",
+    url: "/contact",
+    hashUrl: "/contact",
+    tabId: "contact" as const,
+    description: "Direct communications clearinghouse with expedited <2h SLA for PayPal Hackathon judges and developers.",
+  },
 };
 
 /**
  * Structured Knowledge Corpus covering the entire NexusPulse website
  */
 export const NEXUS_KNOWLEDGE_CORPUS: KnowledgeDocument[] = [
+  {
+    id: "doc-about-page",
+    title: "About NexusPulse: Product Overview, 50-Year AGI Thesis & Sponsor Architecture",
+    category: "about_page",
+    route: "/about",
+    tabId: "about",
+    sectionId: "thesis",
+    keywords: [
+      "about",
+      "about page",
+      "about nexuspulse",
+      "what is nexuspulse",
+      "what is this product",
+      "tell me about this product",
+      "product information",
+      "50-year agi thesis",
+      "macroeconomic thesis",
+      "deepmind",
+      "anthropic",
+      "sponsor matrix",
+      "all sponsors",
+      "architecture",
+    ],
+    summary:
+      "Comprehensive structured overview of NexusPulse, its 50-year AGI macroeconomic thesis, 3 autonomous engines, and 7 hackathon sponsor integrations.",
+    details: `NexusPulse About Page (/about):
+- High-level Mission: Connecting AI Agents, Human Oracles & Smart Payments on PayPal for the PayPal AI Hackathon 2026.
+- 50-Year AGI Economic Thesis: Solves consumer subscription bloat ($1,548+/yr lost) and the physical-world trust bottleneck for AI agents through human comparative advantage.
+- Grounded in Research: Google DeepMind (arXiv:2509.10147, arXiv:2512.16856), Anthropic Economic Index (arXiv:2503.04761), and Macroeconomics of AGI (arXiv:2602.20946).
+- 3 Engines:
+  1. Engine 1: Personal Agentic CFO & Channel3 100M+ Deal-Hunter (PayPal Subscriptions v1 + Orders v2 + JS SDK v6).
+  2. Engine 2: Proof-of-Human Oracle Micro-Bounties (Gemini 3.8 Flash audit in <2s + Instant PayPal Payouts v1).
+  3. Engine 3: Zero-Dispute A2A Smart Escrow & Dispute Shield (PayPal Orders v2 AUTHORIZE + Bryntum Gantt + Shipment Trackers v2).
+- Sponsor Matrix: All 7 hackathon tracks integrated (PayPal, APIMatic, Google Gemini, Channel3, AG Grid, Bryntum, Render).
+- Dual-Mode Gateway: Hot-swaps between Live PayPal Sandbox and Deterministic Sandbox Mirror for 100% zero-blocker judge evaluation.
+- Link: [Open About Page](/about)`,
+  },
+  {
+    id: "doc-contact-page",
+    title: "NexusPulse Contact, Hackathon Judge Support Desk & Direct Inquiry Clearinghouse",
+    category: "contact_page",
+    route: "/contact",
+    tabId: "contact",
+    sectionId: "contact-desk",
+    keywords: [
+      "contact",
+      "contact page",
+      "contact team",
+      "support",
+      "judge desk",
+      "judge support",
+      "inquiry",
+      "how to contact",
+      "help desk",
+      "get in touch",
+      "reach out",
+      "feedback",
+      "email",
+    ],
+    summary:
+      "Direct communications clearinghouse with an expedited <2h SLA for PayPal Hackathon judges and developers, featuring RFC-validated form inputs and quick-fill presets.",
+    details: `NexusPulse Contact Desk (/contact):
+- Dedicated Channel: Specifically structured for PayPal AI Hackathon judges, developers integrating APIMatic & PayPal SDKs, and enterprise partners.
+- Response SLAs:
+  * Hackathon Judge Priority: < 2 Hours direct escalation.
+  * Technical Blocker / Escrow Hold: < 12 Hours.
+  * Standard SLA: 24–48 Hours.
+- Quick-Fill Presets: Includes 1-click presets for Hackathon Judge Review, Developer / APIMatic SDK Integration, and Security / Webhooks Disclosure.
+- Form Validation: Strict RFC email checking, full name bounds, urgency level, category selection, character counters, XSS sanitization, and spam honeypot.
+- Ticket Tracking: Every submission receives a cryptographic reference ticket (e.g. NEXUS-REQ-XXXX) with instant copy functionality.
+- Direct Channels: Direct links to GitHub repository, PayPal sandbox test credentials (sb-buyer-nexus@personal.example.com / sb-merchant-nexus@business.example.com), and security disclosure.
+- Link: [Open Contact Page](/contact)`,
+  },
   {
     id: "doc-identity",
     title: "NexusPulse AI Assistant Identity, Creator & Purpose",

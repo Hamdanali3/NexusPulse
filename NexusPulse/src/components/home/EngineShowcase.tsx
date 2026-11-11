@@ -51,11 +51,11 @@ const ENGINES: EngineDef[] = [
     id: "channel3",
     step: "01",
     tag: "Deal Hunter",
-    title: "Deal & Subscription Guard",
+    title: "Automated Deal & Subscription Savings",
     description:
-      "Channel3 100M+ catalog monitor & PayPal subscription optimizer. Automatically downgrades idle tier services.",
+      "Tracks price drops across 100M+ products and downgrades unused subscriptions.",
     icon: ShoppingBag,
-    highlights: ["100M+ live catalog", "Idle-tier auto downgrade", "PayPal Orders v2"],
+    highlights: ["100M+ SKUs", "Auto-Downgrade", "PayPal Checkout"],
     theme: {
       text: "text-sky-700",
       softBg: "bg-sky-50",
@@ -69,12 +69,12 @@ const ENGINES: EngineDef[] = [
   {
     id: "bounties",
     step: "02",
-    tag: "Proof-of-Human",
-    title: "Oracle Micro-Bounties",
+    tag: "Human Bounties",
+    title: "60-Second Verification Tasks",
     description:
-      "30-60s physical verifications verified by Gemini 3.8 Flash & paid immediately via PayPal Payouts v1 batches.",
+      "Complete quick real-world checks verified by AI for instant PayPal payouts.",
     icon: UserCheck,
-    highlights: ["30-60s verifications", "Gemini vision proof", "Instant Payouts v1"],
+    highlights: ["30–60s Tasks", "AI Verified", "Instant Payouts"],
     theme: {
       text: "text-emerald-700",
       softBg: "bg-emerald-50",
@@ -89,11 +89,11 @@ const ENGINES: EngineDef[] = [
     id: "bryntum",
     step: "03",
     tag: "Smart Escrow",
-    title: "Bryntum Milestone Escrow",
+    title: "Milestone Escrow & Dispute Protection",
     description:
-      "Orders v2 AUTHORIZE holds tracked on an interactive Gantt timeline with DHL carrier proofs and Dispute Shield.",
+      "Locks project funds on a visual Gantt timeline until deliverables are verified.",
     icon: Lock,
-    highlights: ["AUTHORIZE holds", "DHL carrier proofs", "Dispute Shield"],
+    highlights: ["Escrow Holds", "Visual Gantt", "Dispute Shield"],
     theme: {
       text: "text-indigo-700",
       softBg: "bg-indigo-50",

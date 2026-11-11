@@ -189,22 +189,20 @@ export default function BryntumEscrowTimeline({
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-bold text-indigo-700">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
                 <Calendar className="h-3.5 w-3.5 text-indigo-600" />
-                Sponsor: Bryntum Gantt &amp; Cashflow Scheduler
+                Bryntum Gantt Scheduler
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
                 <Lock className="h-3 w-3 text-emerald-600" />
-                PayPal Orders v2 AUTHORIZE + Trackers API
+                PayPal Orders v2 AUTHORIZE
               </span>
             </div>
             <h3 id="engine-3-heading" className="mt-1.5 text-lg font-bold text-slate-950">
-              Engine 3: Zero-Dispute A2A Smart Escrow Milestone Gantt
+              Engine 3: Milestone Escrow &amp; Dispute Protection
             </h3>
             <p className="text-xs text-slate-600">
-              Interactive critical-path Gantt timeline binding PayPal{" "}
-              <code className="text-indigo-700 font-semibold bg-indigo-50 px-1 py-0.5 rounded border border-indigo-200">intent: &quot;AUTHORIZE&quot;</code>{" "}
-              holds to cryptographic AI deliverable verification and automatic shipment tracking dispute protection.
+              Authorization holds tracked on an interactive Gantt timeline with automated deliverable verification.
             </p>
           </div>
 
@@ -322,9 +320,9 @@ export default function BryntumEscrowTimeline({
         <div className="mt-4 overflow-x-auto">
           <div className="min-w-[780px] rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs">
             {/* Timeline Date Scale Header */}
-            <div className="grid grid-cols-12 border-b border-slate-200 bg-slate-100/90 text-xs font-bold text-slate-800">
+            <div className="grid grid-cols-12 border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-800">
               <div className="col-span-4 px-3.5 py-2.5 border-r border-slate-200">
-                Bryntum WBS Task / PayPal Authorization ID
+                WBS Task / Authorization ID
               </div>
               <div className="col-span-2 px-3 py-2.5 border-r border-slate-200 text-right">
                 Locked Escrow
@@ -332,7 +330,7 @@ export default function BryntumEscrowTimeline({
               <div className="col-span-6 grid grid-cols-6 text-center text-slate-700 font-semibold">
                 <div className="py-2.5 border-r border-slate-200">Nov 01–05</div>
                 <div className="py-2.5 border-r border-slate-200">Nov 06–10</div>
-                <div className="py-2.5 border-r border-slate-200 bg-indigo-100 font-bold text-indigo-900">
+                <div className="py-2.5 border-r border-slate-200 bg-indigo-100/90 font-bold text-indigo-950">
                   Nov 11–15 (Active)
                 </div>
                 <div className="py-2.5 border-r border-slate-200">Nov 16–20</div>

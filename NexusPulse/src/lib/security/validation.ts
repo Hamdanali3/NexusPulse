@@ -85,3 +85,238 @@ export function isAllowedFetchSite(headers: Headers): boolean {
   if (!site) return true; // Non-browser client, unit test, or server-to-server webhook
   return ["same-origin", "same-site", "none"].includes(site.toLowerCase());
 }
+
+/**
+ * Validates a standard email address format.
+ */
+export function validateEmail(input: unknown): {
+  valid: boolean;
+  cleaned?: string;
+  error?: string;
+} {
+  if (typeof input !== "string" || !input.trim()) {
+    return {
+      valid: false,
+      error: "Email address is required.",
+    };
+  }
+  const trimmed = input.trim().toLowerCase();
+  if (trimmed.length > 120) {
+    return {
+      valid: false,
+      error: "Email address cannot exceed 120 characters.",
+    };
+  }
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  if (!emailRegex.test(trimmed)) {
+    return {
+      valid: false,
+      error: "Please enter a valid email address (e.g. name@example.com).",
+    };
+  }
+  return {
+    valid: true,
+    cleaned: trimmed,
+  };
+}
+
+export type ContactInquiryType =
+  | "general"
+  | "hackathon_judging"
+  | "developer_api"
+  | "oracle_bounties"
+  | "enterprise_escrow"
+  | "security_disclosure";
+
+export type ContactInquirerRole =
+  | "judge"
+  | "developer"
+  | "merchant"
+  | "oracle_worker"
+  | "investor_researcher"
+  | "other";
+
+export type ContactUrgency = "normal" | "high" | "urgent_judge";
+
+export interface ContactFormData {
+  fullName: string;
+  email: string;
+  inquiryType: ContactInquiryType;
+  role: ContactInquirerRole;
+  urgency: ContactUrgency;
+  subject: string;
+  referenceId?: string;
+  message: string;
+  agreedToTerms: boolean;
+  honeypot?: string;
+}
+
+export interface CleanedContactFormData {
+  fullName: string;
+  email: string;
+  inquiryType: ContactInquiryType;
+  role: ContactInquirerRole;
+  urgency: ContactUrgency;
+  subject: string;
+  referenceId?: string;
+  message: string;
+  agreedToTerms: boolean;
+}
+
+export interface ContactValidationResult {
+  valid: boolean;
+  isBot?: boolean;
+  errors: Partial<Record<keyof ContactFormData, string>>;
+  data?: CleanedContactFormData;
+}
+
+const VALID_INQUIRY_TYPES: readonly ContactInquiryType[] = [
+  "general",
+  "hackathon_judging",
+  "developer_api",
+  "oracle_bounties",
+  "enterprise_escrow",
+  "security_disclosure",
+];
+
+const VALID_ROLES: readonly ContactInquirerRole[] = [
+  "judge",
+  "developer",
+  "merchant",
+  "oracle_worker",
+  "investor_researcher",
+  "other",
+];
+
+const VALID_URGENCIES: readonly ContactUrgency[] = [
+  "normal",
+  "high",
+  "urgent_judge",
+];
+
+/**
+ * Validates and sanitizes a complete contact inquiry payload.
+ * Provides granular error messages for every field.
+ */
+export function validateContactForm(input: unknown): ContactValidationResult {
+  const errors: Partial<Record<keyof ContactFormData, string>> = {};
+
+  if (!input || typeof input !== "object") {
+    return {
+      valid: false,
+      errors: { fullName: "Invalid request payload." },
+    };
+  }
+
+  const raw = input as Record<string, unknown>;
+
+  // Check anti-spam honeypot
+  if (
+    typeof raw.honeypot === "string" &&
+    raw.honeypot.trim().length > 0
+  ) {
+    return {
+      valid: false,
+      isBot: true,
+      errors: { honeypot: "Automated submission detected." },
+    };
+  }
+
+  // Full Name validation & sanitization
+  const sanitizedName = sanitizeText(raw.fullName, 80);
+  if (!sanitizedName) {
+    errors.fullName = "Full name is required.";
+  } else if (sanitizedName.length < 2) {
+    errors.fullName = "Full name must be at least 2 characters.";
+  } else if (sanitizedName.length > 80) {
+    errors.fullName = "Full name cannot exceed 80 characters.";
+  } else if (!/^[\p{L}\p{M}\s.'-]+$/u.test(sanitizedName)) {
+    errors.fullName = "Full name contains invalid characters.";
+  }
+
+  // Email validation
+  const emailRes = validateEmail(raw.email);
+  if (!emailRes.valid) {
+    errors.email = emailRes.error || "Valid email is required.";
+  }
+
+  // Inquiry Type validation
+  const rawType = String(raw.inquiryType || "").trim() as ContactInquiryType;
+  if (!rawType || !VALID_INQUIRY_TYPES.includes(rawType)) {
+    errors.inquiryType = "Please select a valid inquiry category.";
+  }
+
+  // Inquirer Role validation
+  const rawRole = String(raw.role || "").trim() as ContactInquirerRole;
+  if (!rawRole || !VALID_ROLES.includes(rawRole)) {
+    errors.role = "Please select your primary role.";
+  }
+
+  // Urgency validation
+  let rawUrgency = String(raw.urgency || "normal").trim() as ContactUrgency;
+  if (!VALID_URGENCIES.includes(rawUrgency)) {
+    rawUrgency = "normal";
+  }
+
+  // Subject validation
+  const rawSubject = typeof raw.subject === "string" ? raw.subject.trim() : "";
+  if (!rawSubject) {
+    errors.subject = "Subject is required.";
+  } else if (rawSubject.length < 4) {
+    errors.subject = "Subject must be at least 4 characters.";
+  } else if (rawSubject.length > 140) {
+    errors.subject = "Subject cannot exceed 140 characters.";
+  }
+
+  // Reference ID validation (optional)
+  let cleanedReferenceId: string | undefined = undefined;
+  if (raw.referenceId !== undefined && raw.referenceId !== null && String(raw.referenceId).trim() !== "") {
+    const rawRef = String(raw.referenceId).trim();
+    if (rawRef.length > 50) {
+      errors.referenceId = "Reference ID cannot exceed 50 characters.";
+    } else if (!/^[a-zA-Z0-9_.-]+$/.test(rawRef)) {
+      errors.referenceId = "Reference ID may only contain letters, numbers, hyphens, and underscores.";
+    } else {
+      cleanedReferenceId = sanitizeText(rawRef, 50);
+    }
+  }
+
+  // Message validation
+  const rawMessage = typeof raw.message === "string" ? raw.message.trim() : "";
+  if (!rawMessage) {
+    errors.message = "Message body is required.";
+  } else if (rawMessage.length < 15) {
+    errors.message = "Message must be at least 15 characters long.";
+  } else if (rawMessage.length > 2500) {
+    errors.message = "Message cannot exceed 2500 characters.";
+  }
+
+  // Agreement to Terms
+  if (raw.agreedToTerms !== true && raw.agreedToTerms !== "true") {
+    errors.agreedToTerms = "You must acknowledge data processing to submit.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      valid: false,
+      errors,
+    };
+  }
+
+  return {
+    valid: true,
+    errors: {},
+    data: {
+      fullName: sanitizedName,
+      email: emailRes.cleaned!,
+      inquiryType: rawType,
+      role: rawRole,
+      urgency: rawUrgency,
+      subject: sanitizeText(rawSubject, 140),
+      referenceId: cleanedReferenceId,
+      message: sanitizeText(rawMessage, 2500),
+      agreedToTerms: true,
+    },
+  };
+}

@@ -141,20 +141,20 @@ export default function Channel3DealHunterPanel({
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-50 border border-fuchsia-200 px-2.5 py-0.5 text-xs font-bold text-fuchsia-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-50 border border-fuchsia-200 px-2.5 py-0.5 text-xs font-semibold text-fuchsia-800">
               <ShoppingBag className="h-3.5 w-3.5 text-fuchsia-600" />
-              Sponsor: Channel3 Universal Product Catalog (100M+ SKUs)
+              Channel3 100M+ Catalog
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-bold text-sky-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
               <Shield className="h-3 w-3 text-sky-600" />
-              Cryptographic Spending Mandate + PayPal JS SDK v6
+              PayPal Orders v2 &amp; JS SDK v6
             </span>
           </div>
           <h3 id="engine-1-heading" className="mt-1.5 text-lg font-bold text-slate-950">
-            Engine 1: Channel3 Autonomous Deal Arbitrage &amp; PayPal Checkout
+            Engine 1: Deal Arbitrage &amp; 1-Click Checkout
           </h3>
           <p className="text-xs text-slate-600">
-            Gemini 4 Argon continuously scans Channel3&apos;s merchant catalog against your cryptographic target price mandate and executes instant PayPal Wallet, Venmo, or Pay Later 4-installment checkouts.
+            Automated catalog matching against your price mandates, payable instantly via PayPal.
           </p>
         </div>
 
@@ -401,8 +401,8 @@ export default function Channel3DealHunterPanel({
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 text-xs">
                     <div className="text-slate-600 font-medium">
                       Merchant:{" "}
-                      <strong className="text-slate-950 font-bold">{deal.merchant_name}</strong> •{" "}
-                      <span className="text-amber-700 font-semibold">
+                      <strong className="text-slate-900 font-semibold">{deal.merchant_name}</strong> •{" "}
+                      <span className="text-amber-800 font-semibold">
                         ★ {deal.rating} ({deal.review_count})
                       </span>
                     </div>
@@ -410,20 +410,29 @@ export default function Channel3DealHunterPanel({
                     {isPurchased ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                        Purchased via PayPal ({deal.paypal_order_id})
+                        Purchased via PayPal
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-xs font-bold text-amber-800">
-                        <Zap className="h-3 w-3 text-amber-600" />
-                        Mandate Target (${deal.target_mandate_price}) Met — Ready
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                        <Zap className="h-3 w-3 text-emerald-600" />
+                        Mandate Met (${deal.target_mandate_price})
                       </span>
                     )}
                   </div>
 
-                  <p className="mt-2 text-xs text-slate-700">
-                    <strong className="text-fuchsia-800 font-bold">Channel3 AI Signal:</strong>{" "}
-                    {deal.ai_price_prediction}
-                  </p>
+                  {/* Visual Savings Bar */}
+                  <div className="mt-2.5">
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                      <span>Savings Advantage</span>
+                      <span className="font-semibold text-emerald-700">{deal.savings_percent}% below retail</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
+                        style={{ width: `${Math.min(100, Math.max(15, deal.savings_percent * 2))}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               );
             })

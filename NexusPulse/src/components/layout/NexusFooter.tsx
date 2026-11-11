@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   ArrowUp,
   CheckCircle2,
   Database,
   ExternalLink,
+  Info,
   Lock,
+  Mail,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -17,7 +20,7 @@ import type { WorkspaceTabId } from "./NexusHeader";
 interface NexusFooterProps {
   activeMode: PayPalExecutionMode;
   databaseSource: string;
-  onSelectTab: (tab: WorkspaceTabId) => void;
+  onSelectTab?: (tab: WorkspaceTabId) => void;
 }
 
 export default function NexusFooter({
@@ -32,8 +35,12 @@ export default function NexusFooter({
   }
 
   function handleJumpToEngine(tab: WorkspaceTabId) {
-    onSelectTab(tab);
-    scrollToTop();
+    if (onSelectTab) {
+      onSelectTab(tab);
+      scrollToTop();
+    } else if (typeof window !== "undefined") {
+      window.location.href = tab === "overview" ? "/" : `/?tab=${tab}`;
+    }
   }
 
   return (
@@ -44,7 +51,9 @@ export default function NexusFooter({
           <div className="lg:col-span-4 space-y-4">
             <NexusPulseLogo
               onNavigateHome={() => {
-                onSelectTab("overview");
+                if (onSelectTab) {
+                  onSelectTab("overview");
+                }
               }}
             />
             <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
@@ -110,31 +119,45 @@ export default function NexusFooter({
             </ul>
           </div>
 
-          {/* Column 3: Sponsor & Protocol Stack */}
+          {/* Column 3: Platform & Sponsor Stack */}
           <div className="lg:col-span-3 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-              PayPal &amp; Sponsor Stack
+              Platform &amp; Sponsors
             </h3>
-            <ul className="space-y-2 text-xs text-slate-600">
-              <li className="flex items-center gap-1.5">
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-1.5 text-slate-700 hover:text-sky-600 font-medium transition"
+                >
+                  <Info className="h-3.5 w-3.5 text-sky-600" />
+                  <span>About NexusPulse &amp; 50-Yr Thesis</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-1.5 text-slate-700 hover:text-indigo-600 font-medium transition"
+                >
+                  <Mail className="h-3.5 w-3.5 text-indigo-600" />
+                  <span>Contact &amp; Judge Support Desk</span>
+                </Link>
+              </li>
+              <li className="pt-1 border-t border-slate-100 flex items-center gap-1.5 text-slate-600">
                 <CheckCircle2 className="h-3.5 w-3.5 text-sky-600 shrink-0" />
                 <span>PayPal Orders v2, Payouts v1 &amp; Subscriptions v1</span>
               </li>
-              <li className="flex items-center gap-1.5">
+              <li className="flex items-center gap-1.5 text-slate-600">
                 <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
                 <span>APIMatic @paypal/paypal-server-sdk v2.5.0</span>
               </li>
-              <li className="flex items-center gap-1.5">
+              <li className="flex items-center gap-1.5 text-slate-600">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                <span>Google Gemini 4 Argon &amp; 3.8 Flash Interactions API</span>
+                <span>Google Gemini 4 Argon &amp; 3.8 Flash API</span>
               </li>
-              <li className="flex items-center gap-1.5">
+              <li className="flex items-center gap-1.5 text-slate-600">
                 <CheckCircle2 className="h-3.5 w-3.5 text-fuchsia-600 shrink-0" />
-                <span>Channel3 100M+ SKU Catalog &amp; AG Grid v36</span>
-              </li>
-              <li className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                <span>Bryntum Milestone Gantt &amp; Render Blueprint</span>
+                <span>Channel3 100M+ Catalog &amp; AG Grid v36</span>
               </li>
             </ul>
           </div>

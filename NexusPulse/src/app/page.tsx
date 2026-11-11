@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   ArrowRight,
@@ -12,6 +13,7 @@ import {
   KeyRound,
   Layers,
   Lock,
+  Mail,
   RotateCcw,
   ShieldCheck,
   ShoppingBag,
@@ -755,6 +757,20 @@ export default function NexusPulseHomePage() {
               </button>
             );
           })}
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
+          >
+            <Info className="h-3.5 w-3.5 text-sky-600" />
+            <span>About</span>
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
+          >
+            <Mail className="h-3.5 w-3.5 text-indigo-600" />
+            <span>Contact</span>
+          </Link>
         </div>
 
         {/* TAB CONTENT */}

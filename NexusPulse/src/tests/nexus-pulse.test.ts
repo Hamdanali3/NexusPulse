@@ -18,9 +18,13 @@ import {
 import {
   isAllowedFetchSite,
   sanitizeText,
+  validateContactForm,
+  validateEmail,
   validateRecipientAccount,
   validateUsdAmount,
 } from "../lib/security/validation";
+import { POST as contactPost, GET as contactGet } from "../app/api/contact/route";
+import { VERIFIED_NAVIGATION_LINKS } from "../lib/ai/nexus-knowledge-base";
 
 describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on PayPal", () => {
   beforeEach(() => {
@@ -310,9 +314,96 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.ok(validUrls.has("/?tab=bounties#engine-bounties"));
     assert.ok(validUrls.has("/?tab=bryntum#engine-bryntum"));
     assert.ok(validUrls.has("/?tab=aggrid#aggrid-heading"));
+    assert.ok(validUrls.has("/about"));
+    assert.ok(validUrls.has("/contact"));
     assert.equal(
       retrieveRelevantKnowledge("How do I claim BOUNTY-102 cold chain?")[0].category,
       "engine_2_bounties"
     );
+  });
+
+  it("validates and processes contact form submissions with strict schema rules, honeypot, and SLA estimation", async () => {
+    // 1. Missing fields should fail
+    const emptyRes = validateContactForm({});
+    assert.equal(emptyRes.valid, false);
+    assert.ok(emptyRes.errors.fullName);
+    assert.ok(emptyRes.errors.email);
+    assert.ok(emptyRes.errors.message);
+
+    // 2. Invalid email format should fail
+    const invalidEmailRes = validateContactForm({
+      fullName: "Judge Evaluator",
+      email: "not-an-email",
+      inquiryType: "hackathon_judging",
+      role: "judge",
+      urgency: "urgent_judge",
+      subject: "Evaluating PayPal Hackathon Project",
+      message: "Here is a sufficiently long message testing validation.",
+      agreedToTerms: true,
+    });
+    assert.equal(invalidEmailRes.valid, false);
+    assert.ok(invalidEmailRes.errors.email);
+
+    // 3. Bot Honeypot detection
+    const botRes = validateContactForm({
+      fullName: "Spam Bot",
+      email: "bot@spam.com",
+      inquiryType: "general",
+      role: "other",
+      urgency: "normal",
+      subject: "Buy cheap crypto",
+      message: "Here is spam payload text for the test.",
+      agreedToTerms: true,
+      honeypot: "https://spam-link.com",
+    });
+    assert.equal(botRes.valid, false);
+    assert.equal(botRes.isBot, true);
+
+    // 4. Valid inquiry passes and sanitizes
+    const validRes = validateContactForm({
+      fullName: "Dr. Jane Smith <script>",
+      email: "jane.smith@paypal.com",
+      inquiryType: "hackathon_judging",
+      role: "judge",
+      urgency: "urgent_judge",
+      subject: "Judge Review: Dual-Mode Sandbox Verification",
+      referenceId: "ORD-90123",
+      message: "Detailed feedback on the Gemini 3.8 Flash multimodal verification latency.",
+      agreedToTerms: true,
+    });
+    assert.equal(validRes.valid, true);
+    assert.equal(validRes.data?.fullName, "Dr. Jane Smith script");
+    assert.equal(validRes.data?.email, "jane.smith@paypal.com");
+    assert.equal(validRes.data?.urgency, "urgent_judge");
+
+    // 5. Test Contact API POST route
+    const postReq = new Request("http://localhost:3000/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "sec-fetch-site": "same-origin" },
+      body: JSON.stringify({
+        fullName: "Judge Tester",
+        email: "judge@hackathon.paypal.com",
+        inquiryType: "hackathon_judging",
+        role: "judge",
+        urgency: "urgent_judge",
+        subject: "Evaluating NexusPulse Clearinghouse",
+        referenceId: "REF-HACK-01",
+        message: "Testing the end-to-end contact ticket clearinghouse flow for hackathon review.",
+        agreedToTerms: true,
+      }),
+    });
+    const postResponse = await contactPost(postReq);
+    const postJson = await postResponse.json();
+    assert.equal(postResponse.status, 200);
+    assert.equal(postJson.success, true);
+    assert.ok(postJson.ticketId.startsWith("NEXUS-REQ-"));
+    assert.match(postJson.estimatedSla, /< 2 hours/i);
+
+    // 6. Test Contact API GET route
+    const getResponse = await contactGet();
+    const getJson = await getResponse.json();
+    assert.equal(getResponse.status, 200);
+    assert.equal(getJson.status, "OPERATIONAL");
+    assert.ok(getJson.totalInquiriesReceived >= 1);
   });
 });

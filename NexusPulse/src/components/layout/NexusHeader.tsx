@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   Calendar,
   ChevronDown,
   Database,
+  Info,
   KeyRound,
   Layers,
+  Mail,
   Palette,
   RefreshCw,
   ShoppingBag,
@@ -28,9 +31,11 @@ export type WorkspaceTabId =
 
 export type WhiteThemeId = "stripe" | "mercury" | "nordic";
 
+export type HeaderNavTab = WorkspaceTabId | "about" | "contact";
+
 interface NexusHeaderProps {
-  activeTab: WorkspaceTabId;
-  onSelectTab: (tab: WorkspaceTabId) => void;
+  activeTab: HeaderNavTab;
+  onSelectTab?: (tab: WorkspaceTabId) => void;
   activeMode: PayPalExecutionMode;
   preferredMode: "auto" | "sandbox" | "mirror";
   databaseSource: string;
@@ -162,13 +167,15 @@ export default function NexusHeader({
         {/* Left: Brand Logo (Always directs to Homepage "/" and resets to Overview) */}
         <NexusPulseLogo
           onNavigateHome={() => {
-            onSelectTab("overview");
+            if (onSelectTab) {
+              onSelectTab("overview");
+            }
           }}
         />
 
         {/* Center: Linear-Style Clean Navigation Links */}
         <nav
-          aria-label="Workspace Engines"
+          aria-label="Workspace Engines and Pages"
           className="hidden md:flex items-center gap-1"
         >
           <div role="tablist" aria-label="Workspace Views" className="flex items-center gap-1">
@@ -182,7 +189,13 @@ export default function NexusHeader({
                   role="tab"
                   aria-selected={isActive}
                   title={item.fullTitle}
-                  onClick={() => onSelectTab(item.id)}
+                  onClick={() => {
+                    if (onSelectTab) {
+                      onSelectTab(item.id);
+                    } else if (typeof window !== "undefined") {
+                      window.location.href = item.id === "overview" ? "/" : `/?tab=${item.id}`;
+                    }
+                  }}
                   className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
                     isActive
                       ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
@@ -201,10 +214,75 @@ export default function NexusHeader({
               );
             })}
           </div>
+
+          <div className="h-4 w-[1px] bg-slate-200 mx-1" aria-hidden="true" />
+
+          {/* About Link */}
+          <Link
+            href="/about"
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
+              activeTab === "about"
+                ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
+                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+            }`}
+          >
+            <Info className={`h-3.5 w-3.5 ${activeTab === "about" ? "text-sky-600" : "text-slate-500"}`} />
+            <span>About</span>
+            {activeTab === "about" && (
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
+              />
+            )}
+          </Link>
+
+          {/* Contact Link */}
+          <Link
+            href="/contact"
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
+              activeTab === "contact"
+                ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
+                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+            }`}
+          >
+            <Mail className={`h-3.5 w-3.5 ${activeTab === "contact" ? "text-sky-600" : "text-slate-500"}`} />
+            <span>Contact</span>
+            {activeTab === "contact" && (
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
+              />
+            )}
+          </Link>
         </nav>
 
         {/* Right: Sleek Status & Control Cluster */}
         <div className="flex items-center gap-2">
+          {/* Mobile Quick Page Links */}
+          <div className="flex sm:hidden items-center gap-1">
+            <Link
+              href="/about"
+              title="About NexusPulse"
+              className={`p-1.5 rounded-lg border text-xs transition ${
+                activeTab === "about"
+                  ? "bg-slate-100 border-slate-300 text-slate-950 font-semibold"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Info className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/contact"
+              title="Contact NexusPulse"
+              className={`p-1.5 rounded-lg border text-xs transition ${
+                activeTab === "contact"
+                  ? "bg-slate-100 border-slate-300 text-slate-950 font-semibold"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Mail className="h-3.5 w-3.5" />
+            </Link>
+          </div>
           {/* White Background Theme Selector Dropdown */}
           <div className="relative">
             <button

@@ -27,7 +27,7 @@ export const FEATURE_PAGES: Record<Exclude<WorkspaceTabId, "overview">, FeatureM
     eyebrow: "Engine 01 · Deal Hunter",
     title: "Deal & Subscription Guard",
     description:
-      "Scan Channel3's 100M+ product catalog for the best verified deals, buy instantly with PayPal Orders v2, and let the AI CFO downgrade idle subscriptions automatically.",
+      "Real-time catalog scan across 100M+ products with automated subscription downgrades.",
     icon: ShoppingBag,
     gradient: "from-sky-500 to-cyan-400",
     text: "text-sky-700",
@@ -37,7 +37,7 @@ export const FEATURE_PAGES: Record<Exclude<WorkspaceTabId, "overview">, FeatureM
     eyebrow: "Engine 02 · Proof-of-Human",
     title: "Oracle Micro-Bounties",
     description:
-      "Claim 30–60 second physical verification tasks, submit photo proof checked by Gemini 3.8 Flash, and get paid instantly through PayPal Payouts v1 batches.",
+      "60-second physical verification tasks with instant PayPal Payouts.",
     icon: UserCheck,
     gradient: "from-emerald-500 to-teal-400",
     text: "text-emerald-700",
@@ -47,7 +47,7 @@ export const FEATURE_PAGES: Record<Exclude<WorkspaceTabId, "overview">, FeatureM
     eyebrow: "Engine 03 · Smart Escrow",
     title: "Bryntum Milestone Escrow",
     description:
-      "Track PayPal Orders v2 AUTHORIZE holds on an interactive Gantt timeline, release funds per milestone with DHL carrier proofs, and stay protected by Dispute Shield.",
+      "Milestone-based authorization holds tracked on an interactive Gantt timeline.",
     icon: Calendar,
     gradient: "from-indigo-500 to-violet-400",
     text: "text-indigo-700",
@@ -57,7 +57,7 @@ export const FEATURE_PAGES: Record<Exclude<WorkspaceTabId, "overview">, FeatureM
     eyebrow: "Telemetry · Financial Ledger",
     title: "AG Grid Ledger & Webhooks",
     description:
-      "Audit every PayPal transaction in a live AG Grid ledger, simulate signed webhook events, and inspect the APIMatic SDK & dual-mode gateway architecture.",
+      "Real-time transaction auditing, webhook simulation, and APIMatic SDK architecture.",
     icon: Activity,
     gradient: "from-slate-700 to-slate-500",
     text: "text-slate-700",
