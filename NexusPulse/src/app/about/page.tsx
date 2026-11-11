@@ -201,7 +201,7 @@ export default function AboutPage() {
   const [appState, setAppState] = useState<NexusPulseState | null>(null);
   const [activeMode, setActiveMode] = useState<PayPalExecutionMode>("mirror");
   const [preferredMode, setPreferredMode] = useState<
-    "auto" | "sandbox" | "mirror"
+    "auto" | "live" | "sandbox" | "mirror"
   >("auto");
   const [databaseSource, setDatabaseSource] = useState<string>("in_memory_mirror");
   const [voiceLoading, setVoiceLoading] = useState(false);
@@ -228,7 +228,7 @@ export default function AboutPage() {
   }, [fetchState]);
 
   // Header Handlers
-  async function handleSwitchMode(nextPref: "auto" | "sandbox" | "mirror") {
+  async function handleSwitchMode(nextPref: "auto" | "live" | "sandbox" | "mirror") {
     setPreferredMode(nextPref);
     try {
       const res = await fetch("/api/state", {
