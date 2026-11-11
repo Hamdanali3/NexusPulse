@@ -216,6 +216,10 @@ export async function POST(req: NextRequest) {
     let usingCustomKey = false;
     let byokWarning: string | undefined;
 
+    const globalCooldown = globalThis as unknown as {
+      __nexusGroqCooldownUntil?: number;
+    };
+
     if (customApiKey) {
       if (!isValidGroqKeyFormat(customApiKey)) {
         return NextResponse.json(
@@ -227,12 +231,17 @@ export async function POST(req: NextRequest) {
           { status: 401 }
         );
       }
-      activeGroqClient = new Groq({ apiKey: customApiKey, timeout: 8000 });
+      activeGroqClient = new Groq({ apiKey: customApiKey, timeout: 6000, maxRetries: 0 });
       usingCustomKey = true;
     } else {
       const platformKey = getPlatformGroqKey();
-      if (platformKey) {
-        activeGroqClient = new Groq({ apiKey: platformKey, timeout: 8000 });
+      const now = Date.now();
+      if (
+        platformKey &&
+        (!globalCooldown.__nexusGroqCooldownUntil ||
+          now >= globalCooldown.__nexusGroqCooldownUntil)
+      ) {
+        activeGroqClient = new Groq({ apiKey: platformKey, timeout: 6000, maxRetries: 0 });
       }
     }
 
@@ -240,7 +249,6 @@ export async function POST(req: NextRequest) {
       const candidateModels = [
         "openai/gpt-oss-120b",
         "llama-3.3-70b-versatile",
-        "qwen/qwen3-32b",
       ];
 
       for (const modelName of candidateModels) {
@@ -255,8 +263,14 @@ export async function POST(req: NextRequest) {
           const rawReply = completion.choices[0]?.message?.content?.trim();
           if (rawReply) {
             const cleanReply = sanitizeAssistantReply(rawReply);
+            const finalReply =
+              cleanReply.length >= 45
+                ? cleanReply
+                : sanitizeAssistantReply(
+                    generateContextAwareRagResponse(cleanMessage, history, activeState)
+                  );
             return NextResponse.json({
-              reply: cleanReply,
+              reply: finalReply,
               assistantName: "NexusPulse AI Assistant",
               keySource: usingCustomKey ? "personal_byok" : "platform_default",
               status: "success",
@@ -280,9 +294,13 @@ export async function POST(req: NextRequest) {
             );
           }
 
-          if (usingCustomKey && errStatus === 429) {
-            byokWarning =
-              "Notice: Your personal Groq account hit a rate limit; answered using NexusPulse's built-in knowledge engine.";
+          if (errStatus === 429) {
+            if (usingCustomKey) {
+              byokWarning =
+                "Notice: Your personal Groq account hit a rate limit; answered using NexusPulse's built-in knowledge engine.";
+            } else {
+              globalCooldown.__nexusGroqCooldownUntil = Date.now() + 25000;
+            }
             break;
           }
         }

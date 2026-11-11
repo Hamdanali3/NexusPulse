@@ -626,16 +626,25 @@ All three financial engines—**Channel3 Deal Hunter**, **Proof-of-Human Oracle 
   }
 
   // ---------------------------------------------------------------------------
-  // 2. SPECIFIC IDENTITY QUESTIONS: CREATOR vs IDENTITY vs PURPOSE vs CAPABILITIES
+  // 2. SPECIFIC IDENTITY QUESTIONS: CREATOR vs BUILDER vs IDENTITY vs PURPOSE vs CAPABILITIES
   // ---------------------------------------------------------------------------
+  if (/\b(who\s+built\s+(you|this\s+bot|this\s+assistant)|your\s+builder)\b/i.test(q)) {
+    return `I was built and architected by the **NexusPulse engineering and architecture team** specifically to power the **NexusPulse Autonomous Financial Clearinghouse**.
+
+My technical architecture connects directly to NexusPulse's live state mirror, **PayPal REST APIs & JS SDK v6**, the **Channel3** 100M+ SKU deal engine, **Proof-of-Human** bounty board, and **Bryntum** smart escrow Gantt timeline so every answer reflects real-time platform state.
+
+- [View Clearinghouse Overview](/?tab=overview#main-workspace)
+[ACTION:NAVIGATE:overview]`;
+  }
+
   if (
-    /\b(who\s+(created|built|made|developed|designed|authored|coded)\s+(you|this\s+bot|this\s+assistant|this\s+website|nexuspulse)|your\s+(creator|developer|maker|author|builder))\b/i.test(
+    /\b(who\s+(created|made|developed|designed|authored|coded)\s+(you|this\s+bot|this\s+assistant|this\s+website|nexuspulse)|your\s+(creator|developer|maker|author))\b/i.test(
       q
     )
   ) {
-    return `I was created and engineered by the **NexusPulse development and architecture team** as the native AI assistant for the **NexusPulse Autonomous Financial Clearinghouse**.
+    return `I was created and designed by the **NexusPulse development and architecture team** as the official native AI assistant for the **NexusPulse** platform.
 
-Unlike generic third-party chatbots, I was custom-built with direct access to NexusPulse's live financial state, PayPal REST API controllers, Channel3 product catalog, Proof-of-Human bounty board, and Bryntum escrow ledger so I can guide you accurately across the entire platform.
+Unlike generic third-party chatbots, I was created from the ground up with full domain knowledge of NexusPulse's three financial engines, live wallet telemetry, and PayPal developer integrations to give you accurate, context-aware assistance.
 
 - [View Clearinghouse Overview](/?tab=overview#main-workspace)
 [ACTION:NAVIGATE:overview]`;
