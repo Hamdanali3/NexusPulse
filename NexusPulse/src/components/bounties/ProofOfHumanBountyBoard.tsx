@@ -94,20 +94,20 @@ export default function ProofOfHumanBountyBoard({
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
                 <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
-                50-Year AGI Bridge: Proof-of-Human Oracle Protocol
+                Proof-of-Human Micro-Tasks
               </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-bold text-sky-800">
+              <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
                 <DollarSign className="h-3 w-3 text-sky-600" />
-                PayPal Payouts v1 API (POST /v1/payments/payouts)
+                PayPal Payouts v1
               </span>
             </div>
             <h3 id="engine-2-heading" className="mt-1.5 text-lg font-bold text-slate-950">
-              Engine 2: Proof-of-Human Oracle Micro-Bounties &amp; Instant PayPal Payouts
+              Engine 2: 60-Second Verification Bounties
             </h3>
             <p className="text-xs text-slate-600">
-              Enterprise AI agents post real-time bounties for scarce physical-world telemetry, security audits, and cultural nuance. Gemini 3.8 Flash verifies submissions in &lt;2 seconds and triggers instant PayPal/Venmo disbursements.
+              Submit physical verification data reviewed by Gemini AI for instant PayPal and Venmo payouts.
             </p>
           </div>
         </div>

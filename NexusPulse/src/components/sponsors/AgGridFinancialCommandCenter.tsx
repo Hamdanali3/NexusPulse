@@ -229,22 +229,18 @@ export default function AgGridFinancialCommandCenter({
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
               <Layers className="h-3 w-3 text-sky-600" />
-              Sponsor Integration: AG Grid Enterprise Telemetry (v36.3.0)
+              AG Grid Telemetry
             </span>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
               <ShieldCheck className="h-3 w-3 text-emerald-600" />
-              PayPal Reporting &amp; Orders v2 Synced
+              PayPal Orders &amp; Reporting
             </span>
           </div>
           <h2 id="aggrid-heading" className="mt-1.5 text-lg font-bold text-slate-950">
-            AG Grid Unified PayPal Financial &amp; Agentic Telemetry Command Center
+            Financial Ledger &amp; Audit Trail
           </h2>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Real-time multi-endpoint relational grid across{" "}
-            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v1/reporting/transactions</code>,{" "}
-            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v2/checkout/orders</code>,{" "}
-            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v1/payments/payouts</code>, and{" "}
-            <code className="rounded bg-sky-50 border border-sky-200 px-1 py-0.5 font-mono text-sky-800 font-semibold">/v2/invoicing/invoices</code>.
+          <p className="text-xs text-slate-600">
+            Real-time unified audit ledger across PayPal transactions, orders, payouts, and invoices.
           </p>
         </div>
 
@@ -256,10 +252,10 @@ export default function AgGridFinancialCommandCenter({
                 "Perform a deep Gemini 4 Argon CFO audit of my AG Grid PayPal ledger, highlight my highest ROI agent actions, and recommend the next optimization."
               )
             }
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:scale-105 active:scale-95"
           >
-            <Bot className="h-3.5 w-3.5 text-sky-200" />
-            <span>Ask Gemini 4 Argon CFO to Audit Grid</span>
+            <Bot className="h-3.5 w-3.5 text-sky-300" />
+            <span>Audit Ledger with AI</span>
           </button>
 
           <button

@@ -390,8 +390,8 @@ export default function BryntumEscrowTimeline({
                       <span
                         className={`inline-block mt-0.5 rounded px-2 py-0.5 text-[11px] font-bold ${
                           isCaptured
-                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                            : "bg-amber-50 text-amber-800 border border-amber-200"
+                            ? "bg-emerald-50 text-emerald-800 border border-emerald-300"
+                            : "bg-amber-100 text-amber-900 border border-amber-300"
                         }`}
                       >
                         {isCaptured ? "CAPTURED + TRACKED" : "AUTH HOLD LOCKED"}
@@ -454,13 +454,13 @@ export default function BryntumEscrowTimeline({
                 <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-slate-600">
                   <span>
                     PayPal Order:{" "}
-                    <code className="text-slate-900 font-mono font-bold bg-white px-2 py-0.5 rounded border border-slate-200 shadow-xs">
+                    <code className="text-slate-900 font-mono font-bold bg-white px-2 py-0.5 rounded border border-slate-300 shadow-2xs">
                       {selectedMilestone.paypal_order_id}
                     </code>
                   </span>
                   <span>
                     Authorization Hold:{" "}
-                    <code className="text-amber-800 font-mono font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    <code className="text-amber-900 font-mono font-bold bg-amber-100 px-2 py-0.5 rounded border border-amber-300 shadow-2xs">
                       {selectedMilestone.paypal_authorization_id}
                     </code>
                   </span>
@@ -601,8 +601,27 @@ export default function BryntumEscrowTimeline({
                   </div>
                 </div>
 
-                <p className="mt-2.5 text-xs text-slate-600 leading-relaxed">
-                  <strong className="text-indigo-700 font-bold">Gemini Audit:</strong>{" "}
+                {/* Visual Utilization Indicator */}
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                    <span>Usage Efficiency</span>
+                    <span className="font-semibold text-slate-700">
+                      {sub.ai_recommendation === "CANCEL_UNUSED" ? "14% (Idle)" : "35% (Suboptimal)"}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        sub.ai_recommendation === "CANCEL_UNUSED"
+                          ? "bg-rose-500 w-[14%]"
+                          : "bg-amber-500 w-[35%]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <p className="mt-2.5 text-xs text-slate-600 line-clamp-2">
+                  <strong className="text-indigo-700 font-semibold">Audit:</strong>{" "}
                   {sub.ai_rationale}
                 </p>
               </div>
