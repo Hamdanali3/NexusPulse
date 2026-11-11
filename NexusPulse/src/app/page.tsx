@@ -31,9 +31,12 @@ import ProofOfHumanBountyBoard from "@/components/bounties/ProofOfHumanBountyBoa
 import BryntumEscrowTimeline from "@/components/sponsors/BryntumEscrowTimeline";
 import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialCommandCenter";
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
-import EngineShowcase from "@/components/home/EngineShowcase";
 import FeaturePageHeader from "@/components/layout/FeaturePageHeader";
 import CfoExecutiveDocumentOutput from "@/components/ai/CfoExecutiveDocumentOutput";
+import ToastNotificationContainer, {
+  type ToastMessage,
+  type ToastType,
+} from "@/components/common/ToastNotification";
 
 // URL hash <-> workspace tab mapping so every feature has its own shareable "page"
 // (e.g. /#deal-hunter) and the browser Back button works between features.
@@ -118,6 +121,18 @@ export default function NexusPulseHomePage() {
 
   const [databaseSource, setDatabaseSource] = useState<string>("in_memory_mirror");
 
+  // Global Task Toast Notifications (Success & Failure Feedback)
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = useCallback((type: ToastType, title: string, message: string) => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    setToasts((prev) => [...prev, { id, type, title, message }]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch("/api/state", { cache: "no-store" });
@@ -178,15 +193,24 @@ export default function NexusPulseHomePage() {
 
   async function handleSwitchMode(nextPref: "auto" | "sandbox" | "mirror") {
     setPreferredMode(nextPref);
-    const res = await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ preferredMode: nextPref }),
-    });
-    const data = await res.json();
-    if (data.state) {
-      setAppState(data.state);
-      setActiveMode(data.activeMode ?? "mirror");
+    try {
+      const res = await fetch("/api/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preferredMode: nextPref }),
+      });
+      const data = await res.json();
+      if (data.state) {
+        setAppState(data.state);
+        setActiveMode(data.activeMode ?? "mirror");
+        addToast(
+          "info",
+          "Gateway Mode Updated",
+          `PayPal gateway mode switched to ${nextPref.toUpperCase()} (${data.activeMode ?? nextPref}).`
+        );
+      }
+    } catch {
+      addToast("error", "Gateway Update Failed", "Failed to switch PayPal execution mode.");
     }
   }
 
@@ -194,20 +218,35 @@ export default function NexusPulseHomePage() {
     clientId: string,
     clientSecret: string
   ) {
-    const res = await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        clientId,
-        clientSecret,
-        preferredMode: "sandbox",
-      }),
-    });
-    const data = await res.json();
-    if (data.state) {
-      setAppState(data.state);
-      setActiveMode(data.activeMode ?? "sandbox");
-      setPreferredMode("sandbox");
+    try {
+      const res = await fetch("/api/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId,
+          clientSecret,
+          preferredMode: "sandbox",
+        }),
+      });
+      const data = await res.json();
+      if (data.state) {
+        setAppState(data.state);
+        setActiveMode(data.activeMode ?? "sandbox");
+        setPreferredMode("sandbox");
+        addToast(
+          "success",
+          "PayPal Sandbox Connected",
+          "Runtime credentials validated and hot-swapped to Live PayPal Sandbox."
+        );
+      } else {
+        addToast(
+          "error",
+          "Credentials Error",
+          data.error || "Failed to validate PayPal sandbox credentials."
+        );
+      }
+    } catch {
+      addToast("error", "Connection Error", "Network error saving sandbox credentials.");
     }
   }
 
@@ -232,7 +271,7 @@ export default function NexusPulseHomePage() {
         }),
       });
       const data = await res.json();
-      if (data.interactionId) {
+      if (res.ok && data.interactionId) {
         setAgentResponse({
           interactionId: data.interactionId,
           previousInteractionId: data.previousInteractionId,
@@ -245,7 +284,24 @@ export default function NexusPulseHomePage() {
         if (data.state) {
           setAppState(data.state);
         }
+        addToast(
+          "success",
+          "AI CFO Sweep Completed",
+          `Gemini executed ${data.toolExecutions?.length ?? 0} tool audits in ${data.durationMs ? `${data.durationMs}ms` : "real-time"}.`
+        );
+      } else {
+        addToast(
+          "error",
+          "AI CFO Sweep Failed",
+          data.error || "Gemini could not complete the autonomous audit."
+        );
       }
+    } catch (err) {
+      addToast(
+        "error",
+        "AI Sweep Error",
+        `Network error during AI audit: ${err instanceof Error ? err.message : "Unknown error"}`
+      );
     } finally {
       setAgentRunning(false);
     }
@@ -258,8 +314,9 @@ export default function NexusPulseHomePage() {
         method: "POST",
       });
       const data = await res.json();
-      if (data.transcript) {
+      if (res.ok && data.transcript) {
         setVoiceTranscript(data.transcript);
+        addToast("success", "Voice CFO Briefing", "Synthesizing executive audio briefing from Gemini.");
         if (data.audioBase64) {
           const audio = new Audio(
             `data:${data.mimeType || "audio/wav"};base64,${data.audioBase64}`
@@ -271,7 +328,11 @@ export default function NexusPulseHomePage() {
           utterance.rate = 1.04;
           window.speechSynthesis.speak(utterance);
         }
+      } else {
+        addToast("error", "Voice Briefing Failed", data.error || "Could not synthesize audio briefing.");
       }
+    } catch {
+      addToast("error", "Voice Error", "Network error starting audio briefing.");
     } finally {
       setVoiceLoading(false);
     }
@@ -302,7 +363,7 @@ export default function NexusPulseHomePage() {
         }),
       });
       const data = await res.json();
-      if (data.received) {
+      if (res.ok && data.received) {
         setWebhookResult({
           verification_status: data.verification_status,
           eventId: data.eventId,
@@ -311,23 +372,41 @@ export default function NexusPulseHomePage() {
         if (data.state) {
           setAppState(data.state);
         }
+        addToast(
+          "success",
+          "Webhook Verified",
+          `Event ${eventType} verified via SHA256withRSA signature (ID: ${data.eventId}).`
+        );
+      } else {
+        addToast("error", "Webhook Simulation Failed", data.error || "Signature validation failed.");
       }
+    } catch {
+      addToast("error", "Webhook Simulation Error", "Network error simulating PayPal webhook.");
     } finally {
       setWebhookSimulating(false);
     }
   }
 
   async function handleResetDemoState() {
-    const res = await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "RESET_STATE" }),
-    });
-    const data = await res.json();
-    if (data.state) {
-      setAppState(data.state);
-      setAgentResponse(null);
-      setTurnCount(0);
+    try {
+      const res = await fetch("/api/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RESET_STATE" }),
+      });
+      const data = await res.json();
+      if (data.state) {
+        setAppState(data.state);
+        setAgentResponse(null);
+        setTurnCount(0);
+        addToast(
+          "info",
+          "Demo State Reset",
+          "All mock orders, bounties, and escrow milestones restored to clean baseline."
+        );
+      }
+    } catch {
+      addToast("error", "Reset Error", "Failed to reset demo state.");
     }
   }
 
@@ -422,7 +501,7 @@ export default function NexusPulseHomePage() {
             Connecting Google Gemini with PayPal REST APIs &amp; JS SDK v6. Orchestrating autonomous deal-hunting, physical verification bounties, and zero-dispute milestone escrow.
           </p>
 
-          {/* Cascade Item 4: Action CTAs */}
+          {/* Action CTAs */}
           <div className="animate-cascade-4 mt-7 flex flex-wrap items-center justify-center gap-3.5">
             <button
               type="button"
@@ -435,17 +514,19 @@ export default function NexusPulseHomePage() {
             </button>
             <button
               type="button"
-              onClick={() => navigateTo("bounties")}
+              onClick={() => {
+                const el = document.getElementById("autonomous-engines-hub");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  navigateTo("channel3");
+                }
+              }}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition hover:scale-105 active:scale-95"
             >
-              <span>Explore Human Bounties</span>
+              <span>Explore 3 Engines</span>
               <ArrowRight className="h-4 w-4 text-slate-500" />
             </button>
-          </div>
-
-          {/* Cascade Items 5-7: Animated, looping 3-Engine Spotlight (one engine after another) */}
-          <div className="animate-cascade-5">
-            <EngineShowcase onOpenEngine={navigateTo} />
           </div>
         </section>
 
@@ -638,78 +719,94 @@ export default function NexusPulseHomePage() {
         </>
         )}
 
-        {/* MOBILE / TABLET WORKSPACE TABS (modern-web-guidance: tabs) */}
+        {/* MOBILE / TABLET WORKSPACE NAVIGATION (4 CLEAN OPTIONS: Overview, Engines, About, Contact) */}
         <div
           role="tablist"
-          aria-label="NexusPulse Financial Engines and Sponsor Workspaces"
-          className="flex lg:hidden flex-wrap items-center gap-2 border-b border-slate-200 pb-3"
+          aria-label="NexusPulse Main Navigation"
+          className="flex lg:hidden flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3"
         >
-          {[
-            {
-              id: "overview",
-              label: "All Engines",
-              icon: Layers,
-            },
-            {
-              id: "channel3",
-              label: "Engine 1: Channel3",
-              icon: ShoppingBag,
-            },
-            {
-              id: "bounties",
-              label: "Engine 2: Bounties",
-              icon: UserCheck,
-            },
-            {
-              id: "bryntum",
-              label: "Engine 3: Escrow",
-              icon: Calendar,
-            },
-            {
-              id: "aggrid",
-              label: "AG Grid Ledger",
-              icon: Activity,
-            },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => navigateTo(tab.id as WorkspaceTabId)}
-                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition shadow-xs ${
-                  active
-                    ? "bg-slate-950 text-white shadow-sm"
-                    : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {tab.label}
-              </button>
-            );
-          })}
-          <Link
-            href="/about"
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
-          >
-            <Info className="h-3.5 w-3.5 text-sky-600" />
-            <span>About</span>
-          </Link>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:text-slate-950"
-          >
-            <Mail className="h-3.5 w-3.5 text-indigo-600" />
-            <span>Contact</span>
-          </Link>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "overview"}
+              onClick={() => navigateTo("overview")}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs ${
+                activeTab === "overview"
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+              }`}
+            >
+              <Layers className="h-3.5 w-3.5" />
+              <span>Overview</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab !== "overview"}
+              onClick={() => {
+                if (activeTab === "overview") {
+                  navigateTo("channel3");
+                }
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs ${
+                activeTab !== "overview"
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+              }`}
+            >
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span>Engines</span>
+            </button>
+
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+            >
+              <Info className="h-3.5 w-3.5 text-sky-600" />
+              <span>About</span>
+            </Link>
+
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
+            >
+              <Mail className="h-3.5 w-3.5 text-indigo-600" />
+              <span>Contact</span>
+            </Link>
+          </div>
+
+          {/* Quick Engine Selector Pill on Mobile when in Engines */}
+          {activeTab !== "overview" && (
+            <div className="flex items-center gap-1 text-[11px] font-medium bg-slate-100 p-1 rounded-lg">
+              {[
+                { id: "channel3", label: "Deals" },
+                { id: "bounties", label: "Bounties" },
+                { id: "bryntum", label: "Escrow" },
+                { id: "aggrid", label: "Ledger" },
+              ].map((sub) => (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => navigateTo(sub.id as WorkspaceTabId)}
+                  className={`px-2 py-0.5 rounded font-semibold transition ${
+                    activeTab === sub.id
+                      ? "bg-white text-slate-950 shadow-xs"
+                      : "text-slate-600 hover:text-slate-950"
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* OVERVIEW TAB: 3-ENGINE EXECUTIVE BENTO GRID (MINIMALIST & VISUAL) */}
         {activeTab === "overview" && (
           <section
+            id="autonomous-engines-hub"
             aria-label="NexusPulse 3-Engine Clearinghouse Hub"
             className="space-y-6 pt-2"
           >
@@ -1069,6 +1166,12 @@ export default function NexusPulseHomePage() {
       <NexusAiChatbot
         appState={appState}
         onSelectTab={navigateTo}
+      />
+
+      {/* SYSTEM TASK NOTIFICATIONS TOAST */}
+      <ToastNotificationContainer
+        toasts={toasts}
+        onDismiss={dismissToast}
       />
     </div>
   );

@@ -2,15 +2,18 @@
 
 import React, { useState } from "react";
 import {
+  AlertCircle,
   Award,
   CheckCircle2,
   Clock,
   DollarSign,
+  Filter,
   MapPin,
   Send,
   ShieldCheck,
   Sparkles,
   UserCheck,
+  XCircle,
 } from "lucide-react";
 import type {
   PayPalPayoutRecord,
@@ -43,6 +46,8 @@ export default function ProofOfHumanBountyBoard({
     "sb-buyer-nexus@personal.example.com"
   );
   const [submitting, setSubmitting] = useState(false);
+  const [bountyFilter, setBountyFilter] = useState<"ALL" | "OPEN" | "PAID">("ALL");
+
   const [lastResult, setLastResult] = useState<{
     passed: boolean;
     score: number;
@@ -51,17 +56,31 @@ export default function ProofOfHumanBountyBoard({
     payout_batch_id?: string;
   } | null>(null);
 
+  // Success and Failure Notification Banner
+  const [statusBanner, setStatusBanner] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   function handleSelectBounty(b: ProofOfHumanBounty) {
     setSelectedBountyId(b.id);
     setEvidenceText(b.sample_evidence_text);
     setLastResult(null);
   }
 
+  const displayedBounties = bounties.filter((b) => {
+    if (bountyFilter === "OPEN") return b.status === "OPEN";
+    if (bountyFilter === "PAID") return b.status === "PAID_OUT";
+    return true;
+  });
+
   async function handleSubmitAndPayout(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedBounty) return;
     setSubmitting(true);
     setLastResult(null);
+    setStatusBanner(null);
+
     try {
       const res = await fetch("/api/ai/verify-bounty", {
         method: "POST",
@@ -69,11 +88,12 @@ export default function ProofOfHumanBountyBoard({
         body: JSON.stringify({
           bountyId: selectedBounty.id,
           evidenceText,
-          receiverEmail,
+          recipientEmail: receiverEmail,
         }),
       });
       const data = await res.json();
-      if (data.ok) {
+
+      if (res.ok && data.ok && data.audit) {
         setLastResult({
           passed: data.audit.passed,
           score: data.audit.score,
@@ -81,8 +101,30 @@ export default function ProofOfHumanBountyBoard({
           reasoning: data.audit.reasoning,
           payout_batch_id: data.payout_batch_id,
         });
-        onStateUpdated();
+
+        if (data.audit.passed) {
+          setStatusBanner({
+            type: "success",
+            text: `Bounty Verified & Paid! Gemini 3.8 Flash scored ${data.audit.score}/100. PayPal Payout Batch #${data.payout_batch_id} settled $${selectedBounty.reward.value} USD to ${receiverEmail}.`,
+          });
+          onStateUpdated();
+        } else {
+          setStatusBanner({
+            type: "error",
+            text: `Verification Rejected: Score ${data.audit.score}/100 is below the 70-point threshold. Reason: ${data.audit.reasoning}`,
+          });
+        }
+      } else {
+        setStatusBanner({
+          type: "error",
+          text: data.error || "Bounty verification failed. Please check evidence text and email format.",
+        });
       }
+    } catch (err) {
+      setStatusBanner({
+        type: "error",
+        text: `Submission error: ${err instanceof Error ? err.message : "Network failure"}`,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -90,6 +132,39 @@ export default function ProofOfHumanBountyBoard({
 
   return (
     <section aria-labelledby="engine-2-heading" className="space-y-6">
+      {/* Explicit Success or Failure Message Banner */}
+      {statusBanner && (
+        <div
+          role={statusBanner.type === "error" ? "alert" : "status"}
+          aria-live="polite"
+          className={`rounded-xl border px-4 py-3 text-xs flex items-center justify-between shadow-xs transition-all ${
+            statusBanner.type === "success"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+              : "border-rose-300 bg-rose-50 text-rose-900"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {statusBanner.type === "success" ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+            )}
+            <span className="font-semibold">{statusBanner.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStatusBanner(null)}
+            className={`text-xs font-bold px-2 py-0.5 rounded transition ${
+              statusBanner.type === "success"
+                ? "text-emerald-700 hover:text-emerald-950 hover:bg-emerald-100"
+                : "text-rose-700 hover:text-rose-950 hover:bg-rose-100"
+            }`}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
           <div>
@@ -110,12 +185,52 @@ export default function ProofOfHumanBountyBoard({
               Submit physical verification data reviewed by Gemini AI for instant PayPal and Venmo payouts.
             </p>
           </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 text-xs bg-slate-50 border border-slate-200 p-1 rounded-lg">
+            <span className="text-slate-500 font-semibold px-1.5 flex items-center gap-1">
+              <Filter className="h-3 w-3" /> Status:
+            </span>
+            <button
+              type="button"
+              onClick={() => setBountyFilter("ALL")}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition ${
+                bountyFilter === "ALL"
+                  ? "bg-slate-900 text-white font-bold"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-white"
+              }`}
+            >
+              All ({bounties.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setBountyFilter("OPEN")}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition ${
+                bountyFilter === "OPEN"
+                  ? "bg-sky-600 text-white font-bold"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-white"
+              }`}
+            >
+              Open ({bounties.filter((b) => b.status === "OPEN").length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setBountyFilter("PAID")}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition ${
+                bountyFilter === "PAID"
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-white"
+              }`}
+            >
+              Paid Out ({bounties.filter((b) => b.status === "PAID_OUT").length})
+            </button>
+          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left Column: Bounty Cards */}
           <div className="lg:col-span-6 space-y-3">
-            {bounties.map((bounty) => {
+            {displayedBounties.map((bounty) => {
               const isSelected = selectedBounty?.id === bounty.id;
               const isPaid = bounty.status === "PAID_OUT";
               const hourlyYield = Math.round(
@@ -144,7 +259,6 @@ export default function ProofOfHumanBountyBoard({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        {/* High-Contrast ID Badge */}
                         <span className="rounded-md bg-slate-100 border border-slate-300 px-2 py-0.5 font-mono text-xs font-bold text-slate-900 shadow-2xs">
                           {bounty.id}
                         </span>
@@ -271,11 +385,11 @@ export default function ProofOfHumanBountyBoard({
                     htmlFor="bounty-recipient-email"
                     className="block text-xs font-bold text-slate-800 mb-1"
                   >
-                    PayPal / Venmo Payout Recipient Email:
+                    PayPal / Venmo Payout Recipient Account (Email / Handle):
                   </label>
                   <input
                     id="bounty-recipient-email"
-                    type="email"
+                    type="text"
                     autoComplete="email"
                     value={receiverEmail}
                     onChange={(e) => setReceiverEmail(e.target.value)}
@@ -287,51 +401,68 @@ export default function ProofOfHumanBountyBoard({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:scale-[1.01] active:scale-[0.99]"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
                 >
                   <Sparkles className="h-4 w-4" />
                   {submitting
-                    ? "Gemini 3.8 Flash Verifying & Executing PayPal Payout..."
+                    ? "Gemini 3.8 Flash Auditing & Processing Payout..."
                     : `Verify Evidence & Trigger Instant $${selectedBounty.reward.value} PayPal Payout`}
                 </button>
 
-                {/* Verification & Payout Receipt */}
+                {/* Explicit SUCCESS or FAILURE Receipt */}
                 {(lastResult || selectedBounty.verification_result) && (
-                  <div
-                    role="status"
-                    aria-live="polite"
-                    className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 space-y-2 text-xs shadow-xs nexus-fade-in"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-emerald-900">
-                        <Award className="h-4 w-4 text-emerald-700" />
-                        Oracle Score:{" "}
-                        {lastResult?.score ??
-                          selectedBounty.verification_result?.score}
-                        /100 (PASSED)
-                      </span>
-                      <span className="font-mono text-xs text-indigo-700 font-semibold">
-                        Model:{" "}
-                        {lastResult?.gemini_model ??
-                          selectedBounty.verification_result?.gemini_model}
-                      </span>
-                    </div>
-                    <p className="text-slate-700 text-xs leading-relaxed">
-                      {lastResult?.reasoning ??
-                        selectedBounty.verification_result?.reasoning}
-                    </p>
-                    {(lastResult?.payout_batch_id ||
-                      selectedBounty.payout_batch_id) && (
-                      <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-xs text-emerald-900 font-mono font-semibold">
-                        <span>
-                          PayPal Payout Batch:{" "}
-                          {lastResult?.payout_batch_id ??
-                            selectedBounty.payout_batch_id}
-                        </span>
-                        <span>Status: SUCCESS (Settled)</span>
+                  (() => {
+                    const result = lastResult ?? selectedBounty.verification_result;
+                    if (!result) return null;
+                    const passed = result.passed;
+
+                    return (
+                      <div
+                        role={passed ? "status" : "alert"}
+                        aria-live="polite"
+                        className={`rounded-xl border p-3.5 space-y-2 text-xs shadow-xs nexus-fade-in ${
+                          passed
+                            ? "border-emerald-300 bg-emerald-50"
+                            : "border-rose-300 bg-rose-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`inline-flex items-center gap-1.5 font-bold ${
+                              passed ? "text-emerald-900" : "text-rose-900"
+                            }`}
+                          >
+                            {passed ? (
+                              <Award className="h-4 w-4 text-emerald-700" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-rose-700" />
+                            )}
+                            Oracle Score: {result.score}/100 ({passed ? "PASSED" : "FAILED / REJECTED"})
+                          </span>
+                          <span className="font-mono text-xs text-slate-600 font-semibold">
+                            Model: {result.gemini_model}
+                          </span>
+                        </div>
+                        <p className={`text-xs leading-relaxed ${passed ? "text-slate-700" : "text-rose-800"}`}>
+                          {result.reasoning}
+                        </p>
+                        {passed && (lastResult?.payout_batch_id || selectedBounty.payout_batch_id) && (
+                          <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-xs text-emerald-900 font-mono font-semibold">
+                            <span>
+                              PayPal Payout Batch:{" "}
+                              {lastResult?.payout_batch_id ?? selectedBounty.payout_batch_id}
+                            </span>
+                            <span className="text-emerald-700 font-bold">Status: SETTLED</span>
+                          </div>
+                        )}
+                        {!passed && (
+                          <div className="pt-1.5 border-t border-rose-200 text-rose-700 text-[11px] font-semibold">
+                            Payout withheld. Please revise your ground-truth telemetry to address the criteria.
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    );
+                  })()
                 )}
               </form>
             )}

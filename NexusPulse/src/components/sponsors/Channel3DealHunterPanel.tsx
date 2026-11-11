@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import {
+  AlertCircle,
   CheckCircle2,
   Plus,
   Search,
@@ -47,7 +48,10 @@ export default function Channel3DealHunterPanel({
   const [newRetailPrice, setNewRetailPrice] = useState("349.99");
   const [newTargetPrice, setNewTargetPrice] = useState("265.00");
   const [creatingMandate, setCreatingMandate] = useState(false);
-  const [mandateBanner, setMandateBanner] = useState<string | null>(null);
+  const [mandateBanner, setMandateBanner] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const displayedDeals = filteredDeals ?? initialDeals;
   const activeDeal =
@@ -99,15 +103,26 @@ export default function Channel3DealHunterPanel({
         }),
       });
       const data = await res.json();
-      if (data.ok && data.deal) {
+      if (res.ok && data.ok && data.deal) {
         setFilteredDeals(null);
         setActiveCheckoutDealId(data.deal.id);
         setShowMandateForm(false);
-        setMandateBanner(
-          `Channel3 matched "${data.deal.title}" at $${Number(data.deal.channel3_best_price).toFixed(2)} USD (Saved $${Number(data.deal.savings_amount).toFixed(2)} below retail) — ready for PayPal v6 checkout!`
-        );
+        setMandateBanner({
+          type: "success",
+          text: `Success: Channel3 matched "${data.deal.title}" at $${Number(data.deal.channel3_best_price).toFixed(2)} USD (Saved $${Number(data.deal.savings_amount).toFixed(2)} below retail) — ready for PayPal v6 checkout!`,
+        });
         onStateUpdated();
+      } else {
+        setMandateBanner({
+          type: "error",
+          text: data.error || "Failed to create price mandate. Please check your price targets.",
+        });
       }
+    } catch (err) {
+      setMandateBanner({
+        type: "error",
+        text: `Network failure while creating mandate: ${err instanceof Error ? err.message : "Error"}`,
+      });
     } finally {
       setCreatingMandate(false);
     }
@@ -120,18 +135,30 @@ export default function Channel3DealHunterPanel({
     >
       {mandateBanner && (
         <div
-          role="status"
+          role={mandateBanner.type === "error" ? "alert" : "status"}
           aria-live="polite"
-          className="flex items-center justify-between rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 shadow-xs animate-bounce"
+          className={`flex items-center justify-between rounded-xl border px-4 py-3 text-xs shadow-xs transition-all ${
+            mandateBanner.type === "success"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+              : "border-rose-300 bg-rose-50 text-rose-900"
+          }`}
         >
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-            <span className="font-semibold">{mandateBanner}</span>
+            {mandateBanner.type === "success" ? (
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+            ) : (
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+            )}
+            <span className="font-semibold">{mandateBanner.text}</span>
           </div>
           <button
             type="button"
             onClick={() => setMandateBanner(null)}
-            className="text-xs font-bold text-emerald-700 hover:text-emerald-950"
+            className={`text-xs font-bold px-2 py-0.5 rounded transition ${
+              mandateBanner.type === "success"
+                ? "text-emerald-700 hover:text-emerald-950 hover:bg-emerald-100"
+                : "text-rose-700 hover:text-rose-950 hover:bg-rose-100"
+            }`}
           >
             Dismiss
           </button>

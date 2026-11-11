@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -11,11 +11,8 @@ import {
   KeyRound,
   Layers,
   Mail,
-  Palette,
   RefreshCw,
   ShoppingBag,
-  Sparkles,
-  Sun,
   UserCheck,
   Volume2,
 } from "lucide-react";
@@ -28,8 +25,6 @@ export type WorkspaceTabId =
   | "bounties"
   | "bryntum"
   | "aggrid";
-
-export type WhiteThemeId = "stripe" | "mercury" | "nordic";
 
 export type HeaderNavTab = WorkspaceTabId | "about" | "contact";
 
@@ -47,67 +42,40 @@ interface NexusHeaderProps {
   onResetDemoState: () => void;
 }
 
-const NAV_ITEMS: Array<{
+const ENGINE_ITEMS: Array<{
   id: WorkspaceTabId;
   label: string;
-  fullTitle: string;
+  badge: string;
+  description: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
   {
-    id: "overview",
-    label: "Overview",
-    fullTitle: "Autonomous Financial Clearinghouse Overview",
-    icon: Layers,
-  },
-  {
     id: "channel3",
     label: "Deal Hunter",
-    fullTitle: "Engine 1: Channel3 + PayPal v6 Commerce",
+    badge: "Engine 01",
+    description: "100M+ SKU Catalog & PayPal v6 Checkout",
     icon: ShoppingBag,
   },
   {
     id: "bounties",
     label: "Human Bounties",
-    fullTitle: "Engine 2: Proof-of-Human Oracle Payouts",
+    badge: "Engine 02",
+    description: "60-Second Tasks & Instant PayPal Payouts",
     icon: UserCheck,
   },
   {
     id: "bryntum",
     label: "Escrow Gantt",
-    fullTitle: "Engine 3: Bryntum Escrow & Subscriptions",
+    badge: "Engine 03",
+    description: "Interactive Milestones & Dispute Shield",
     icon: Calendar,
   },
   {
     id: "aggrid",
     label: "Telemetry",
-    fullTitle: "AG Grid v36 Financial Ledger & Webhooks",
+    badge: "Ledger",
+    description: "AG Grid Financial Ledger & Webhooks",
     icon: Activity,
-  },
-];
-
-const THEME_OPTIONS: Array<{
-  id: WhiteThemeId;
-  name: string;
-  description: string;
-  tag: string;
-}> = [
-  {
-    id: "stripe",
-    name: "Stripe Pure Light",
-    description: "Crisp Pure White with Electric Cyan Ambiance",
-    tag: "Default White",
-  },
-  {
-    id: "mercury",
-    name: "Mercury Ivory Light",
-    description: "Warm Alabaster with Champagne Gold Accents",
-    tag: "Warm Luxury",
-  },
-  {
-    id: "nordic",
-    name: "Nordic Frost Light",
-    description: "Cool Clean Slate with Royal Azure Accents",
-    tag: "Cool Minimal",
   },
 ];
 
@@ -125,28 +93,34 @@ export default function NexusHeader({
   onResetDemoState,
 }: NexusHeaderProps) {
   const [showGatewayDrawer, setShowGatewayDrawer] = useState(false);
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<WhiteThemeId>("stripe");
+  const [showEnginesMenu, setShowEnginesMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sandboxClientId, setSandboxClientId] = useState("");
   const [sandboxClientSecret, setSandboxClientSecret] = useState("");
   const [savingCreds, setSavingCreds] = useState(false);
+  const enginesMenuRef = useRef<HTMLDivElement | null>(null);
 
+  const isEngineActive =
+    activeTab === "channel3" ||
+    activeTab === "bounties" ||
+    activeTab === "bryntum" ||
+    activeTab === "aggrid";
+
+  const activeEngineMeta = ENGINE_ITEMS.find((e) => e.id === activeTab);
+
+  // Close engines dropdown when clicking outside
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = (localStorage.getItem("nexus_theme") as WhiteThemeId) || "stripe";
-      setCurrentTheme(savedTheme);
-      document.documentElement.setAttribute("data-theme", savedTheme);
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        enginesMenuRef.current &&
+        !enginesMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowEnginesMenu(false);
+      }
     }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  function handleSelectTheme(themeId: WhiteThemeId) {
-    setCurrentTheme(themeId);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("nexus_theme", themeId);
-      document.documentElement.setAttribute("data-theme", themeId);
-    }
-    setShowThemeMenu(false);
-  }
 
   async function handleCredsSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -159,12 +133,29 @@ export default function NexusHeader({
     }
   }
 
-  const activeThemeMeta = THEME_OPTIONS.find((t) => t.id === currentTheme) ?? THEME_OPTIONS[0];
+  function handleSelectEngine(id: WorkspaceTabId) {
+    setShowEnginesMenu(false);
+    setMobileMenuOpen(false);
+    if (onSelectTab) {
+      onSelectTab(id);
+    } else if (typeof window !== "undefined") {
+      window.location.href = `/?tab=${id}`;
+    }
+  }
+
+  function handleSelectOverview() {
+    setMobileMenuOpen(false);
+    if (onSelectTab) {
+      onSelectTab("overview");
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8 lg:px-12 h-14 sm:h-16 flex items-center justify-between gap-4">
-        {/* Left: Brand Logo (Always directs to Homepage "/" and resets to Overview) */}
+        {/* Left: Redesigned Purpose Logo */}
         <NexusPulseLogo
           onNavigateHome={() => {
             if (onSelectTab) {
@@ -173,60 +164,138 @@ export default function NexusHeader({
           }}
         />
 
-        {/* Center: Linear-Style Clean Navigation Links */}
+        {/* Center: Exactly 4 Clean Navigation Options (Overview, Engines, About, Contact) */}
         <nav
-          aria-label="Workspace Engines and Pages"
-          className="hidden md:flex items-center gap-1"
+          aria-label="Main Navigation"
+          className="hidden md:flex items-center gap-1.5"
         >
-          <div role="tablist" aria-label="Workspace Views" className="flex items-center gap-1">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  title={item.fullTitle}
-                  onClick={() => {
-                    if (onSelectTab) {
-                      onSelectTab(item.id);
-                    } else if (typeof window !== "undefined") {
-                      window.location.href = item.id === "overview" ? "/" : `/?tab=${item.id}`;
-                    }
-                  }}
-                  className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
-                    isActive
-                      ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
-                      : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
-                  }`}
-                >
-                  <Icon className={`h-3.5 w-3.5 ${isActive ? "text-sky-600" : "text-slate-500"}`} />
-                  <span>{item.label}</span>
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
-                    />
-                  )}
-                </button>
-              );
-            })}
+          {/* Option 1: Overview */}
+          <button
+            type="button"
+            onClick={handleSelectOverview}
+            className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
+              activeTab === "overview"
+                ? "text-slate-950 bg-slate-100/90 shadow-xs"
+                : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+            }`}
+          >
+            <Layers
+              className={`h-3.5 w-3.5 ${
+                activeTab === "overview" ? "text-sky-600" : "text-slate-500"
+              }`}
+            />
+            <span>Overview</span>
+            {activeTab === "overview" && (
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
+              />
+            )}
+          </button>
+
+          {/* Option 2: Engines (Consolidates all engines in 1 single option with sleek dropdown) */}
+          <div className="relative" ref={enginesMenuRef}>
+            <button
+              type="button"
+              aria-expanded={showEnginesMenu}
+              aria-haspopup="true"
+              onClick={() => setShowEnginesMenu((v) => !v)}
+              className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
+                isEngineActive
+                  ? "text-slate-950 bg-slate-100/90 shadow-xs"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
+              }`}
+            >
+              <ShoppingBag
+                className={`h-3.5 w-3.5 ${
+                  isEngineActive ? "text-sky-600" : "text-slate-500"
+                }`}
+              />
+              <span>Engines</span>
+              {activeEngineMeta && (
+                <span className="rounded bg-sky-100 text-sky-800 text-[10px] font-bold px-1.5 py-0.2">
+                  {activeEngineMeta.label}
+                </span>
+              )}
+              <ChevronDown
+                className={`h-3 w-3 text-slate-400 transition-transform duration-200 ${
+                  showEnginesMenu ? "rotate-180" : ""
+                }`}
+              />
+              {isEngineActive && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-[9px] left-3 right-3 h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-indigo-600"
+                />
+              )}
+            </button>
+
+            {/* Engines Dropdown Menu */}
+            {showEnginesMenu && (
+              <div
+                role="menu"
+                className="nexus-fade-in absolute left-0 mt-2 w-72 rounded-xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 z-50 divide-y divide-slate-100"
+              >
+                <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Autonomous Financial Engines
+                </div>
+
+                <div className="py-1 space-y-1">
+                  {ENGINE_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const isCur = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleSelectEngine(item.id)}
+                        className={`w-full flex items-start gap-3 rounded-lg px-2.5 py-2 text-left transition ${
+                          isCur
+                            ? "bg-sky-50 text-sky-950 font-semibold border border-sky-200/60"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="p-1.5 rounded-lg bg-slate-100 border border-slate-200 shrink-0 mt-0.5">
+                          <Icon className="h-4 w-4 text-sky-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-900">
+                              {item.label}
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
+                              {item.badge}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                            {item.description}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="h-4 w-[1px] bg-slate-200 mx-1" aria-hidden="true" />
 
-          {/* About Link */}
+          {/* Option 3: About */}
           <Link
             href="/about"
-            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
               activeTab === "about"
-                ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
+                ? "text-slate-950 bg-slate-100/90 shadow-xs"
                 : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
             }`}
           >
-            <Info className={`h-3.5 w-3.5 ${activeTab === "about" ? "text-sky-600" : "text-slate-500"}`} />
+            <Info
+              className={`h-3.5 w-3.5 ${
+                activeTab === "about" ? "text-sky-600" : "text-slate-500"
+              }`}
+            />
             <span>About</span>
             {activeTab === "about" && (
               <span
@@ -236,16 +305,20 @@ export default function NexusHeader({
             )}
           </Link>
 
-          {/* Contact Link */}
+          {/* Option 4: Contact */}
           <Link
             href="/contact"
-            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
+            className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
               activeTab === "contact"
-                ? "text-slate-950 font-semibold bg-slate-100/90 shadow-xs"
+                ? "text-slate-950 bg-slate-100/90 shadow-xs"
                 : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
             }`}
           >
-            <Mail className={`h-3.5 w-3.5 ${activeTab === "contact" ? "text-sky-600" : "text-slate-500"}`} />
+            <Mail
+              className={`h-3.5 w-3.5 ${
+                activeTab === "contact" ? "text-sky-600" : "text-slate-500"
+              }`}
+            />
             <span>Contact</span>
             {activeTab === "contact" && (
               <span
@@ -256,85 +329,17 @@ export default function NexusHeader({
           </Link>
         </nav>
 
-        {/* Right: Sleek Status & Control Cluster */}
+        {/* Right: Sleek Status & Control Cluster (Theme switcher removed for single theme) */}
         <div className="flex items-center gap-2">
-          {/* Mobile Quick Page Links */}
-          <div className="flex sm:hidden items-center gap-1">
-            <Link
-              href="/about"
-              title="About NexusPulse"
-              className={`p-1.5 rounded-lg border text-xs transition ${
-                activeTab === "about"
-                  ? "bg-slate-100 border-slate-300 text-slate-950 font-semibold"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Info className="h-3.5 w-3.5" />
-            </Link>
-            <Link
-              href="/contact"
-              title="Contact NexusPulse"
-              className={`p-1.5 rounded-lg border text-xs transition ${
-                activeTab === "contact"
-                  ? "bg-slate-100 border-slate-300 text-slate-950 font-semibold"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Mail className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          {/* White Background Theme Selector Dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              aria-label="Select White Background Theme"
-              title="Switch between White Background Themes (Stripe, Mercury, Nordic)"
-              onClick={() => setShowThemeMenu((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-xs transition"
-            >
-              <Palette className="h-3.5 w-3.5 text-sky-600" />
-              <span className="hidden sm:inline">{activeThemeMeta.name.split(" ")[0]} Light</span>
-              <ChevronDown className="h-3 w-3 text-slate-400" />
-            </button>
-
-            {showThemeMenu && (
-              <div
-                role="menu"
-                className="nexus-fade-in absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl ring-1 ring-slate-900/5 z-50"
-              >
-                <div className="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
-                  White Background Themes
-                </div>
-                {THEME_OPTIONS.map((theme) => {
-                  const isCur = currentTheme === theme.id;
-                  return (
-                    <button
-                      key={theme.id}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => handleSelectTheme(theme.id)}
-                      className={`w-full flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition ${
-                        isCur
-                          ? "bg-sky-50 text-sky-950 font-semibold border border-sky-200/60"
-                          : "text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <Sun className={`h-3 w-3 ${isCur ? "text-sky-600" : "text-slate-400"}`} />
-                          <span>{theme.name}</span>
-                        </div>
-                        <p className="mt-0.5 text-[10px] text-slate-500">{theme.description}</p>
-                      </div>
-                      <span className="text-[10px] rounded-md bg-slate-100 px-1.5 py-0.5 text-slate-600">
-                        {theme.tag}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {/* Mobile Navigation Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            aria-label="Toggle navigation menu"
+            className="inline-flex md:hidden items-center justify-center p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-xs"
+          >
+            <Layers className="h-4 w-4" />
+          </button>
 
           {/* Gateway Status Badge & Drawer Trigger */}
           <button
@@ -342,7 +347,7 @@ export default function NexusHeader({
             aria-expanded={showGatewayDrawer}
             onClick={() => setShowGatewayDrawer((v) => !v)}
             title="Configure PayPal Gateway & Database runtime"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-xs transition"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition"
           >
             <span
               className={`h-2 w-2 rounded-full shrink-0 ${
@@ -384,7 +389,7 @@ export default function NexusHeader({
             </span>
           </button>
 
-          {/* Reset State Button */}
+          {/* Reset Demo State Button */}
           <button
             type="button"
             onClick={onResetDemoState}
@@ -396,6 +401,76 @@ export default function NexusHeader({
           </button>
         </div>
       </div>
+
+      {/* Mobile Drawer (4 Clean Options: Overview, Engines, About, Contact) */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2 shadow-lg nexus-fade-in">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-2">
+            Navigation (4 Core Options)
+          </div>
+          <button
+            type="button"
+            onClick={handleSelectOverview}
+            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-left ${
+              activeTab === "overview"
+                ? "bg-slate-950 text-white"
+                : "text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <Layers className="h-4 w-4" />
+            <span>1. Overview</span>
+          </button>
+
+          <div className="pl-2 space-y-1">
+            <div className="text-[11px] font-bold text-slate-700 px-1 py-1">
+              2. Engines Hub:
+            </div>
+            {ENGINE_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectEngine(item.id)}
+                className={`w-full flex items-center justify-between rounded-lg px-3 py-1.5 text-xs text-left ${
+                  activeTab === item.id
+                    ? "bg-sky-50 text-sky-950 font-bold border border-sky-200"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <span>{item.label}</span>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {item.badge}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <Link
+            href="/about"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
+              activeTab === "about"
+                ? "bg-slate-950 text-white"
+                : "text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <Info className="h-4 w-4 text-sky-600" />
+            <span>3. About</span>
+          </Link>
+
+          <Link
+            href="/contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
+              activeTab === "contact"
+                ? "bg-slate-950 text-white"
+                : "text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <Mail className="h-4 w-4 text-indigo-600" />
+            <span>4. Contact</span>
+          </Link>
+        </div>
+      )}
 
       {/* Gateway & Hot-Swap Drawer */}
       {showGatewayDrawer && (
@@ -432,7 +507,12 @@ export default function NexusHeader({
               <span className="text-slate-400">•</span>
               <span className="inline-flex items-center gap-1 text-slate-600">
                 <Database className="h-3 w-3 text-emerald-600" />
-                Store: <span className="font-semibold text-slate-800">{databaseSource === "supabase_postgres" ? "Supabase PostgreSQL" : "Local Mirror"}</span>
+                Store:{" "}
+                <span className="font-semibold text-slate-800">
+                  {databaseSource === "supabase_postgres"
+                    ? "Supabase PostgreSQL"
+                    : "Local Mirror"}
+                </span>
               </span>
             </div>
 
