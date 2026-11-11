@@ -13,7 +13,7 @@ import type {
 } from "./paypal-types";
 
 export interface NexusPulseState {
-  preferredMode: "auto" | "sandbox" | "mirror";
+  preferredMode: "auto" | "live" | "sandbox" | "mirror";
   walletBalanceUsd: number;
   totalSavedByAiUsd: number;
   totalEarnedFromBountiesUsd: number;

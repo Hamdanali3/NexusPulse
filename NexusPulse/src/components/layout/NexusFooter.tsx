@@ -90,7 +90,15 @@ export default function NexusFooter({
             <span>© {new Date().getFullYear()} NexusPulse</span>
             <span>•</span>
             <span className="inline-flex items-center gap-1.5">
-              <span className={`h-1.5 w-1.5 rounded-full ${activeMode === "sandbox" ? "bg-emerald-500" : "bg-zinc-400"}`} />
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  activeMode === "live"
+                    ? "bg-emerald-500"
+                    : activeMode === "sandbox"
+                      ? "bg-sky-500"
+                      : "bg-zinc-400"
+                }`}
+              />
               Mode: {activeMode.toUpperCase()} ({databaseSource === "supabase_postgres" ? "Supabase" : "Local"})
             </span>
           </div>

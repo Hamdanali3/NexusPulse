@@ -26,16 +26,18 @@ import type {
 
 export function resolveActivePayPalMode(): PayPalExecutionMode {
   const state = getMirrorState();
-  const envPref = (process.env.PAYPAL_MODE ?? state.preferredMode ?? "auto").toLowerCase();
+  const envPref = (process.env.PAYPAL_MODE ?? process.env.PAYPAL_ENV ?? state.preferredMode ?? "auto").toLowerCase();
   if (envPref === "mirror") return "mirror";
+  if ((envPref === "live" || envPref === "production") && hasLiveSandboxCredentials()) return "live";
   if (envPref === "sandbox" && hasLiveSandboxCredentials()) return "sandbox";
+  if (process.env.PAYPAL_ENV === "live" && hasLiveSandboxCredentials()) return "live";
   return hasLiveSandboxCredentials() ? "sandbox" : "mirror";
 }
 
 export function setRuntimePayPalCredentials(params: {
   clientId?: string;
   clientSecret?: string;
-  preferredMode?: "auto" | "sandbox" | "mirror";
+  preferredMode?: "auto" | "live" | "sandbox" | "mirror";
 }) {
   const state = getMirrorState();
   if (params.clientId !== undefined) {
@@ -69,7 +71,7 @@ export async function gatewayCreateOrder(params: {
 }): Promise<PayPalOrderRecord> {
   const activeMode = resolveActivePayPalMode();
 
-  if (activeMode === "sandbox") {
+  if (activeMode === "sandbox" || activeMode === "live") {
     try {
       const { order, paypalRequestId } = await createLiveSandboxOrderViaSdk({
         amountValue: params.amountValue,
@@ -81,7 +83,7 @@ export async function gatewayCreateOrder(params: {
       const record = mirrorCreateOrder({
         ...params,
         paypalRequestId,
-        mode: "sandbox",
+        mode: activeMode,
       });
       if (order.id) {
         record.id = order.id;
@@ -89,7 +91,7 @@ export async function gatewayCreateOrder(params: {
       syncOrderToSupabase(record).catch(() => {});
       return record;
     } catch (err) {
-      console.warn("[Dual-Mode Gateway] Live Sandbox createOrder fell back to Mirror:", err);
+      console.warn(`[Dual-Mode Gateway] Live ${activeMode} createOrder fell back to Mirror:`, err);
     }
   }
 
@@ -115,7 +117,7 @@ export async function gatewayCaptureOrAuthorizeOrder(params: {
 }): Promise<PayPalOrderRecord> {
   const activeMode = resolveActivePayPalMode();
 
-  if (activeMode === "sandbox") {
+  if (activeMode === "sandbox" || activeMode === "live") {
     const sdk = getApimaticPayPalSdk();
     if (sdk) {
       try {
@@ -135,12 +137,12 @@ export async function gatewayCaptureOrAuthorizeOrder(params: {
         }
         const captured = mirrorCaptureOrAuthorizeOrder({
           ...params,
-          mode: "sandbox",
+          mode: activeMode,
         });
         syncOrderToSupabase(captured).catch(() => {});
         return captured;
       } catch (err) {
-        console.warn("[Dual-Mode Gateway] Live Sandbox capture/authorize fell back to Mirror:", err);
+        console.warn(`[Dual-Mode Gateway] Live ${activeMode} capture/authorize fell back to Mirror:`, err);
       }
     }
   }
@@ -170,7 +172,7 @@ export async function gatewayCreatePayout(params: {
 }): Promise<PayPalPayoutRecord> {
   const activeMode = resolveActivePayPalMode();
 
-  if (activeMode === "sandbox") {
+  if (activeMode === "sandbox" || activeMode === "live") {
     try {
       const senderBatchId = `NEXUS_BATCH_${Date.now()}`;
       const senderItemId = `ITEM_${crypto.randomUUID().slice(0, 8)}`;
@@ -202,7 +204,7 @@ export async function gatewayCreatePayout(params: {
 
       const record = mirrorCreatePayout({
         ...params,
-        mode: "sandbox",
+        mode: activeMode,
       });
       if (data.batch_header?.payout_batch_id) {
         record.payout_batch_id = data.batch_header.payout_batch_id;
@@ -210,7 +212,7 @@ export async function gatewayCreatePayout(params: {
       syncPayoutToSupabase(record).catch(() => {});
       return record;
     } catch (err) {
-      console.warn("[Dual-Mode Gateway] Live Sandbox Payout fell back to Mirror:", err);
+      console.warn(`[Dual-Mode Gateway] Live ${activeMode} Payout fell back to Mirror:`, err);
     }
   }
 

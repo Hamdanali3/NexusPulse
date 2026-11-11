@@ -80,7 +80,7 @@ export default function NexusPulseHomePage() {
   const [appState, setAppState] = useState<NexusPulseState | null>(null);
   const [activeMode, setActiveMode] = useState<PayPalExecutionMode>("mirror");
   const [preferredMode, setPreferredMode] = useState<
-    "auto" | "sandbox" | "mirror"
+    "auto" | "live" | "sandbox" | "mirror"
   >("auto");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>("overview");
@@ -191,7 +191,7 @@ export default function NexusPulseHomePage() {
     });
   }, []);
 
-  async function handleSwitchMode(nextPref: "auto" | "sandbox" | "mirror") {
+  async function handleSwitchMode(nextPref: "auto" | "live" | "sandbox" | "mirror") {
     setPreferredMode(nextPref);
     try {
       const res = await fetch("/api/state", {

@@ -14,7 +14,6 @@ import {
   FileText,
   Layers,
   Lock,
-  Printer,
   ShieldAlert,
   ShieldCheck,
   ShoppingBag,
@@ -141,10 +140,102 @@ export default function CfoExecutiveDocumentOutput({
     setTimeout(() => setCopied(false), 2000);
   }
 
-  function handlePrint() {
-    if (typeof window !== "undefined") {
+  function handleSaveAsPdf() {
+    if (typeof window === "undefined") return;
+
+    const reportElem = document.getElementById("cfo-executive-report");
+    if (!reportElem) {
       window.print();
+      return;
     }
+
+    // Build dedicated hidden print iframe containing ONLY the answer memorandum
+    const iframe = document.createElement("iframe");
+    iframe.id = "cfo-pdf-print-frame";
+    iframe.style.position = "fixed";
+    iframe.style.top = "-9999px";
+    iframe.style.left = "-9999px";
+    iframe.style.width = "1024px";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    // Collect all stylesheets and style tags
+    const styleTags = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"], style')
+    )
+      .map((el) => el.outerHTML)
+      .join("\n");
+
+    // Clone report element and remove interactive toolbar so buttons don't appear in saved PDF
+    const clone = reportElem.cloneNode(true) as HTMLElement;
+    const toolbar = clone.querySelector(".cfo-toolbar");
+    if (toolbar) toolbar.remove();
+
+    clone.classList.remove("mt-4");
+    clone.style.margin = "0";
+
+    const title = `NexusPulse_Autonomous_CFO_Answer_${response.interactionId}`;
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <title>${title}</title>
+          ${styleTags}
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 12mm 14mm;
+            }
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .cfo-toolbar { display: none !important; }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div style="padding: 8px; background: #ffffff;">
+            ${clone.outerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.warn("Iframe print fallback to window.print()", err);
+        window.print();
+      } finally {
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1500);
+      }
+    }, 300);
   }
 
   // Parse lines into document sections
@@ -195,6 +286,7 @@ export default function CfoExecutiveDocumentOutput({
 
   return (
     <div
+      id="cfo-executive-report"
       role="region"
       aria-label="Autonomous CFO Executive Financial Audit Memorandum"
       className="nexus-fade-in mt-4 rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden text-slate-900"
@@ -222,8 +314,8 @@ export default function CfoExecutiveDocumentOutput({
           </div>
         </div>
 
-        {/* Toolbar: Toggle View, Copy, Print */}
-        <div className="flex items-center gap-2 text-xs">
+        {/* Toolbar: Toggle View, Copy, Save as PDF */}
+        <div className="cfo-toolbar flex items-center gap-2 text-xs">
           <div className="inline-flex rounded-lg bg-slate-800 p-0.5 border border-slate-700">
             <button
               type="button"
@@ -272,12 +364,12 @@ export default function CfoExecutiveDocumentOutput({
 
           <button
             type="button"
-            onClick={handlePrint}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-200 transition"
-            title="Print or export as PDF"
+            onClick={handleSaveAsPdf}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 border border-sky-500 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition"
+            title="Save executive answer as PDF (only saves the answer, not the whole page)"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-400" />
-            <span>Print</span>
+            <Download className="h-3.5 w-3.5 text-sky-100" />
+            <span>Save as PDF</span>
           </button>
         </div>
       </div>

@@ -641,6 +641,99 @@ function tryEvaluateMathQuery(q: string): string | null {
 }
 
 /**
+ * Robust classifier to detect out-of-scope or external-domain user queries
+ * that do not belong to the financial clearinghouse context.
+ */
+export function isOutOfScopeQuery(query: string): { isOutOfScope: boolean; category?: string } {
+  const q = query.trim().toLowerCase();
+
+  // 1. Recipes, cooking, baking, culinary
+  if (/\b(bake|baking|cook|cooking|recipe|recipes|pasta|pizza|cake|cookies|dinner|ingredient|soup|chef|fry|boil|sandwich|salad|dessert|dish|culinary)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "cooking recipes or food preparation" };
+  }
+
+  // 2. Weather, climate, meteorology
+  if (/\b(weather|forecast|rain|raining|snow|sunny|temperature\s+outside|climate\s+change|humidity|tornado|hurricane|monsoon|celsius|fahrenheit)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "weather forecasts or meteorology" };
+  }
+
+  // 3. General trivia, world history, geography, astronomy (non-NexusPulse facts)
+  if (
+    /\b(capital\s+of|who\s+was\s+(the\s+)?(president|prime\s+minister|king|queen|emperor)|tallest\s+mountain|mount\s+everest|speed\s+of\s+light|distance\s+to\s+the\s+moon|solar\s+system|world\s+war|french\s+revolution|how\s+many\s+continents|who\s+invented\s+the\s+telephone|population\s+of|where\s+is\s+(paris|tokyo|london|rome|egypt|antarctica|australia|africa|asia|brazil|canada))\b/i.test(
+      q
+    )
+  ) {
+    return { isOutOfScope: true, category: "general trivia, world history, or geography" };
+  }
+
+  // 4. Sports, athletics, leagues, games
+  if (/\b(world\s+cup|olympics|nba|fifa|messi|ronaldo|super\s+bowl|cricket|tennis|champions\s+league|premier\s+league|baseball|touchdown|goal\s+scored)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "sports or athletic events" };
+  }
+
+  // 5. Entertainment, movies, actors, pop culture, music
+  if (/\b(movie|film|actor|actress|hollywood|netflix|spotify\s+playlist|plot\s+of|oscars|song\s+lyrics|celebrity\s+gossip|cinema|blockbuster)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "movies, entertainment, or pop culture" };
+  }
+
+  // 6. Generic computer science algorithms & programming unrelated to NexusPulse
+  if (
+    /\b(binary\s+search|quicksort|merge\s+sort|linked\s+list|leetcode|python\s+script\s+to\s+(scrape|parse|invert)|c\+\+\s+pointer|write\s+a\s+function\s+to\s+reverse|bubble\s+sort|dijkstra|binary\s+tree|data\s+structures\s+in\s+c|quicksort\s+script)\b/i.test(
+      q
+    )
+  ) {
+    return { isOutOfScope: true, category: "unrelated computer science algorithms or generic programming" };
+  }
+
+  // 7. Creative writing, poems, stories, jokes, riddles
+  if (/\b(poem|poetry|riddle|joke)\b/i.test(q) || /\bwrite\b.*\b(poem|poetry|story|song|essay|joke|novel)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "creative writing, jokes, or poetry" };
+  }
+
+  // 8. Health, medicine, medical diagnosis
+  if (/\b(headache|fever|symptoms\s+of|diagnose|cure\s+for|medical\s+advice|take\s+(tylenol|aspirin|ibuprofen)|stomach\s+ache|blood\s+pressure|flu\s+vaccine|prescription)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "medical advice or health diagnosis" };
+  }
+
+  // 9. Personal advice, dating, relationships, astrology
+  if (/\b(horoscope|zodiac|astrology|relationship\s+advice|my\s+boyfriend|my\s+girlfriend|dating\s+advice|marriage\s+counseling)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "personal advice, relationships, or astrology" };
+  }
+
+  // 10. Automotive maintenance, home repair
+  if (/\b(change\s+the\s+oil|car\s+battery|flat\s+tire|brake\s+pads|leaking\s+faucet|repair\s+roof|plumbing\s+fix)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "automotive maintenance or home repair" };
+  }
+
+  // 11. Unsupported crypto, bitcoin mining, NFTs, token speculation
+  if (/\b(bitcoin|btc|ethereum|eth|crypto\s*mining|mine\s+crypto|solana|dogecoin|nft|nfts|defi|metamask|binance|coinbase)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "cryptocurrency mining, token trading, or NFTs" };
+  }
+
+  // 12. Unsupported stock market, forex, day trading
+  if (/\b(stock\s+trading|buy\s+tesla\s+stock|forex|s&p\s*500\s+options|wall\s*street|day\s+trading|robinhood)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "stock trading, equities, or forex brokerage" };
+  }
+
+  // 13. Unsupported banking, mortgages, personal loans
+  if (/\b(mortgage|home\s+loan|car\s+loan|bank\s+loan|auto\s+loan|apply\s+for\s+a\s+mortgage)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "bank mortgages, auto loans, or personal loans" };
+  }
+
+  // 14. Unsupported mobile app store downloads
+  if (/\b(download\s+(the\s+)?(ios|android)\s+app|app\s+store|google\s+play|apk\s+download)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "native mobile app store downloads" };
+  }
+
+  // 15. Unsupported separate login / signup / pricing pages
+  if (/(?:^|\s|\/)(login|signup|register|pricing|create\s+an\s+account|sign\s+up\s+page|login\s+page|forgot\s+password|reset\s+my\s+account\s+password)\b/i.test(q)) {
+    return { isOutOfScope: true, category: "separate gated login or pricing pages" };
+  }
+
+  return { isOutOfScope: false };
+}
+
+/**
  * Context-Aware Knowledge & Intent Synthesis Engine
  * Guarantees that every question intent (greetings, identity, creator, purpose,
  * capabilities, specific engines, live metrics, navigation, follow-ups, hallucination traps,
@@ -717,6 +810,48 @@ All three financial engines—**Channel3 Deal Hunter**, **Proof-of-Human Oracle 
   // ---------------------------------------------------------------------------
   // 2. SPECIFIC IDENTITY QUESTIONS: CREATOR vs BUILDER vs IDENTITY vs PURPOSE vs CAPABILITIES
   // ---------------------------------------------------------------------------
+  if (
+    /\b(who\s+(built|created|made|engineered)\s+you.*roles?|roles?.*who\s+(built|created|made|engineered)\s+you|who\s+are\s+you.*roles?|roles?.*who\s+are\s+you)\b/i.test(
+      q
+    )
+  ) {
+    return `I was built, engineered, and architected by the **NexusPulse engineering and architecture team** specifically for the **PayPal AI Hackathon 2026** to serve as your **Autonomous Personal AI CFO and Financial Clearinghouse Agent**.
+
+### The 5 Executive Roles of the Autonomous CFO:
+1. **Autopilot Subscription Guard (/v1/billing/subscriptions):** Audits recurring SaaS plans, flags unused compute/licenses, and executes tier downgrades or cancellations to eliminate financial leakage ($1,548+/yr savings).
+2. **Autonomous Channel3 Deal Hunter & Arbitrage (/v2/checkout/orders):** Scans Channel3's 100M+ SKU catalog, monitors your target price mandates, and executes 1-click purchases via PayPal Orders v2 and JS SDK v6.
+3. **Proof-of-Human Verification Oracle & Settlement (/v1/payments/payouts):** Audits physical-world ground-truth evidence submitted by human contributors in under 2 seconds, and disburses instant rewards via PayPal Payouts v1.
+4. **Zero-Dispute A2A Smart Escrow & Dispute Shield (/v2/checkout/orders/{id}/authorize):** Coordinates milestone authorization holds on a Bryntum Gantt timeline and attaches DHL/FedEx tracking to prevent chargebacks.
+5. **Real-time Treasury Management & Telemetry:** Maintains an institutional-grade double-entry ledger across transactions, invoices, and your **\$${wallet.toLocaleString("en-US", { minimumFractionDigits: 2 })} USD** Protected Wallet.
+
+- [View Clearinghouse Overview](/?tab=overview#main-workspace)
+[ACTION:NAVIGATE:overview]`;
+  }
+
+  if (
+    /\b(what\s+are\s+your\s+roles|what\s+are\s+your\s+responsibilities|your\s+roles\s+and\s+responsibilities|explain\s+your\s+roles)\b/i.test(
+      q
+    )
+  ) {
+    return `### The 5 Executive Roles of the NexusPulse Autonomous CFO
+
+As the autonomous personal AI CFO for NexusPulse, I operate across 5 dedicated roles:
+
+1. **Autopilot Subscription Guard (/v1/billing/subscriptions):**
+   Continuously audits recurring SaaS plans, flags idle compute/seats, and executes 1-click tier downgrades or cancellations to eliminate financial leakage (saving **\$${annualSubSavings.toLocaleString("en-US")} USD/yr** across active plans).
+2. **Autonomous Channel3 Deal Hunter & Arbitrage (/v2/checkout/orders):**
+   Scans Channel3's 100M+ SKU catalog, tracks your target price mandates on hardware (like ASUS laptops, MacBooks, and keyboards), and executes 1-click checkouts with PayPal Wallet, Pay Later (BNPL), and Venmo.
+3. **Proof-of-Human Verification Oracle & Settlement (/v1/payments/payouts):**
+   Reviews physical-world verification evidence submitted by human contributors in under 2 seconds, and triggers instant cash disbursements via PayPal Payouts v1.
+4. **Zero-Dispute A2A Smart Escrow & Dispute Shield (/v2/checkout/orders/{id}/authorize):**
+   Locks B2B milestone payments in PayPal authorization holds on a Bryntum Gantt timeline, verifying deliverable proofs before release and injecting carrier tracking (DHL/FedEx) for chargeback immunity.
+5. **Real-time Treasury Management & Telemetry:**
+   Maintains institutional-grade double-entry accounting across wallet balance, escrow holds, and ledger transactions with live CSV export via AG Grid.
+
+- [View Clearinghouse Overview](/?tab=overview#main-workspace)
+[ACTION:NAVIGATE:overview]`;
+  }
+
   if (/\b(who\s+built\s+(you|this\s+bot|this\s+assistant)|your\s+builder)\b/i.test(q)) {
     return `I was built and architected by the **NexusPulse engineering and architecture team** specifically to power the **NexusPulse Autonomous Financial Clearinghouse**.
 
@@ -826,6 +961,27 @@ To ensure zero-friction access for users, developers, and hackathon judges, the 
 - **AG Grid Telemetry**: [/?tab=aggrid](/?tab=aggrid#aggrid-heading)
 
 If you want to connect your own PayPal Sandbox credentials or personal Groq API key, you can do so directly via the **PayPal Mode** switcher in the top header or the **API Key Settings** button inside this chat window.`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3B. GENERAL OUT-OF-SCOPE & CONTEXT BOUNDARY NOTICE
+  // ---------------------------------------------------------------------------
+  const outOfScope = isOutOfScopeQuery(raw);
+  if (outOfScope.isOutOfScope) {
+    const topicLabel = outOfScope.category ? ` regarding **${outOfScope.category}**` : "";
+    return `### Scope Notice: Query Outside Operational Scope
+
+I cannot answer this question because it is **outside my operational scope and context** as the NexusPulse intelligent financial assistant. I am specialized exclusively in autonomous commerce, financial optimization, and PayPal payment rails, and I do not provide answers${topicLabel}.
+
+### Permitted Topics Within My Context
+In this workspace, my intelligence and tools are strictly focused on:
+1. **Engine 1: Channel3 Deal Hunter & Subscription Guard** — Scanning 100M+ catalog deals and optimizing/downgrading recurring PayPal subscriptions ([Open Engine 1](/?tab=channel3#engine-channel3)).
+2. **Engine 2: Proof-of-Human Oracle Bounties** — Submitting and reviewing 30–60s real-world verification evidence with instant PayPal Payouts v1 ([Open Engine 2](/?tab=bounties#engine-bounties)).
+3. **Engine 3: A2A Smart Escrow & Dispute Shield** — Milestone-based PayPal Orders v2 AUTHORIZE holds on a Bryntum Gantt timeline with DHL carrier tracking proofs ([Open Engine 3](/?tab=bryntum#engine-bryntum)).
+4. **AG Grid Financial Telemetry & Ledger** — Real-time transaction audits, invoice reconciliation, and CSV export ([Open AG Grid](/?tab=aggrid#aggrid-heading)).
+5. **System Identity & Architecture** — Inquiring about who built me, my executive roles, or our live **\$${wallet.toLocaleString("en-US", { minimumFractionDigits: 2 })} USD** wallet balance.
+
+You can ask me questions regarding any of these platform capabilities!`;
   }
 
   // ---------------------------------------------------------------------------

@@ -19,11 +19,11 @@ interface NexusHeaderProps {
   activeTab: HeaderNavTab;
   onSelectTab?: (tab: WorkspaceTabId) => void;
   activeMode: PayPalExecutionMode;
-  preferredMode: "auto" | "sandbox" | "mirror";
+  preferredMode: "auto" | "live" | "sandbox" | "mirror";
   databaseSource: string;
   voiceLoading: boolean;
   voiceTranscript: string | null;
-  onSwitchMode: (mode: "auto" | "sandbox" | "mirror") => void;
+  onSwitchMode: (mode: "auto" | "live" | "sandbox" | "mirror") => void;
   onSaveRuntimeCredentials: (clientId: string, clientSecret: string) => Promise<void>;
   onPlayVoiceBriefing: () => void;
   onResetDemoState: () => void;
@@ -169,9 +169,15 @@ export default function NexusHeader({
             className="hidden items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-950 sm:inline-flex"
           >
             <span
-              className={`h-1.5 w-1.5 rounded-full ${activeMode === "sandbox" ? "bg-emerald-500" : "bg-zinc-400"}`}
+              className={`h-1.5 w-1.5 rounded-full ${
+                activeMode === "live"
+                  ? "bg-emerald-500 ring-2 ring-emerald-500/20"
+                  : activeMode === "sandbox"
+                    ? "bg-sky-500 ring-2 ring-sky-500/20"
+                    : "bg-zinc-400"
+              }`}
             />
-            {activeMode === "sandbox" ? "Sandbox" : "Demo mode"}
+            {activeMode === "live" ? "Live" : activeMode === "sandbox" ? "Sandbox" : "Demo mode"}
           </button>
 
           <button
@@ -260,7 +266,7 @@ export default function NexusHeader({
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className="text-zinc-500">Mode</span>
               <div role="group" aria-label="PayPal mode" className="inline-flex rounded-lg bg-zinc-100 p-0.5">
-                {(["auto", "sandbox", "mirror"] as const).map((m) => (
+                {(["auto", "live", "sandbox", "mirror"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
@@ -270,7 +276,7 @@ export default function NexusHeader({
                       preferredMode === m ? "bg-white font-medium text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-zinc-950"
                     }`}
                   >
-                    {m === "auto" ? "Auto" : m === "sandbox" ? "Sandbox" : "Demo"}
+                    {m === "auto" ? "Auto" : m === "live" ? "Live" : m === "sandbox" ? "Sandbox" : "Demo"}
                   </button>
                 ))}
               </div>

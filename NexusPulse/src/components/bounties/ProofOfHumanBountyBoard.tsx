@@ -4,15 +4,19 @@ import React, { useState } from "react";
 import {
   AlertCircle,
   Award,
+  Camera,
   CheckCircle2,
   Clock,
   DollarSign,
+  FileCheck,
   Filter,
   MapPin,
   Send,
   ShieldCheck,
   Sparkles,
+  UploadCloud,
   UserCheck,
+  X,
   XCircle,
 } from "lucide-react";
 import type {
@@ -48,6 +52,15 @@ export default function ProofOfHumanBountyBoard({
   const [submitting, setSubmitting] = useState(false);
   const [bountyFilter, setBountyFilter] = useState<"ALL" | "OPEN" | "PAID">("ALL");
 
+  // Media evidence upload state
+  const [attachedFile, setAttachedFile] = useState<{
+    fileName: string;
+    mediaUrl: string;
+    base64: string;
+    mimeType: string;
+  } | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+
   const [lastResult, setLastResult] = useState<{
     passed: boolean;
     score: number;
@@ -65,7 +78,46 @@ export default function ProofOfHumanBountyBoard({
   function handleSelectBounty(b: ProofOfHumanBounty) {
     setSelectedBountyId(b.id);
     setEvidenceText(b.sample_evidence_text);
+    setAttachedFile(null);
     setLastResult(null);
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFile(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bountyId", selectedBounty?.id || "");
+      formData.append("purpose", "bounty_evidence");
+
+      const res = await fetch("/api/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAttachedFile({
+          fileName: data.fileName,
+          mediaUrl: data.mediaUrl,
+          base64: data.base64,
+          mimeType: data.mimeType,
+        });
+      } else {
+        setStatusBanner({
+          type: "error",
+          text: data.error || "Failed to process media upload",
+        });
+      }
+    } catch {
+      setStatusBanner({
+        type: "error",
+        text: "Network error while uploading evidence file",
+      });
+    } finally {
+      setUploadingFile(false);
+    }
   }
 
   const displayedBounties = bounties.filter((b) => {
@@ -88,6 +140,8 @@ export default function ProofOfHumanBountyBoard({
         body: JSON.stringify({
           bountyId: selectedBounty.id,
           evidenceText,
+          imageBase64: attachedFile?.base64,
+          imageMimeType: attachedFile?.mimeType,
           recipientEmail: receiverEmail,
         }),
       });
@@ -361,6 +415,51 @@ export default function ProofOfHumanBountyBoard({
                     placeholder="Enter observation, sensor data, or proof..."
                     required
                   />
+                </div>
+
+                {/* Media Telemetry Attachment (Photos, Sensor Proof) */}
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 mb-1">
+                    Attach Photo / Telemetry (Optional for Gemini Multimodal Vision):
+                  </label>
+                  {attachedFile ? (
+                    <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 p-2 text-xs">
+                      <div className="flex items-center gap-2 truncate">
+                        <FileCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span className="font-medium text-zinc-800 truncate">
+                          {attachedFile.fileName}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAttachedFile(null)}
+                        className="rounded p-1 text-zinc-400 hover:text-zinc-700 transition"
+                        title="Remove attached file"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="bounty-media-file-input"
+                      className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 p-2.5 text-xs text-zinc-600 transition"
+                    >
+                      <Camera className="h-3.5 w-3.5 text-zinc-400" />
+                      <span>
+                        {uploadingFile
+                          ? "Uploading telemetry..."
+                          : "Upload Photo, Receipt, or Video Proof (Max 10MB)"}
+                      </span>
+                      <input
+                        id="bounty-media-file-input"
+                        type="file"
+                        accept="image/*,video/mp4"
+                        onChange={handleFileUpload}
+                        disabled={uploadingFile}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
                 </div>
 
                 <div>

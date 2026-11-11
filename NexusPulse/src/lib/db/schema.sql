@@ -196,9 +196,98 @@ CREATE TABLE IF NOT EXISTS webhook_events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- ==============================================================================
+-- Multi-Tenant SaaS Extension: Real User Accounts, Wallets & Isolation
+-- ==============================================================================
+
+-- 11. Multi-Tenant User Accounts & Identity
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT NOT NULL,
+    avatar_url TEXT,
+    role TEXT NOT NULL DEFAULT 'CONSUMER' CHECK (role IN ('CONSUMER', 'ORACLE_WORKER', 'ENTERPRISE_AGENT', 'ADMIN')),
+    paypal_payer_id TEXT,
+    paypal_email TEXT,
+    reputation_score NUMERIC(5,2) DEFAULT 100.00,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 12. User Wallets & Pre-Approved Autonomous Spend Caps (Vaulting)
+CREATE TABLE IF NOT EXISTS user_wallets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    balance_usd NUMERIC(12,2) NOT NULL DEFAULT 4820.50,
+    auto_spend_limit_usd NUMERIC(12,2) NOT NULL DEFAULT 500.00,
+    auto_spend_used_this_month NUMERIC(12,2) NOT NULL DEFAULT 0.00,
+    vaulted_payment_token TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 13. User Price Mandates (Channel3 Autopilot)
+CREATE TABLE IF NOT EXISTS price_mandates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    brand TEXT,
+    category TEXT,
+    max_target_price NUMERIC(12,2) NOT NULL,
+    auto_checkout_enabled BOOLEAN NOT NULL DEFAULT false,
+    status TEXT NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'FULFILLED', 'EXPIRED', 'CANCELLED')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 14. Bounty Submissions & Telemetry (Engine 2)
+CREATE TABLE IF NOT EXISTS bounty_submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    bounty_id TEXT NOT NULL REFERENCES proof_of_human_bounties(id) ON DELETE CASCADE,
+    worker_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    evidence_text TEXT NOT NULL,
+    media_urls TEXT[] NOT NULL DEFAULT '{}',
+    geo_lat NUMERIC(10,7),
+    geo_lng NUMERIC(10,7),
+    gemini_score INTEGER,
+    gemini_notes TEXT,
+    payout_batch_id TEXT,
+    status TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 15. Escrow Contracts (Engine 3 Counterparties)
+CREATE TABLE IF NOT EXISTS escrow_contracts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    buyer_id UUID NOT NULL REFERENCES users(id),
+    provider_id UUID NOT NULL REFERENCES users(id),
+    title TEXT NOT NULL,
+    total_amount_usd NUMERIC(12,2) NOT NULL,
+    status TEXT NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'COMPLETED', 'DISPUTED', 'CANCELLED')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Default Seed: Sovereign Demo User
+INSERT INTO users (id, email, full_name, role, paypal_email)
+VALUES (
+    '00000000-0000-0000-0000-000000000001',
+    'sb-buyer-nexus@personal.example.com',
+    'Nexus Demo User',
+    'CONSUMER',
+    'sb-buyer-nexus@personal.example.com'
+) ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO user_wallets (user_id, balance_usd, auto_spend_limit_usd)
+VALUES (
+    '00000000-0000-0000-0000-000000000001',
+    4820.50,
+    500.00
+) ON CONFLICT DO NOTHING;
+
 -- Enable Realtime replication for dynamic UI listeners
 ALTER PUBLICATION supabase_realtime ADD TABLE paypal_transactions;
 ALTER PUBLICATION supabase_realtime ADD TABLE smart_escrow_milestones;
 ALTER PUBLICATION supabase_realtime ADD TABLE proof_of_human_bounties;
 ALTER PUBLICATION supabase_realtime ADD TABLE subscriptions;
 ALTER PUBLICATION supabase_realtime ADD TABLE channel3_deals;
+ALTER PUBLICATION supabase_realtime ADD TABLE users;
+ALTER PUBLICATION supabase_realtime ADD TABLE user_wallets;
+ALTER PUBLICATION supabase_realtime ADD TABLE price_mandates;
+ALTER PUBLICATION supabase_realtime ADD TABLE bounty_submissions;

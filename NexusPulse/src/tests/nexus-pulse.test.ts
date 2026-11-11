@@ -406,4 +406,141 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.equal(getJson.status, "OPERATIONAL");
     assert.ok(getJson.totalInquiriesReceived >= 1);
   });
+
+  it("validates Autonomous CFO across 200+ questions including identity, roles, out-of-scope rejection, and anti-hallucination", async () => {
+    const { CHATBOT_200_QUESTIONS } = await import("./chatbot-200-questions.test");
+    const { runNexusPulseAgentInteraction } = await import("../lib/ai/gemini-agent");
+
+    // 1. Test combined identity & roles question (user's explicit example)
+    const combinedRes = await runNexusPulseAgentInteraction({
+      prompt: "who built you and what are your roles?",
+    });
+    assert.ok(combinedRes.outputText.length > 100);
+    assert.match(combinedRes.outputText, /NexusPulse engineering and architecture team/i);
+    assert.match(combinedRes.outputText, /Autonomous Personal AI CFO/i);
+    assert.match(combinedRes.outputText, /Autopilot Subscription Guard/i);
+    assert.match(combinedRes.outputText, /Channel3 Deal Hunter/i);
+    assert.match(combinedRes.outputText, /Proof-of-Human Verification Oracle/i);
+    assert.match(combinedRes.outputText, /Smart Escrow & Dispute Shield/i);
+    assert.match(combinedRes.outputText, /Treasury Management/i);
+
+    // 2. Test individual "who built you?"
+    const builtRes = await runNexusPulseAgentInteraction({ prompt: "who built you?" });
+    assert.match(builtRes.outputText, /NexusPulse engineering and architecture team/i);
+
+    // 3. Test individual "what are your roles?"
+    const rolesRes = await runNexusPulseAgentInteraction({ prompt: "what are your roles?" });
+    assert.match(rolesRes.outputText, /Five Executive Roles of the Autonomous CFO/i);
+    assert.match(rolesRes.outputText, /Subscription Guard/i);
+    assert.match(rolesRes.outputText, /Channel3 Deal Hunter/i);
+
+    // 4. Test individual "who are you?"
+    const whoRes = await runNexusPulseAgentInteraction({ prompt: "who are you?" });
+    assert.match(whoRes.outputText, /NexusPulse/i);
+    assert.match(whoRes.outputText, /Autonomous Personal AI CFO/i);
+
+    // 5. Test out-of-scope questions (must NOT hallucinate, must state outside scope, must list permitted topics)
+    const outOfScopeQueries = [
+      "how to bake chocolate chip cookies?",
+      "what is the weather in Tokyo right now?",
+      "what is the capital of Australia?",
+      "write a python quicksort script",
+      "can you diagnose my headache and stomach ache?",
+      "who won the FIFA World Cup in 2022?",
+      "write me a love poem about the ocean",
+      "how do I change the oil in a 2015 Honda Civic?",
+      "can you recommend a good action movie on Netflix?",
+      "tell me a funny programmer joke",
+      "what are the best growth stocks to buy today on Wall Street?",
+      "can I mine Bitcoin using Engine 2 bounties on NexusPulse?",
+      "where can I download the iOS app from the Apple App Store?",
+      "take me to the /pricing page to pay monthly fees",
+    ];
+
+    for (const q of outOfScopeQueries) {
+      const res = await runNexusPulseAgentInteraction({ prompt: q });
+      assert.ok(res.outputText.length > 50, `Output for query "${q}" is too short`);
+      const isRefused =
+        /outside my operational scope/i.test(res.outputText) ||
+        /does not support/i.test(res.outputText) ||
+        /does not have/i.test(res.outputText) ||
+        /cannot provide answers/i.test(res.outputText);
+      assert.ok(isRefused, `Query "${q}" was not recognized as out-of-scope or unsupported`);
+      assert.match(res.outputText, /Subscription Guard/i);
+      assert.match(res.outputText, /Channel3 Deal Hunter|Engine 1/i);
+    }
+
+    // 6. Test all 200 diverse questions from CHATBOT_200_QUESTIONS through the Autonomous CFO
+    assert.equal(CHATBOT_200_QUESTIONS.length, 200);
+    for (let i = 0; i < CHATBOT_200_QUESTIONS.length; i++) {
+      const prompt = CHATBOT_200_QUESTIONS[i];
+      const res = await runNexusPulseAgentInteraction({ prompt });
+      assert.ok(res.interactionId, `Q#${i + 1} missing interactionId`);
+      assert.ok(res.outputText.length >= 30, `Q#${i + 1} "${prompt}" output text is too short`);
+      assert.match(res.outputText, /### 1\./, `Q#${i + 1} "${prompt}" missing markdown section header`);
+    }
+  });
+
+  it("validates production launch modules: dual-mode live PayPal gateway, Channel3 catalog search, and media upload validation", async () => {
+    const { getPayPalBaseUrl, isPayPalLiveEnvironment } = await import("../lib/paypal/paypal-client");
+    const { resolveActivePayPalMode, setRuntimePayPalCredentials } = await import("../lib/paypal/paypal-gateway");
+
+    // 1. Validate PayPal Base URL resolution
+    const defaultUrl = getPayPalBaseUrl();
+    assert.ok(defaultUrl.startsWith("https://api-m."), "Base URL must target PayPal API");
+    assert.equal(typeof isPayPalLiveEnvironment(), "boolean");
+
+    // 2. Validate Gateway mode switching
+    const initialMode = resolveActivePayPalMode();
+    assert.ok(["live", "sandbox", "mirror"].includes(initialMode));
+
+    const switched = setRuntimePayPalCredentials({
+      clientId: "test_live_sandbox_client_id_abc123",
+      clientSecret: "test_live_sandbox_secret_xyz789",
+      preferredMode: "sandbox",
+    });
+    assert.equal(switched.activeMode, "sandbox");
+
+    const autoSwitched = setRuntimePayPalCredentials({
+      clientId: "",
+      clientSecret: "",
+      preferredMode: "auto",
+    });
+    assert.ok(["live", "sandbox", "mirror"].includes(autoSwitched.activeMode));
+
+    // 3. Test Channel3 search route
+    const { GET: channel3Get } = await import("../app/api/channel3/search/route");
+    const { NextRequest } = await import("next/server");
+
+    const reqAll = new NextRequest("http://localhost:3000/api/channel3/search");
+    const resAll = await channel3Get(reqAll);
+    assert.equal(resAll.status, 200);
+    const jsonAll = await resAll.json();
+    assert.ok(jsonAll.count >= 1);
+    assert.ok(Array.isArray(jsonAll.deals));
+
+    const reqFiltered = new NextRequest("http://localhost:3000/api/channel3/search?q=orin");
+    const resFiltered = await channel3Get(reqFiltered);
+    assert.equal(resFiltered.status, 200);
+    const jsonFiltered = await resFiltered.json();
+    assert.ok(jsonFiltered.deals.some((d: any) => d.title.toLowerCase().includes("orin")));
+
+    // 4. Test Media Upload endpoint
+    const { POST: mediaUploadPost } = await import("../app/api/media/upload/route");
+    const formData = new FormData();
+    const fakeFile = new File(["test image bytes"], "inspection_proof.png", { type: "image/png" });
+    formData.append("file", fakeFile);
+    formData.append("bountyId", "POH-401");
+
+    const mediaReq = new NextRequest("http://localhost:3000/api/media/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const mediaRes = await mediaUploadPost(mediaReq);
+    assert.equal(mediaRes.status, 200);
+    const mediaJson = await mediaRes.json();
+    assert.equal(mediaJson.success, true);
+    assert.ok(mediaJson.mediaUrl);
+    assert.equal(mediaJson.mimeType, "image/png");
+  });
 });

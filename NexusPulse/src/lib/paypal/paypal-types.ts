@@ -1,4 +1,4 @@
-export type PayPalExecutionMode = "sandbox" | "mirror";
+export type PayPalExecutionMode = "live" | "sandbox" | "mirror";
 
 export interface PayPalMoney {
   currency_code: string;

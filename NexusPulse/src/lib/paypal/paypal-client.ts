@@ -13,7 +13,17 @@ import {
 import type { Order, OrderRequest, OrderTrackerRequest } from "@paypal/paypal-server-sdk";
 
 const SANDBOX_BASE_URL = "https://api-m.sandbox.paypal.com";
+const LIVE_BASE_URL = "https://api-m.paypal.com";
 const MAX_RETRY_ATTEMPTS = 4;
+
+export function isPayPalLiveEnvironment(): boolean {
+  const env = (process.env.PAYPAL_ENV || process.env.PAYPAL_ENVIRONMENT || "").toLowerCase();
+  return env === "live" || env === "production";
+}
+
+export function getPayPalBaseUrl(): string {
+  return isPayPalLiveEnvironment() ? LIVE_BASE_URL : SANDBOX_BASE_URL;
+}
 
 let cachedOAuthToken: { accessToken: string; expiresAtMs: number } | null = null;
 
@@ -36,6 +46,8 @@ export function hasLiveSandboxCredentials(): boolean {
   return Boolean(id && secret && id.length > 5 && secret.length > 5);
 }
 
+export const hasLiveCredentials = hasLiveSandboxCredentials;
+
 /**
  * Instantiates the APIMatic-generated @paypal/paypal-server-sdk v2.5.0 Client
  * and typed resource controllers (qualifies for Best Use of APIMatic Sponsor Prize).
@@ -53,7 +65,7 @@ export function getApimaticPayPalSdk() {
       oAuthClientSecret: clientSecret,
     },
     timeout: 30000,
-    environment: Environment.Sandbox,
+    environment: isPayPalLiveEnvironment() ? Environment.Production : Environment.Sandbox,
   });
 
   return {
@@ -85,7 +97,7 @@ export async function getCachedSandboxAccessToken(forceRefresh = false): Promise
   }
 
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const res = await fetch(`${SANDBOX_BASE_URL}/v1/oauth2/token`, {
+  const res = await fetch(`${getPayPalBaseUrl()}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${basicAuth}`,
@@ -123,7 +135,7 @@ export async function generateBrowserClientToken(): Promise<string> {
   }
 
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const res = await fetch(`${SANDBOX_BASE_URL}/v1/oauth2/token`, {
+  const res = await fetch(`${getPayPalBaseUrl()}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${basicAuth}`,
@@ -170,7 +182,7 @@ export async function paypalSandboxFetch<T>(params: {
       headers["Prefer"] = "return=representation";
     }
 
-    const res = await fetch(`${SANDBOX_BASE_URL}${params.path}`, {
+    const res = await fetch(`${getPayPalBaseUrl()}${params.path}`, {
       method,
       headers,
       body: params.body !== undefined ? JSON.stringify(params.body) : undefined,

@@ -295,3 +295,50 @@ button:disabled {
 ::-webkit-scrollbar-thumb:hover {
   background: #d4d4d8;
 }
+
+/* =========================================================================
+   PRINT / PDF ISOLATION RULES
+   When printing or saving as PDF, only print the Autonomous CFO answer,
+   NEVER the rest of the website (headers, hero, navigation, footers, etc.)
+   ========================================================================= */
+@media print {
+  /* Hide all top-level website chrome, navigation, hero, and interactive widgets */
+  header,
+  footer,
+  nav,
+  aside,
+  [role="banner"],
+  [role="navigation"],
+  #main-hero,
+  #engines-section,
+  #kpi-telemetry-ribbon,
+  #nexus-chatbot-root,
+  .no-print,
+  .cfo-toolbar,
+  form,
+  .skip-link {
+    display: none !important;
+  }
+
+  /* Reset body styling for crisp, clean PDF export */
+  html,
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure the report is visible, isolated, full-width, and clean */
+  #cfo-executive-report {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+}

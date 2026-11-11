@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       action?: "RESET_STATE" | "SET_CREDENTIALS";
       clientId?: string;
       clientSecret?: string;
-      preferredMode?: "auto" | "sandbox" | "mirror";
+      preferredMode?: "auto" | "live" | "sandbox" | "mirror";
     };
 
     if (body.action === "RESET_STATE") {
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const allowedModes = new Set(["auto", "sandbox", "mirror"]);
+    const allowedModes = new Set(["auto", "live", "sandbox", "mirror"]);
     const preferredMode =
       body.preferredMode && allowedModes.has(body.preferredMode) ? body.preferredMode : undefined;
 
