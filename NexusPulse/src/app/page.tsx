@@ -42,12 +42,32 @@ const TAB_TO_HASH: Record<WorkspaceTabId, string> = {
   aggrid: "telemetry",
 };
 
-function tabFromHash(hash: string): WorkspaceTabId {
+function tabFromHashOrQuery(hash: string, search: string): WorkspaceTabId {
+  try {
+    const params = new URLSearchParams(search);
+    const tabParam = params.get("tab") as WorkspaceTabId | null;
+    if (
+      tabParam &&
+      ["overview", "channel3", "bounties", "bryntum", "aggrid"].includes(tabParam)
+    ) {
+      return tabParam;
+    }
+  } catch {
+    // Ignore URLSearchParams errors
+  }
+
   const clean = hash.replace(/^#/, "");
   const match = (Object.keys(TAB_TO_HASH) as WorkspaceTabId[]).find(
     (t) => TAB_TO_HASH[t] === clean && clean !== ""
   );
-  return match ?? "overview";
+  if (match) return match;
+
+  if (clean === "engine-channel3" || clean === "engine-1-heading") return "channel3";
+  if (clean === "engine-bounties" || clean === "engine-2-heading") return "bounties";
+  if (clean === "engine-bryntum") return "bryntum";
+  if (clean === "aggrid-heading" || clean === "webhooks-security") return "aggrid";
+
+  return "overview";
 }
 
 export default function NexusPulseHomePage() {
@@ -114,27 +134,43 @@ export default function NexusPulseHomePage() {
     fetchState();
   }, [fetchState]);
 
-  // Sync the active feature page with the URL hash (deep links + Back/Forward).
+  // Sync the active feature page with URL query/hash (deep links + Back/Forward).
   useEffect(() => {
-    const syncFromHash = () => setActiveTab(tabFromHash(window.location.hash));
-    syncFromHash();
-    window.addEventListener("popstate", syncFromHash);
-    window.addEventListener("hashchange", syncFromHash);
+    const syncFromUrl = () => {
+      setActiveTab(tabFromHashOrQuery(window.location.hash, window.location.search));
+      const hashId = window.location.hash.replace(/^#/, "");
+      if (hashId) {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(hashId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+    };
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    window.addEventListener("hashchange", syncFromUrl);
     return () => {
-      window.removeEventListener("popstate", syncFromHash);
-      window.removeEventListener("hashchange", syncFromHash);
+      window.removeEventListener("popstate", syncFromUrl);
+      window.removeEventListener("hashchange", syncFromUrl);
     };
   }, []);
 
-  /** Navigate to a feature page: switch view, update URL, and scroll to the top of it. */
-  const navigateTo = useCallback((tab: WorkspaceTabId) => {
+  /** Navigate to a feature page: switch view, update URL, and scroll to target section or top. */
+  const navigateTo = useCallback((tab: WorkspaceTabId, sectionId?: string) => {
     setActiveTab(tab);
-    const hash = TAB_TO_HASH[tab];
-    const url = hash ? `#${hash}` : window.location.pathname + window.location.search;
-    if (window.location.hash.replace(/^#/, "") !== hash) {
-      window.history.pushState(null, "", url);
-    }
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    const hash = sectionId || TAB_TO_HASH[tab];
+    const url = `/?tab=${tab}${hash ? `#${hash}` : ""}`;
+    window.history.pushState(null, "", url);
+    requestAnimationFrame(() => {
+      if (sectionId) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }, []);
 
   async function handleSwitchMode(nextPref: "auto" | "sandbox" | "mirror") {
@@ -412,6 +448,7 @@ export default function NexusPulseHomePage() {
 
         {/* Cascade Item 8: INSTITUTIONAL FINANCIAL TELEMETRY RIBBON (FULL WIDTH) */}
         <section
+          id="kpi-telemetry-ribbon"
           aria-label="Key Financial Performance Indicators"
           className="animate-cascade-8 rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all overflow-hidden w-full"
         >
@@ -722,7 +759,7 @@ export default function NexusPulseHomePage() {
 
         {/* TAB CONTENT */}
         {(activeTab === "overview" || activeTab === "channel3") && (
-          <div className="nexus-fade-in">
+          <div id="engine-channel3" className="nexus-fade-in">
             <Channel3DealHunterPanel
               deals={appState.channel3Deals}
               activeMode={activeMode}
@@ -732,7 +769,7 @@ export default function NexusPulseHomePage() {
         )}
 
         {(activeTab === "overview" || activeTab === "bounties") && (
-          <div className="nexus-fade-in">
+          <div id="engine-bounties" className="nexus-fade-in">
             <ProofOfHumanBountyBoard
               bounties={appState.bounties}
               payouts={appState.payouts}
@@ -742,7 +779,7 @@ export default function NexusPulseHomePage() {
         )}
 
         {(activeTab === "overview" || activeTab === "bryntum") && (
-          <div className="nexus-fade-in">
+          <div id="engine-bryntum" className="nexus-fade-in">
             <BryntumEscrowTimeline
               milestones={appState.escrowMilestones}
               subscriptions={appState.subscriptions}
@@ -752,7 +789,7 @@ export default function NexusPulseHomePage() {
         )}
 
         {(activeTab === "overview" || activeTab === "aggrid") && (
-          <div className="nexus-fade-in space-y-6">
+          <div id="aggrid-heading" className="nexus-fade-in space-y-6">
             <AgGridFinancialCommandCenter
               state={appState}
               onAskGeminiAboutLedger={(prompt) => {
@@ -761,7 +798,7 @@ export default function NexusPulseHomePage() {
             />
 
             {/* PAYPAL WEBHOOKS V1 SIGNATURE VERIFIER & APIMATIC SDK INSPECTOR */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div id="webhooks-security" className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div>
@@ -879,7 +916,7 @@ export default function NexusPulseHomePage() {
         onSelectTab={navigateTo}
       />
 
-      {/* DEDICATED ADVANCED AI CHATBOT (GROQ 120B FRONTIER MODEL) */}
+      {/* NEXUSPULSE AI ASSISTANT */}
       <NexusAiChatbot
         appState={appState}
         onSelectTab={navigateTo}

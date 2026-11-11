@@ -1,16 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
+import {
+  getMirrorState,
+  type NexusPulseState,
+} from "@/lib/paypal/paypal-sandbox-mirror";
+import {
+  generateContextAwareRagResponse,
+  retrieveRelevantKnowledge,
+  VERIFIED_NAVIGATION_LINKS,
+} from "@/lib/ai/nexus-knowledge-base";
 
 export const runtime = "nodejs";
 
-const GROQ_API_KEY =
-  process.env.GROQ_API_KEY ||
-  process.env.Groq_API_KEY ||
-  "";
+function getPlatformGroqKey(): string {
+  const raw =
+    process.env.GROQ_API_KEY ||
+    process.env.Groq_API_KEY ||
+    "";
+  return raw.replace(/^GROQ_API_KEY\s*[:=]\s*/i, "").trim();
+}
 
-// Initialize Groq client safely
-const groq = GROQ_API_KEY ? new Groq({ apiKey: GROQ_API_KEY }) : null;
+function sanitizeCustomGroqKey(rawKey?: string | null): string | null {
+  if (!rawKey || typeof rawKey !== "string") return null;
+  const cleaned = rawKey.trim();
+  if (!cleaned) return null;
+  return cleaned;
+}
+
+function isValidGroqKeyFormat(key: string): boolean {
+  return /^gsk_[A-Za-z0-9_-]{20,128}$/.test(key);
+}
+
+/**
+ * Scrubs any accidental provider or raw model identifier references from LLM output
+ * so the assistant always presents a clean, unified NexusPulse identity.
+ */
+export function sanitizeAssistantReply(text: string): string {
+  return text
+    .replace(/\bGroq\s+120-Billion\s+Parameter\s+Frontier\s+AI\s+Model\b/gi, "NexusPulse AI Engine")
+    .replace(/\bGroq\s+120B\s+Frontier\s+(AI\s+)?Model\b/gi, "NexusPulse AI Engine")
+    .replace(/\bpowered\s+by\s+Groq\b/gi, "powered by NexusPulse AI")
+    .replace(/\bopenai\/gpt-oss-120b\b/gi, "NexusPulse AI")
+    .replace(/\bqwen\/qwen3\.8-27b\b/gi, "NexusPulse AI")
+    .replace(/\bllama-3\.3-70b-versatile\b/gi, "NexusPulse AI")
+    .replace(/\bnexus-oracle-semantic-core\b/gi, "NexusPulse AI");
+}
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -18,12 +52,18 @@ interface ChatMessage {
 }
 
 interface ChatbotRequestBody {
-  message: string;
+  action?: "CHAT" | "VALIDATE_KEY";
+  message?: string;
   history?: Array<{ role: "user" | "assistant"; content: string }>;
   stateContext?: Partial<NexusPulseState> | null;
+  customApiKey?: string | null;
 }
 
-function buildSystemPrompt(state?: Partial<NexusPulseState> | null): string {
+function buildSystemPrompt(
+  query: string,
+  history: Array<{ role: "user" | "assistant"; content: string }>,
+  state?: Partial<NexusPulseState> | null
+): string {
   const walletBalance = state?.walletBalanceUsd ?? 24650.0;
   const totalSaved = state?.totalSavedByAiUsd ?? 707.55;
   const totalEarned = state?.totalEarnedFromBountiesUsd ?? 395.0;
@@ -33,220 +73,236 @@ function buildSystemPrompt(state?: Partial<NexusPulseState> | null): string {
   const milestonesCount = state?.escrowMilestones?.length ?? 3;
   const subscriptionsCount = state?.subscriptions?.length ?? 3;
 
-  return `You are NexusPulse Oracle — the world-class Senior AI Financial Architect, Chief Financial Officer (CFO), and technical assistant embedded into NexusPulse.
+  const retrievedDocs = retrieveRelevantKnowledge(query, history);
+  const ragContext = retrievedDocs
+    .map(
+      (doc, idx) =>
+        `[DOC ${idx + 1}: ${doc.title} | Route: ${doc.route}]\nSummary: ${doc.summary}\n${doc.details}`
+    )
+    .join("\n\n");
 
-ABOUT NEXUSPULSE:
-NexusPulse is an Autonomous Financial Clearinghouse built for the PayPal AI Hackathon. It connects Google Gemini Interactions API with PayPal's developer platform (Orders v2, Payouts v1, Subscriptions v1, Invoicing v2, Trackers v2, and Webhooks v1) across three closed-loop financial engines:
+  const navDirectory = Object.values(VERIFIED_NAVIGATION_LINKS)
+    .map((nav) => `- [${nav.label}](${nav.url}): ${nav.description}`)
+    .join("\n");
 
-ENGINE 1: CHANNEL3 AUTONOMOUS DEAL ARBITRAGE & SUBSCRIPTION GUARD
-- Integrates Channel3's 100M+ SKU product catalog with real-time price drops.
-- Users set cryptographic spending mandates (e.g. target price on hardware or electronics).
-- Channel3 AI signal evaluates price histories and triggers instant 1-click purchases using PayPal JS SDK v6 (PayPal Wallet, Pay Later / BNPL, Venmo).
-- Subscription Guard monitors recurring PayPal subscriptions (/v1/billing/subscriptions), identifies idle or over-budget seats, and autonomously executes tier downgrades or cancellations to eliminate recurring leakage.
+  return `You are the **NexusPulse AI Assistant** — the official intelligent financial architect, platform guide, and interactive assistant created for **NexusPulse** (the Autonomous Financial Clearinghouse built on PayPal REST APIs & JS SDK v6).
 
-ENGINE 2: PROOF-OF-HUMAN ORACLE CLEARINGHOUSE
-- AI agents submit physical-world ground-truth micro-bounties (30-60 second tasks, e.g., verifying store shelf stock, cold-chain temperature logs, code audit proofs, translation nuances).
-- Human workers submit verified evidence.
-- Google Gemini 3.8 Flash audits evidence in sub-2 seconds using multimodal reasoning, scores it 0-100, and triggers instant PayPal Payouts v1 (/v1/payments/payouts) with unique PayPal-Request-Id idempotency.
+STRICT IDENTITY & BRANDING RULES (CRITICAL):
+1. Always identify yourself as **NexusPulse AI Assistant**, created by the **NexusPulse engineering and architecture team** specifically for the NexusPulse platform.
+2. NEVER advertise or mention underlying AI providers or raw model identifiers (do NOT mention "Groq", "openai/gpt-oss-120b", "qwen", "Llama", or "nexus-oracle-semantic-core") in ordinary conversation.
+3. Answer the user's exact question directly, naturally, and uniquely:
+   - If greeted ("Hello", "Hi"), respond with a warm greeting and a concise live workspace summary.
+   - If asked "Who are you?", explain your role as the NexusPulse AI Assistant.
+   - If asked "Who created/built you?", explain that the NexusPulse engineering team built you for the NexusPulse platform.
+   - If asked "What is your purpose?", explain your mission to help users navigate NexusPulse, understand the 3 engines, and inspect live PayPal telemetry.
+   - If asked "What can you do?", list your concrete capabilities across Engine 1, Engine 2, Engine 3, AG Grid Telemetry, and BYOK settings.
+   - Never give the same generic paragraph to different questions.
 
-ENGINE 3: BRYNTUM MILESTONE SMART ESCROW & DISPUTE SHIELD
-- Uses PayPal Orders v2 with intent="AUTHORIZE" to lock funds on a Bryntum interactive Gantt timeline before deliverable completion.
-- Counterparties submit cryptographic completion proofs (commit hashes, test logs, bills of lading).
-- Google Gemini 4 Argon audits the proof before triggering capture (/v2/payments/authorizations/{id}/capture).
-- Automatically attaches DHL/FedEx shipment tracking via PayPal Trackers v2 to provide cryptographic dispute protection.
+ANTI-HALLUCINATION & ACCURACY RULES:
+1. Only describe features, deals, bounties, escrow milestones, subscriptions, invoices, and APIs that actually exist in NexusPulse.
+2. If a user asks about non-existent features (e.g., Bitcoin/crypto mining, NFTs, stock trading, native iOS/Android mobile app downloads, bank mortgages, or separate \`/login\`, \`/signup\`, or \`/pricing\` pages), explicitly state that NexusPulse does NOT offer those features and clarify what NexusPulse actually provides.
+3. Never invent fake URLs. Use ONLY the verified links below when directing users:
+${navDirectory}
+4. You may also append one navigation action tag at the end of your reply when appropriate:
+   - \`[ACTION:NAVIGATE:channel3]\`
+   - \`[ACTION:NAVIGATE:bounties]\`
+   - \`[ACTION:NAVIGATE:bryntum]\`
+   - \`[ACTION:NAVIGATE:aggrid]\`
+   - \`[ACTION:NAVIGATE:overview]\`
 
-SPONSOR & TECHNICAL ARCHITECTURE:
-- APIMatic: Uses @paypal/paypal-server-sdk v2.5.0 with strongly-typed controllers (OrdersController, PaymentsController, SubscriptionsController, TransactionSearchController).
-- AG Grid Enterprise (v36.3.0): Financial Telemetry Command Center aggregating /v1/reporting/transactions, /v2/checkout/orders, /v1/payments/payouts, and /v2/invoicing/invoices with CSV export and query filtering.
-- Dual-Mode Gateway: Automatically operates in "Deterministic Sandbox Mirror Mode" for zero-friction evaluation without SMS barriers, and hot-swaps to "Live PayPal Sandbox" when credentials are supplied.
-- Database: Supabase PostgreSQL with pooled connections (DATABASE_URL) and fallback in-memory ledger.
-- Webhook Security: Verifies PAYPAL-TRANSMISSION-SIG via POST /v1/notifications/verify-webhook-signature using raw bytes.
-
-LIVE REAL-TIME STATE CONTEXT:
+LIVE REAL-TIME WORKSPACE TELEMETRY:
 - Protected Wallet Balance: $${walletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })} USD
-- Realized AI Savings: $${totalSaved.toFixed(2)} USD
+- Realized AI Savings: $${totalSaved.toFixed(2)} USD (+ $2,520.00/yr Subscription Guard savings)
 - Proof-of-Human Payouts Settled: $${totalEarned.toFixed(2)} USD
 - Active Escrow Locked: $${totalEscrow.toFixed(2)} USD
-- Monitored Channel3 Deals: ${dealsCount} active items
-- Open Human Bounties: ${bountiesCount} micro-tasks
-- Active Escrow Milestones: ${milestonesCount} WBS items
-- Monitored Subscriptions: ${subscriptionsCount} SaaS plans
+- Monitored Channel3 Deals: ${dealsCount} items (C3-PROD-9001 ASUS ROG Strix $2,687.04, C3-PROD-9002 MacBook Pro M4 Max $1,279.00, C3-PROD-9003 Keychron Q1 Max $174.00, C3-PROD-9004 Sony WH-1000XM5 $228.00)
+- Proof-of-Human Bounties: ${bountiesCount} items (BOUNTY-101 $28.50, BOUNTY-102 $42.00, BOUNTY-103 $65.00, BOUNTY-104 $25.00 Paid)
+- Active Escrow Milestones: ${milestonesCount} WBS items (ESCROW-101 $850 Captured, ESCROW-102 $1,250 Locked, ESCROW-103 $1,350 Locked)
+- Monitored Subscriptions: ${subscriptionsCount} SaaS plans (I-SUB-AI-CLOUD-8801 $189/mo, I-SUB-DEV-SUITE-4410 $99/mo, I-SUB-DESIGN-1029 $54.99/mo)
 
-RESPONSE GUIDELINES:
-1. Always be authoritative, precise, professional, and directly actionable.
-2. Provide concise yet rich explanations using formatting (bullet points, bold titles, code snippets).
-3. If the user asks about navigating the site, you can include action tags like:
-   - [ACTION:NAVIGATE:channel3] to view Engine 1 Deal Hunter
-   - [ACTION:NAVIGATE:bounties] to view Engine 2 Human Bounties
-   - [ACTION:NAVIGATE:bryntum] to view Engine 3 Escrow Gantt
-   - [ACTION:NAVIGATE:aggrid] to view AG Grid Telemetry
-   - [ACTION:NAVIGATE:overview] to view All Engines Overview
-4. When asked financial or technical questions, reference the exact PayPal API endpoints, HTTP methods, and parameter names.
-5. Emphasize how Gemini AI, PayPal SDKs, Channel3, Bryntum, AG Grid, and Supabase work together seamlessly.`;
+RETRIEVED PLATFORM KNOWLEDGE FOR THIS QUERY:
+${ragContext}`;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as ChatbotRequestBody;
+    const headerKey = req.headers.get("x-groq-api-key");
+    const customApiKey = sanitizeCustomGroqKey(headerKey || body.customApiKey);
+
+    // -------------------------------------------------------------------------
+    // MODE 1: VALIDATE PERSONAL BYOK GROQ API KEY
+    // -------------------------------------------------------------------------
+    if (body.action === "VALIDATE_KEY") {
+      if (!customApiKey) {
+        return NextResponse.json(
+          {
+            valid: false,
+            error: "Please enter a Groq API key to validate.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (!isValidGroqKeyFormat(customApiKey)) {
+        return NextResponse.json(
+          {
+            valid: false,
+            error:
+              "Invalid key format. A valid Groq API key begins with 'gsk_' followed by at least 20 alphanumeric characters.",
+          },
+          { status: 400 }
+        );
+      }
+
+      try {
+        const testClient = new Groq({ apiKey: customApiKey, timeout: 6000 });
+        await testClient.models.list();
+        return NextResponse.json({
+          valid: true,
+          keySource: "personal_byok",
+          message:
+            "Personal Groq API key verified and connected. Requests will now use your personal account credentials.",
+        });
+      } catch (err: unknown) {
+        const status =
+          typeof err === "object" && err !== null && "status" in err
+            ? Number((err as { status?: number }).status)
+            : 401;
+        const reason =
+          status === 401
+            ? "Authentication failed: The provided Groq API key was rejected as invalid or expired."
+            : status === 429
+            ? "Rate limit reached on your personal Groq account. Please check your Groq console quota."
+            : "Could not verify the API key with Groq at this moment. Please check the key and try again.";
+
+        return NextResponse.json(
+          {
+            valid: false,
+            error: reason,
+          },
+          { status: status === 429 ? 429 : 401 }
+        );
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // MODE 2: CONVERSATIONAL AI ASSISTANT QUERY
+    // -------------------------------------------------------------------------
     const { message, history = [], stateContext = null } = body;
 
     if (!message || typeof message !== "string" || !message.trim()) {
       return NextResponse.json(
-        { error: "Message is required." },
+        { error: "Please enter a message or question." },
         { status: 400 }
       );
     }
 
-    const systemPrompt = buildSystemPrompt(stateContext);
+    const cleanMessage = message.trim().slice(0, 2000);
+    const activeState = stateContext ?? getMirrorState();
+    const systemPrompt = buildSystemPrompt(cleanMessage, history, activeState);
 
-    // Format chat messages for Groq
     const groqMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
       ...history.slice(-10).map((h) => ({
         role: h.role,
         content: h.content,
       })),
-      { role: "user", content: message },
+      { role: "user", content: cleanMessage },
     ];
 
-    if (groq) {
-      try {
-        // Primary: Try Groq 120B Frontier model (openai/gpt-oss-120b)
-        const completion = await groq.chat.completions.create({
-          model: "openai/gpt-oss-120b",
-          messages: groqMessages,
-          temperature: 0.3,
-          max_tokens: 650,
-        });
+    // Determine whether to use Personal BYOK Key or Platform Default Key
+    let activeGroqClient: Groq | null = null;
+    let usingCustomKey = false;
+    let byokWarning: string | undefined;
 
-        const reply = completion.choices[0]?.message?.content?.trim();
-        if (reply) {
-          return NextResponse.json({
-            reply,
-            modelUsed: "openai/gpt-oss-120b",
-            provider: "groq",
-            status: "success",
-          });
-        }
-      } catch (groqErr) {
-        console.warn("Groq 120B model failed, attempting fallback:", groqErr);
+    if (customApiKey) {
+      if (!isValidGroqKeyFormat(customApiKey)) {
+        return NextResponse.json(
+          {
+            error:
+              "Your configured personal Groq API key has an invalid format (must start with 'gsk_'). Please update or remove it in API Key Settings.",
+            byokError: true,
+          },
+          { status: 401 }
+        );
+      }
+      activeGroqClient = new Groq({ apiKey: customApiKey, timeout: 8000 });
+      usingCustomKey = true;
+    } else {
+      const platformKey = getPlatformGroqKey();
+      if (platformKey) {
+        activeGroqClient = new Groq({ apiKey: platformKey, timeout: 8000 });
+      }
+    }
 
-        // Fallback 1: Try Qwen 27B on Groq
+    if (activeGroqClient) {
+      const candidateModels = [
+        "openai/gpt-oss-120b",
+        "llama-3.3-70b-versatile",
+        "qwen/qwen3-32b",
+      ];
+
+      for (const modelName of candidateModels) {
         try {
-          const fallbackCompletion = await groq.chat.completions.create({
-            model: "qwen/qwen3.8-27b",
+          const completion = await activeGroqClient.chat.completions.create({
+            model: modelName,
             messages: groqMessages,
-            temperature: 0.3,
-            max_tokens: 650,
+            temperature: 0.25,
+            max_tokens: 750,
           });
 
-          const fallbackReply = fallbackCompletion.choices[0]?.message?.content?.trim();
-          if (fallbackReply) {
+          const rawReply = completion.choices[0]?.message?.content?.trim();
+          if (rawReply) {
+            const cleanReply = sanitizeAssistantReply(rawReply);
             return NextResponse.json({
-              reply: fallbackReply,
-              modelUsed: "qwen/qwen3.8-27b",
-              provider: "groq-fallback",
+              reply: cleanReply,
+              assistantName: "NexusPulse AI Assistant",
+              keySource: usingCustomKey ? "personal_byok" : "platform_default",
               status: "success",
             });
           }
-        } catch (fallbackErr) {
-          console.warn("Groq secondary model failed:", fallbackErr);
+        } catch (err: unknown) {
+          const errStatus =
+            typeof err === "object" && err !== null && "status" in err
+              ? Number((err as { status?: number }).status)
+              : 500;
+
+          // If the user explicitly supplied an invalid/revoked personal BYOK key, notify them clearly
+          if (usingCustomKey && (errStatus === 401 || errStatus === 403)) {
+            return NextResponse.json(
+              {
+                error:
+                  "Your personal Groq API key was rejected (invalid or expired). Please update or remove your key in API Key Settings to continue.",
+                byokError: true,
+              },
+              { status: 401 }
+            );
+          }
+
+          if (usingCustomKey && errStatus === 429) {
+            byokWarning =
+              "Notice: Your personal Groq account hit a rate limit; answered using NexusPulse's built-in knowledge engine.";
+            break;
+          }
         }
       }
     }
 
-    // Fallback 2: Comprehensive Deterministic Semantic Response Engine
-    const fallbackReply = generateDeterministicKnowledgeResponse(message, stateContext);
+    // Context-Aware RAG & Intent Synthesis Engine (100% availability, zero repetitive responses)
+    const ragReply = sanitizeAssistantReply(
+      generateContextAwareRagResponse(cleanMessage, history, activeState)
+    );
+
     return NextResponse.json({
-      reply: fallbackReply,
-      modelUsed: "nexus-oracle-semantic-core",
-      provider: "deterministic-knowledge-engine",
+      reply: byokWarning ? `> *${byokWarning}*\n\n${ragReply}` : ragReply,
+      assistantName: "NexusPulse AI Assistant",
+      keySource: usingCustomKey ? "personal_byok" : "platform_default",
+      byokWarning,
       status: "success",
     });
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : "Internal Server Error";
     return NextResponse.json({ error: errMsg }, { status: 500 });
   }
-}
-
-/**
- * High-performance deterministic knowledge engine covering the platform
- * ensuring 100% availability even in offline or disconnected states.
- */
-function generateDeterministicKnowledgeResponse(
-  query: string,
-  state?: Partial<NexusPulseState> | null
-): string {
-  const q = query.toLowerCase();
-  const wallet = state?.walletBalanceUsd ?? 24650.0;
-
-  if (q.includes("wallet") || q.includes("balance") || q.includes("funds")) {
-    return `Your **NexusPulse Protected Wallet** currently holds **$${wallet.toLocaleString("en-US", { minimumFractionDigits: 2 })} USD** in liquid assets. 
-
-All transactions are secured via PayPal Orders v2 \`AUTHORIZE\` holds, Payouts v1 idempotency keys (\`PayPal-Request-Id\`), and verified by SHA256withRSA webhook signatures.
-
-You can inspect the entire ledger in the AG Grid Command Center.
-[ACTION:NAVIGATE:aggrid]`;
-  }
-
-  if (q.includes("channel3") || q.includes("deal") || q.includes("engine 1") || q.includes("save")) {
-    return `**Engine 1: Channel3 Deal Arbitrage & Subscription Guard**
-
-1. **100M+ SKU Catalog Scans**: Channel3 monitors merchant prices against your target price mandates (e.g., ASUS ROG Strix, Sony WH-1000XM5).
-2. **Autonomous Execution**: When an instant match is detected meeting your cryptographic threshold, the system executes a 1-click purchase via the **PayPal JS SDK v6** with Pay Later (BNPL) or PayPal Wallet.
-3. **Subscription Optimizer**: Continuously audits recurring subscriptions via \`/v1/billing/subscriptions\` and flags unused seats for automatic downgrade.
-
-[ACTION:NAVIGATE:channel3]`;
-  }
-
-  if (q.includes("bounty") || q.includes("human") || q.includes("oracle") || q.includes("engine 2")) {
-    return `**Engine 2: Proof-of-Human Oracle Clearinghouse**
-
-1. **Micro-Bounty Requests**: AI agents publish real-world ground-truth tasks requiring physical inspection or expert judgment (e.g., verifying inventory, code sanity checks).
-2. **Gemini 3.8 Flash Verification**: Submissions are audited by Google Gemini using multimodal inference to score deliverable fidelity (0–100).
-3. **Instant Settlement**: Passing submissions automatically trigger immediate payment using **PayPal Payouts v1** (\`POST /v1/payments/payouts\`) with zero dispute friction.
-
-[ACTION:NAVIGATE:bounties]`;
-  }
-
-  if (q.includes("escrow") || q.includes("bryntum") || q.includes("engine 3") || q.includes("milestone")) {
-    return `**Engine 3: Bryntum Milestone Escrow & Dispute Shield**
-
-1. **Authorization Hold**: Counterparty funds are locked using PayPal Orders v2 with \`intent: "AUTHORIZE"\`.
-2. **Interactive Gantt Timeline**: Project dependencies, WBS tasks, and deadlines are tracked on an interactive Bryntum Gantt chart.
-3. **Gemini 4 Argon Audit**: When deliverables are uploaded (e.g., commit hashes, delivery receipts), Gemini audits criteria before triggering capture (\`POST /v2/payments/authorizations/{id}/capture\`).
-4. **Dispute Shield**: Automatically attaches carrier tracking info via PayPal Trackers v2 to provide chargeback and dispute immunity.
-
-[ACTION:NAVIGATE:bryntum]`;
-  }
-
-  if (q.includes("paypal") || q.includes("api") || q.includes("sdk")) {
-    return `**NexusPulse PayPal Platform Integration**:
-
-- **Orders v2** (\`/v2/checkout/orders\`): Multi-funding checkout (PayPal Wallet, Pay Later, Venmo) and milestone \`AUTHORIZE\` holds.
-- **Payouts v1** (\`/v1/payments/payouts\`): High-speed batch settlements for Proof-of-Human bounties.
-- **Subscriptions v1** (\`/v1/billing/subscriptions\`): Recurring SaaS plan auditing and automated tier downgrades.
-- **Invoicing v2** (\`/v2/invoicing/invoices\`): Dynamic business invoicing with early-payment discounts and QR codes.
-- **Trackers v2** (\`/v1/shipping/trackers\`): Injects DHL/FedEx proof of delivery into authorizations.
-- **Webhooks v1** (\`/v1/notifications/verify-webhook-signature\`): Validates \`PAYPAL-TRANSMISSION-SIG\` before state mutation.
-- **APIMatic Server SDK** (\`@paypal/paypal-server-sdk v2.5.0\`): Strongly-typed TypeScript controllers with idempotency and token caching.`;
-  }
-
-  if (q.includes("dual") || q.includes("sandbox") || q.includes("mirror")) {
-    return `**Dual-Mode Gateway Architecture**:
-
-- **Deterministic Sandbox Mirror Mode** (Default): Preloaded with realistic state, transactions, and live simulated responses. Enables instant evaluation without SMS phone verification hurdles.
-- **Live PayPal Sandbox**: Switches automatically when \`PAYPAL_CLIENT_ID\` and \`PAYPAL_CLIENT_SECRET\` are provided via \`.env.local\` or the Header Hot-Swap drawer.
-- **Full Parity**: Both modes implement identical REST response shapes, idempotency handling, and ledger entries.`;
-  }
-
-  return `**NexusPulse Autonomous Financial Clearinghouse**
-
-NexusPulse unifies **Google Gemini AI** with **PayPal Developer APIs** to create an autonomous economy across 3 engines:
-- **Engine 1**: Channel3 Autonomous Deal Hunter & Subscription Guard
-- **Engine 2**: Proof-of-Human Oracle Payouts via Gemini 3.8 Flash
-- **Engine 3**: Bryntum Zero-Dispute Milestone Escrow Gantt
-
-How can I assist you with the platform? You can ask about our PayPal APIs, current savings, escrow milestones, or test simulated transactions.
-[ACTION:NAVIGATE:overview]`;
 }

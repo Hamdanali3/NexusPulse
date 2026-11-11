@@ -219,17 +219,100 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.equal(isAllowedFetchSite(crossSiteHeaders), false);
   });
 
-  it("validates 200 expected questions for the intelligent AI chatbot", async () => {
+  it("validates 200 expected questions, non-repetitive core intents, anti-hallucination, and brand hygiene for the AI chatbot", async () => {
     const { CHATBOT_200_QUESTIONS } = await import("./chatbot-200-questions.test");
+    const {
+      generateContextAwareRagResponse,
+      retrieveRelevantKnowledge,
+      VERIFIED_NAVIGATION_LINKS,
+    } = await import("../lib/ai/nexus-knowledge-base");
+    const { sanitizeAssistantReply } = await import("../app/api/ai/chatbot/route");
+
     assert.equal(CHATBOT_200_QUESTIONS.length, 200);
-    // Spot-check questions across all 8 architectural sections
-    assert.ok(CHATBOT_200_QUESTIONS[0].includes("NexusPulse"));
-    assert.ok(CHATBOT_200_QUESTIONS[25].includes("Engine 1"));
-    assert.ok(CHATBOT_200_QUESTIONS[50].includes("Engine 2"));
-    assert.ok(CHATBOT_200_QUESTIONS[75].includes("Engine 3"));
-    assert.ok(CHATBOT_200_QUESTIONS[100].includes("PayPal"));
-    assert.ok(CHATBOT_200_QUESTIONS[125].includes("webhooks"));
-    assert.ok(CHATBOT_200_QUESTIONS[150].includes("database"));
-    assert.ok(CHATBOT_200_QUESTIONS[175].includes("ROI"));
+
+    const state = getMirrorState();
+
+    // 1. Core Intents Uniqueness Check (Greetings, Identity, Creator, Purpose, Capabilities, Website Purpose)
+    const corePrompts = [
+      "Hello",
+      "who are you?",
+      "who built you?",
+      "what is your purpose?",
+      "what can you do?",
+      "what is website for ?",
+    ];
+    const coreReplies = corePrompts.map((p) =>
+      generateContextAwareRagResponse(p, [], state)
+    );
+    assert.equal(
+      new Set(coreReplies).size,
+      corePrompts.length,
+      "Every core identity/greeting/purpose/overview question must produce a distinct answer"
+    );
+
+    // 2. Verify all 200 questions return substantive answers with zero raw model/provider leakage
+    const forbiddenPatterns = [
+      /openai\/gpt-oss-120b/i,
+      /qwen\/qwen3\.8-27b/i,
+      /nexus-oracle-semantic-core/i,
+      /Groq 120-Billion/i,
+      /Groq 120B/i,
+      /powered by Groq/i,
+    ];
+
+    for (let i = 0; i < CHATBOT_200_QUESTIONS.length; i++) {
+      const q = CHATBOT_200_QUESTIONS[i];
+      const reply = sanitizeAssistantReply(
+        generateContextAwareRagResponse(q, [], state)
+      );
+      assert.ok(reply.length >= 40, `Reply for Q#${i + 1} is too short`);
+      for (const pat of forbiddenPatterns) {
+        assert.doesNotMatch(reply, pat);
+      }
+    }
+
+    // 3. Anti-Hallucination Guardrails
+    assert.match(
+      generateContextAwareRagResponse("Does NexusPulse support Bitcoin mining?", [], state),
+      /does not support cryptocurrency mining/i
+    );
+    assert.match(
+      generateContextAwareRagResponse("Where can I download the iOS mobile app?", [], state),
+      /does not have a separate native iOS, Android/i
+    );
+    assert.match(
+      generateContextAwareRagResponse("Take me to /login or /pricing", [], state),
+      /does not have a separate `\/login`/i
+    );
+
+    // 4. Multi-Turn Context Awareness
+    const e1History = [
+      { role: "user" as const, content: "What is Engine 1?" },
+      {
+        role: "assistant" as const,
+        content: generateContextAwareRagResponse("What is Engine 1?", [], state),
+      },
+    ];
+    const e2History = [
+      { role: "user" as const, content: "Tell me about Engine 2 bounties" },
+      {
+        role: "assistant" as const,
+        content: generateContextAwareRagResponse("Tell me about Engine 2 bounties", [], state),
+      },
+    ];
+    const e1FollowUp = generateContextAwareRagResponse("How do I use it?", e1History, state);
+    const e2FollowUp = generateContextAwareRagResponse("How do I use it?", e2History, state);
+    assert.notEqual(e1FollowUp, e2FollowUp);
+
+    // 5. Verified Navigation Deep Links & RAG Retrieval
+    const validUrls = new Set(Object.values(VERIFIED_NAVIGATION_LINKS).map((v) => v.url));
+    assert.ok(validUrls.has("/?tab=channel3#engine-channel3"));
+    assert.ok(validUrls.has("/?tab=bounties#engine-bounties"));
+    assert.ok(validUrls.has("/?tab=bryntum#engine-bryntum"));
+    assert.ok(validUrls.has("/?tab=aggrid#aggrid-heading"));
+    assert.equal(
+      retrieveRelevantKnowledge("How do I claim BOUNTY-102 cold chain?")[0].category,
+      "engine_2_bounties"
+    );
   });
 });
