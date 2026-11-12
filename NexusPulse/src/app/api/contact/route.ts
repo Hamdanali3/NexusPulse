@@ -123,8 +123,8 @@ export async function POST(request: Request) {
     estimatedSla = "< 12 hours (High Priority)";
   }
 
-  // 6. Record inquiry into in-memory ledger targeting founder email
-  const destinationEmail = "hamdanaly651@gmail.com";
+  // 6. Record inquiry into in-memory ledger targeting support role alias
+  const destinationEmail = "support@nexuspulse.example";
   const mailtoBody = `NexusPulse Inquiry Ticket: ${ticketId}
 From: ${data.fullName} <${data.email}>
 Inquiry Type: ${data.inquiryType}
@@ -136,7 +136,7 @@ Message:
 ${data.message}
 
 ---
-Dispatched via NexusPulse Operations & Inquiry Clearinghouse`;
+Sent from NexusPulse Support`;
 
   const mailtoUrl = `mailto:${destinationEmail}?subject=${encodeURIComponent(
     `[NexusPulse Inquiry #${ticketId}] ${data.subject}`

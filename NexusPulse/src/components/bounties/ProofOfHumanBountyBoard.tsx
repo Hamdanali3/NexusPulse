@@ -3,18 +3,10 @@
 import React, { useState } from "react";
 import {
   AlertCircle,
-  Award,
   Camera,
   CheckCircle2,
-  Clock,
-  DollarSign,
   FileCheck,
-  Filter,
-  MapPin,
-  Send,
   ShieldCheck,
-  UploadCloud,
-  UserCheck,
   X,
   XCircle,
 } from "lucide-react";
@@ -24,6 +16,7 @@ import type {
   ProofOfHumanBounty,
 } from "@/lib/paypal/paypal-types";
 import { formatSignedUsd, formatUsd, sanitizeDisplayEmail } from "@/lib/format";
+import { Button, ListRow, ListSection, StatusDot } from "@/components/ui";
 
 interface ProofOfHumanBountyBoardProps {
   bounties: ProofOfHumanBounty[];
@@ -214,66 +207,56 @@ export default function ProofOfHumanBountyBoard({
   }
 
   return (
-    <section aria-labelledby="engine-2-heading" className="space-y-6">
+    <section aria-labelledby="engine-2-heading" className="space-y-8">
       {/* Explicit Success or Failure Message Banner */}
       {statusBanner && (
         <div
           role={statusBanner.type === "error" ? "alert" : "status"}
           aria-live="polite"
-          className={`rounded-xl border px-4 py-3 text-xs flex items-center justify-between shadow-2xs transition-all ${
+          className={`rounded-[12px] border px-4 py-3 text-[13px] flex items-center justify-between transition-colors ${
             statusBanner.type === "success"
-              ? "border-emerald-200 bg-emerald-50/80 text-emerald-900"
-              : "border-rose-200 bg-rose-50/80 text-rose-900"
+              ? "border-emerald-200 bg-emerald-50/70 text-emerald-900"
+              : "border-red-200 bg-red-50/70 text-red-900"
           }`}
         >
           <div className="flex items-center gap-2">
             {statusBanner.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
             ) : (
-              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+              <AlertCircle className="h-4 w-4 text-red-700 shrink-0" strokeWidth={1.5} />
             )}
             <span className="font-medium">{statusBanner.text}</span>
           </div>
           <button
             type="button"
             onClick={() => setStatusBanner(null)}
-            className="text-xs font-semibold px-2 py-0.5 rounded text-zinc-600 hover:text-zinc-900 transition"
+            className="text-[12px] font-medium px-2 py-0.5 rounded-[6px] text-zinc-700 hover:text-zinc-950 transition-colors"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                <UserCheck className="h-3 w-3 text-zinc-500" />
-                Proof-of-Human
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                <DollarSign className="h-3 w-3 text-zinc-500" />
-                {activeMode === "mirror" ? "Mirror Payouts" : "Live PayPal Payouts v1"}
-              </span>
-            </div>
-            <h3 id="engine-2-heading" className="mt-1.5 text-base font-semibold text-zinc-900">
-              60-Second Verification Bounties
-            </h3>
-            <p className="text-xs text-zinc-500">
-              Human ground-truth verification audited by Gemini AI with instant PayPal payouts.
+            <h2 id="engine-2-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
+              Verified tasks
+            </h2>
+            <p className="mt-1 text-[14px] text-zinc-600">
+              Submit quick field checks and release payouts once verification passes.
             </p>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1 text-xs bg-zinc-100/80 p-1 rounded-lg">
+          {/* Segmented Filter */}
+          <div role="group" aria-label="Filter tasks" className="flex items-center gap-1 text-[13px] bg-zinc-100 p-1 rounded-[6px]">
             <button
               type="button"
               onClick={() => setBountyFilter("ALL")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 bountyFilter === "ALL"
-                  ? "bg-white text-zinc-900 shadow-2xs"
-                  : "text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
               All ({bounties.length})
@@ -281,10 +264,10 @@ export default function ProofOfHumanBountyBoard({
             <button
               type="button"
               onClick={() => setBountyFilter("OPEN")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 bountyFilter === "OPEN"
-                  ? "bg-white text-zinc-900 shadow-2xs"
-                  : "text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
               Open ({bounties.filter((b) => b.status === "OPEN").length})
@@ -292,10 +275,10 @@ export default function ProofOfHumanBountyBoard({
             <button
               type="button"
               onClick={() => setBountyFilter("PAID")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 bountyFilter === "PAID"
-                  ? "bg-white text-zinc-900 shadow-2xs"
-                  : "text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
               Paid ({bounties.filter((b) => b.status === "PAID_OUT").length})
@@ -303,128 +286,82 @@ export default function ProofOfHumanBountyBoard({
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left Column: Bounty Cards */}
-          <div className="lg:col-span-6 space-y-3">
-            {displayedBounties.map((bounty) => {
-              const isSelected = selectedBounty?.id === bounty.id;
-              const isPaid = bounty.status === "PAID_OUT";
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Dense Hairline Task List */}
+          <div className="lg:col-span-6">
+            <ListSection>
+              {displayedBounties.map((bounty) => {
+                const isSelected = selectedBounty?.id === bounty.id;
+                const isPaid = bounty.status === "PAID_OUT";
 
-              return (
-                <div
-                  key={bounty.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isSelected}
-                  onClick={() => handleSelectBounty(bounty)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleSelectBounty(bounty);
+                return (
+                  <ListRow
+                    key={bounty.id}
+                    selected={isSelected}
+                    onSelect={() => handleSelectBounty(bounty)}
+                    title={<span title={bounty.title}>{bounty.title}</span>}
+                    subtitle={
+                      <span>
+                        ~{bounty.estimated_seconds}s est. · {bounty.location_scope}
+                      </span>
                     }
-                  }}
-                  className={`rounded-xl border p-4 transition cursor-pointer shadow-2xs ${
-                    isSelected
-                      ? "border-indigo-600 bg-indigo-50/20 ring-1 ring-indigo-500/20"
-                      : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/40"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-700">
-                          {bounty.id}
+                    amount={
+                      <div className="flex flex-col items-end gap-0.5 tabular-nums">
+                        <span className="text-[14px] font-semibold text-zinc-950">
+                          {formatSignedUsd(bounty.reward.value)}
                         </span>
-                        <span className="text-[11px] text-zinc-500">
-                          {bounty.category.replace(/_/g, " ")}
-                        </span>
-                        <span className="inline-flex items-center gap-0.5 text-[11px] text-zinc-400">
-                          <MapPin className="h-3 w-3" />
-                          {bounty.location_scope}
-                        </span>
+                        <StatusDot
+                          label={isPaid ? "Paid" : "Open"}
+                          tone={isPaid ? "positive" : "neutral"}
+                          className="text-[12px]"
+                        />
                       </div>
-                      <h4
-                        title={bounty.title}
-                        className="text-sm font-semibold text-zinc-900 leading-snug line-clamp-2"
-                      >
-                        {bounty.title}
-                      </h4>
-                      <p className="text-[11px] text-zinc-600">
-                        {bounty.requester_agent} · {bounty.requester_org}
-                      </p>
-                    </div>
-
-                    <div className="text-right shrink-0 tabular-nums">
-                      <div className="text-base font-bold text-zinc-900">
-                        {formatSignedUsd(bounty.reward.value)}
-                      </div>
-                      <div className="text-[11px] text-zinc-600">
-                        ~{bounty.estimated_seconds}s est.
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between gap-3 text-xs">
-                    <span
-                      title={bounty.prompt_instructions}
-                      className="text-zinc-600 line-clamp-2"
-                    >
-                      {bounty.prompt_instructions}
-                    </span>
-                    {isPaid ? (
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-emerald-700 shrink-0 whitespace-nowrap">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
-                        Paid
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-700 shrink-0 whitespace-nowrap">
-                        <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" aria-hidden="true" />
-                        Open
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                    }
+                  />
+                );
+              })}
+            </ListSection>
           </div>
 
-          {/* Right Column: Live Oracle Submission Console */}
+          {/* Right Column: Task Details & Verification Form */}
           <div className="lg:col-span-6">
             {selectedBounty && (
               <form
                 onSubmit={handleSubmitAndPayout}
-                className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-2xs"
+                className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4 lg:sticky lg:top-20"
               >
-                <div className="flex items-start justify-between gap-3 border-b border-zinc-100 pb-3">
-                  <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                      Oracle Verification &amp; Payout
+                <div className="flex items-start justify-between gap-4 border-b border-zinc-200 pb-3">
+                  <div className="min-w-0">
+                    <span className="text-[12px] font-medium text-zinc-600">
+                      Task details
                     </span>
-                    <h4 className="mt-0.5 text-sm font-semibold text-zinc-900">
+                    <h3 className="mt-0.5 text-[15px] font-semibold text-zinc-950">
                       {selectedBounty.title}
-                    </h4>
+                    </h3>
+                    <p className="mt-1 text-[13px] text-zinc-600 leading-relaxed">
+                      {selectedBounty.prompt_instructions}
+                    </p>
                   </div>
-                  <div className="rounded-lg bg-zinc-50 border border-zinc-200 px-2.5 py-1 text-right tabular-nums shrink-0">
-                    <div className="text-[10px] text-zinc-500">Reward</div>
-                    <div className="text-sm font-bold text-zinc-900">
-                      ${selectedBounty.reward.value}{" "}
-                      <span className="text-[10px] font-normal text-zinc-500">{selectedBounty.reward.currency_code}</span>
+                  <div className="text-right tabular-nums shrink-0">
+                    <div className="text-[12px] text-zinc-600">Reward</div>
+                    <div className="text-[18px] font-semibold text-zinc-950">
+                      {formatUsd(selectedBounty.reward.value)}
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="text-xs font-medium text-zinc-700">
-                    Gemini AI Verification Criteria:
+                  <div className="text-[13px] font-medium text-zinc-900">
+                    Verification checklist
                   </div>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {selectedBounty.verification_criteria.map(
                       (criterion, idx) => (
                         <li
                           key={idx}
-                          className="flex items-center gap-2 text-xs text-zinc-600"
+                          className="flex items-start gap-2 text-[13px] text-zinc-600"
                         >
-                          <ShieldCheck className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                          <ShieldCheck className="h-4 w-4 text-zinc-700 shrink-0 mt-0.5" strokeWidth={1.5} />
                           <span>{criterion}</span>
                         </li>
                       )
@@ -435,53 +372,54 @@ export default function ProofOfHumanBountyBoard({
                 <div>
                   <label
                     htmlFor="bounty-evidence-textarea"
-                    className="block text-xs font-medium text-zinc-700 mb-1"
+                    className="block text-[13px] font-medium text-zinc-900 mb-1"
                   >
-                    Evidence / Audit Data:
+                    Verification notes
                   </label>
                   <textarea
                     id="bounty-evidence-textarea"
                     rows={3}
                     value={evidenceText}
                     onChange={(e) => setEvidenceText(e.target.value)}
-                    className="w-full rounded-lg border border-zinc-200 bg-white p-2.5 text-xs text-zinc-900 leading-relaxed transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
-                    placeholder="Enter observation, sensor data, or proof..."
+                    className="w-full rounded-[6px] border border-zinc-200 bg-white p-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 leading-relaxed transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="Enter field observations, counts, or notes"
                     required
                   />
                 </div>
 
-                {/* Media Telemetry Attachment (Photos, Sensor Proof) */}
+                {/* Photo or Receipt Attachment */}
                 <div>
-                  <label className="block text-xs font-medium text-zinc-700 mb-1">
-                    Attach Photo / Telemetry (Optional for Gemini Multimodal Vision):
+                  <label className="block text-[13px] font-medium text-zinc-900 mb-1">
+                    Photo or receipt (optional)
                   </label>
                   {attachedFile ? (
-                    <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 p-2 text-xs">
-                      <div className="flex items-center gap-2 truncate">
-                        <FileCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                        <span className="font-medium text-zinc-800 truncate">
+                    <div className="flex items-center justify-between rounded-[6px] border border-zinc-200 bg-[#fafafa] px-3 py-2 text-[13px]">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+                        <span className="font-medium text-zinc-900 truncate">
                           {attachedFile.fileName}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setAttachedFile(null)}
-                        className="rounded p-1 text-zinc-400 hover:text-zinc-700 transition"
+                        className="rounded-[6px] p-1 text-zinc-600 hover:text-zinc-950 transition-colors"
                         title="Remove attached file"
+                        aria-label="Remove attached file"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-4 w-4" strokeWidth={1.5} />
                       </button>
                     </div>
                   ) : (
                     <label
                       htmlFor="bounty-media-file-input"
-                      className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 p-2.5 text-xs text-zinc-600 transition"
+                      className="flex cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-dashed border-zinc-300 bg-[#fafafa] hover:bg-zinc-100/70 px-3 py-2.5 text-[13px] text-zinc-600 transition-colors"
                     >
-                      <Camera className="h-3.5 w-3.5 text-zinc-400" />
+                      <Camera className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                       <span>
                         {uploadingFile
-                          ? "Uploading telemetry..."
-                          : "Upload Photo, Receipt, or Video Proof (Max 10MB)"}
+                          ? "Uploading file..."
+                          : "Upload photo, receipt, or short video (max 10 MB)"}
                       </span>
                       <input
                         id="bounty-media-file-input"
@@ -498,9 +436,9 @@ export default function ProofOfHumanBountyBoard({
                 <div>
                   <label
                     htmlFor="bounty-recipient-email"
-                    className="block text-xs font-medium text-zinc-700 mb-1"
+                    className="block text-[13px] font-medium text-zinc-900 mb-1"
                   >
-                    PayPal / Venmo Account:
+                    PayPal or Venmo email
                   </label>
                   <input
                     id="bounty-recipient-email"
@@ -508,23 +446,24 @@ export default function ProofOfHumanBountyBoard({
                     autoComplete="email"
                     value={receiverEmail}
                     onChange={(e) => setReceiverEmail(e.target.value)}
-                    className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                    placeholder="name@example.com"
+                    className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-3 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     required
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
-                  disabled={submitting}
-                  className="w-full inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 text-xs font-medium text-white transition disabled:opacity-50"
+                  variant="primary"
+                  loading={submitting}
+                  className="w-full"
                 >
-                  <ShieldCheck className="h-3.5 w-3.5 text-zinc-200" />
                   {submitting
-                    ? "Verifying & paying..."
-                    : `Verify & pay ${formatUsd(selectedBounty.reward.value)}`}
-                </button>
+                    ? "Verifying and sending payout..."
+                    : `Verify and pay ${formatUsd(selectedBounty.reward.value)}`}
+                </Button>
 
-                {/* Explicit SUCCESS or FAILURE Receipt */}
+                {/* Explicit Verification Receipt */}
                 {(lastResult || selectedBounty.verification_result) && (
                   (() => {
                     const result = lastResult ?? selectedBounty.verification_result;
@@ -535,43 +474,40 @@ export default function ProofOfHumanBountyBoard({
                       <div
                         role={passed ? "status" : "alert"}
                         aria-live="polite"
-                        className={`rounded-xl border p-3.5 space-y-2 text-xs shadow-2xs nexus-fade-in ${
+                        className={`rounded-[6px] border p-3.5 space-y-2 text-[13px] ${
                           passed
-                            ? "border-emerald-200 bg-emerald-50/80"
-                            : "border-rose-200 bg-rose-50/80"
+                            ? "border-emerald-200 bg-emerald-50/70"
+                            : "border-red-200 bg-red-50/70"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-2">
                           <span
                             className={`inline-flex items-center gap-1.5 font-semibold ${
-                              passed ? "text-emerald-900" : "text-rose-900"
+                              passed ? "text-emerald-900" : "text-red-900"
                             }`}
                           >
                             {passed ? (
-                              <Award className="h-4 w-4 text-emerald-600" />
+                              <CheckCircle2 className="h-4 w-4 text-emerald-700" strokeWidth={1.5} />
                             ) : (
-                              <XCircle className="h-4 w-4 text-rose-600" />
+                              <XCircle className="h-4 w-4 text-red-700" strokeWidth={1.5} />
                             )}
-                            Score: {result.score}/100 ({passed ? "PASSED" : "REJECTED"})
-                          </span>
-                          <span className="font-mono text-[11px] text-zinc-500">
-                            {result.gemini_model}
+                            Score {result.score}/100 ({passed ? "Approved" : "Needs revision"})
                           </span>
                         </div>
-                        <p className={`text-xs leading-relaxed ${passed ? "text-zinc-700" : "text-rose-800"}`}>
+                        <p className={`text-[13px] leading-relaxed ${passed ? "text-zinc-700" : "text-red-800"}`}>
                           {result.reasoning}
                         </p>
                         {passed && (lastResult?.payout_batch_id || selectedBounty.payout_batch_id) && (
-                          <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between text-xs text-emerald-900 font-mono">
-                            <span>
-                              Batch: {lastResult?.payout_batch_id ?? selectedBounty.payout_batch_id}
+                          <div className="pt-2 border-t border-emerald-200/70 flex items-center justify-between text-[12px] text-emerald-900">
+                            <span className="font-mono">
+                              Batch {lastResult?.payout_batch_id ?? selectedBounty.payout_batch_id}
                             </span>
-                            <span className="font-semibold text-emerald-700">SETTLED</span>
+                            <StatusDot label="Paid" tone="positive" className="text-[12px]" />
                           </div>
                         )}
                         {!passed && (
-                          <div className="pt-1.5 border-t border-rose-200/60 text-rose-700 text-[11px]">
-                            Payout withheld. Please revise telemetry to meet criteria.
+                          <div className="pt-1.5 border-t border-red-200/70 text-red-800 text-[12px]">
+                            Payout held until updated notes or photo meet criteria.
                           </div>
                         )}
                       </div>
@@ -584,52 +520,50 @@ export default function ProofOfHumanBountyBoard({
         </div>
       </div>
 
-      {/* RECENT PAYPAL PAYOUTS V1 BATCH HISTORY */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-100">
-          <div className="flex items-center gap-2">
-            <Send className="h-4 w-4 text-zinc-500" />
-            <h4 className="text-sm font-semibold text-zinc-900">
-              PayPal Payouts Feed
-            </h4>
-          </div>
-          <span className="text-xs text-zinc-400">
-            Idempotent Batch Settlements
+      {/* RECENT PAYOUTS TABLE */}
+      <div className="rounded-[12px] border border-zinc-200 bg-white overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 border-b border-zinc-200">
+          <h3 className="text-[15px] font-semibold text-zinc-950">
+            Payouts history
+          </h3>
+          <span className="text-[12px] text-zinc-600 tabular-nums">
+            {payouts.length} payouts
           </span>
         </div>
 
-        <div className="mt-3 hidden md:block overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="border-b border-zinc-200 text-zinc-600">
-                <th className="py-2.5 pr-3 font-medium">Payout ID</th>
-                <th className="py-2.5 pr-3 font-medium">Recipient</th>
-                <th className="py-2.5 pr-3 font-medium">Task note</th>
-                <th className="py-2.5 pr-3 font-medium">Status</th>
-                <th className="py-2.5 text-right font-medium">Amount</th>
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse text-[13px]">
+            <thead className="sticky top-0 bg-[#fafafa] border-b border-zinc-200 text-[12px] text-zinc-600">
+              <tr>
+                <th className="h-10 px-5 font-medium whitespace-nowrap">Payout ID</th>
+                <th className="h-10 px-3 font-medium whitespace-nowrap">Recipient</th>
+                <th className="h-10 px-3 font-medium">Task note</th>
+                <th className="h-10 px-3 font-medium whitespace-nowrap">Status</th>
+                <th className="h-10 px-5 text-right font-medium whitespace-nowrap">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody className="divide-y divide-zinc-200">
               {payouts.map((p) => {
                 const safeEmail = sanitizeDisplayEmail(p.receiver);
+                const isPaidStatus = p.batch_status === "SUCCESS";
                 return (
-                  <tr key={p.payout_batch_id} className="hover:bg-zinc-50/70 transition-colors">
-                    <td className="py-2.5 pr-3 font-mono text-zinc-900 whitespace-nowrap">
+                  <tr key={p.payout_batch_id} className="h-11 hover:bg-zinc-50 transition-colors">
+                    <td className="px-5 font-mono text-[12px] text-zinc-900 whitespace-nowrap">
                       {p.payout_batch_id}
                     </td>
-                    <td className="py-2.5 pr-3 text-zinc-700 whitespace-nowrap">
+                    <td className="px-3 text-zinc-700 whitespace-nowrap">
                       {safeEmail}
                     </td>
-                    <td title={p.note} className="py-2.5 pr-3 text-zinc-600 max-w-md">
+                    <td title={p.note} className="px-3 text-zinc-600 max-w-md">
                       <span className="line-clamp-2">{p.note}</span>
                     </td>
-                    <td className="py-2.5 pr-3 whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-800">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
-                        {p.batch_status === "SUCCESS" ? "Paid" : p.batch_status}
-                      </span>
+                    <td className="px-3 whitespace-nowrap">
+                      <StatusDot
+                        label={isPaidStatus ? "Paid" : p.batch_status}
+                        tone={isPaidStatus ? "positive" : "neutral"}
+                      />
                     </td>
-                    <td className="py-2.5 text-right font-semibold text-emerald-700 tabular-nums whitespace-nowrap">
+                    <td className="px-5 text-right font-semibold text-emerald-700 tabular-nums whitespace-nowrap">
                       {formatSignedUsd(p.amount.value)}
                     </td>
                   </tr>
@@ -639,21 +573,29 @@ export default function ProofOfHumanBountyBoard({
           </table>
         </div>
 
-        <div className="mt-3 md:hidden divide-y divide-zinc-100">
+        <div className="md:hidden divide-y divide-zinc-200">
           {payouts.map((p) => {
             const safeEmail = sanitizeDisplayEmail(p.receiver);
+            const isPaidStatus = p.batch_status === "SUCCESS";
             return (
-              <div key={p.payout_batch_id} className="py-3 space-y-1 text-xs">
+              <div key={p.payout_batch_id} className="px-4 py-3 space-y-1 text-[13px]">
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-mono font-medium text-zinc-900">
+                  <span className="font-mono text-[12px] font-medium text-zinc-900">
                     {p.payout_batch_id}
                   </span>
                   <span className="font-semibold text-emerald-700 tabular-nums">
                     {formatSignedUsd(p.amount.value)}
                   </span>
                 </div>
-                <div className="text-zinc-600">{safeEmail}</div>
-                <p title={p.note} className="text-zinc-600 line-clamp-2">
+                <div className="flex items-center justify-between gap-2 text-[12px] text-zinc-600">
+                  <span>{safeEmail}</span>
+                  <StatusDot
+                    label={isPaidStatus ? "Paid" : p.batch_status}
+                    tone={isPaidStatus ? "positive" : "neutral"}
+                    className="text-[12px]"
+                  />
+                </div>
+                <p title={p.note} className="text-[12px] text-zinc-600 line-clamp-2">
                   {p.note}
                 </p>
               </div>

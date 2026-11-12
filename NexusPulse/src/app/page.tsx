@@ -3,22 +3,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  Activity,
   ArrowRight,
-  Bot,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Info,
-  KeyRound,
-  Layers,
   Lock,
-  Mail,
   RotateCcw,
-  ShieldCheck,
   ShoppingBag,
-  TrendingUp,
-  User,
   UserCheck,
 } from "lucide-react";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
@@ -28,7 +16,7 @@ import type {
   PayPalSandboxAccountConfig,
 } from "@/lib/paypal/paypal-types";
 import { formatSignedUsd, formatUsd } from "@/lib/format";
-import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
+import { type UserProfile } from "@/lib/auth/auth-types";
 import AuthModal from "@/components/auth/AuthModal";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
@@ -40,14 +28,11 @@ import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialC
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
 import FeaturePageHeader from "@/components/layout/FeaturePageHeader";
 import CfoExecutiveDocumentOutput from "@/components/ai/CfoExecutiveDocumentOutput";
-import InteractiveFlowSimulator from "@/components/home/InteractiveFlowSimulator";
-import ProblemSolutionComparison from "@/components/home/ProblemSolutionComparison";
-import PersonaQuickSwitchBanner from "@/components/home/PersonaQuickSwitchBanner";
 import ToastNotificationContainer, {
   type ToastMessage,
   type ToastType,
 } from "@/components/common/ToastNotification";
-import { WorkspaceSkeleton } from "@/components/ui";
+import { StatusDot, WorkspaceSkeleton } from "@/components/ui";
 
 // URL hash <-> workspace tab mapping so every feature has its own shareable "page"
 // (e.g. /#deal-hunter) and the browser Back button works between features.
@@ -195,13 +180,6 @@ export default function NexusPulseHomePage() {
     setActiveTab("overview");
     addToast("info", "Signed Out", "You have signed out. Project access is now gated. Please sign in or choose a demo persona to access the engines.");
   }, [addToast]);
-
-  const handleSwitchPersona = useCallback((key: string) => {
-    const demo = DEMO_EVALUATOR_ACCOUNTS[key];
-    if (demo) {
-      handleLoginSuccess(demo);
-    }
-  }, [handleLoginSuccess]);
 
   const fetchState = useCallback(async () => {
     try {
@@ -702,278 +680,17 @@ export default function NexusPulseHomePage() {
       {/* MAIN WORKSPACE */}
       <main
         id="main-workspace"
-        className="flex-1 mx-auto w-full max-w-6xl px-5 sm:px-8 pt-6 space-y-8"
+        className="flex-1 mx-auto w-full max-w-[1200px] px-4 sm:px-6 pt-8 pb-8 space-y-16"
       >
-        {/* FEATURE PAGE HEADER (shown when a specific engine is selected) */}
+        {/* FEATURE PAGE HEADER (shown when a specific tool tab is selected) */}
         {activeTab !== "overview" && (
           <FeaturePageHeader tab={activeTab} onNavigate={navigateTo} />
         )}
 
-        {/* HOMEPAGE-ONLY SECTIONS (hero, KPI ribbon, Gemini console) */}
-        {activeTab === "overview" && (
-        <>
-        {/* MINIMAL STARTUP HERO */}
-        <section
-          aria-labelledby="product-hero-heading"
-          className="relative text-center pt-8 pb-4 sm:pt-14 sm:pb-8 px-4 max-w-4xl mx-auto w-full"
-        >
-          {/* Subtle micro-pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-600 shadow-2xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span>Autonomous Clearinghouse on PayPal</span>
-          </div>
-
-          {/* Clean headline */}
-          <h1
-            id="product-hero-heading"
-            className="mt-5 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 leading-[1.08] text-balance"
-          >
-            Autonomous commerce, task bounties &amp; escrow.
-          </h1>
-
-          {/* Crisp subheadline */}
-          <p className="mt-4 text-sm sm:text-base lg:text-lg text-zinc-500 max-w-2xl mx-auto leading-relaxed text-balance">
-            Connecting Google Gemini AI with PayPal smart payment rails to automate deal-hunting, physical task verification bounties, and zero-dispute milestone escrow.
-          </p>
-
-          {/* Restrained CTAs */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("flow-simulator-heading");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
-            >
-              <span>Try the demo</span>
-              <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleRunAgentInteraction()}
-              disabled={agentRunning}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-800 shadow-2xs transition-colors"
-            >
-              <span>{agentRunning ? "Running CFO Sweep..." : "Run AI CFO Sweep"}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("autonomous-engines-hub");
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                } else {
-                  navigateTo("channel3");
-                }
-              }}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-800 shadow-2xs transition-colors"
-            >
-              <span>Explore 3 Engines</span>
-              <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
-            </button>
-          </div>
-        </section>
-
-        {/* 1-CLICK INTERACTIVE EVALUATOR PERSONAS */}
-        <PersonaQuickSwitchBanner
-          currentUser={currentUser}
-          onSelectPersona={async (key) => handleSwitchPersona(key)}
-          onOpenAuthModal={() => setAuthModalOpen(true)}
-        />
-
-        {/* INTERACTIVE PROTOCOL WALKTHROUGH SIMULATOR */}
-        <InteractiveFlowSimulator
-          onExploreEngines={() => navigateTo("bounties")}
-        />
-
-        {/* MINIMAL FINANCIAL TELEMETRY STRIP */}
-        <section
-          id="kpi-telemetry-ribbon"
-          aria-label="Key Financial Performance Indicators"
-          className="rounded-xl border border-zinc-200 bg-white shadow-2xs overflow-hidden w-full"
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-zinc-100">
-            <button
-              type="button"
-              onClick={() => navigateTo("channel3")}
-              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
-                  Annual Savings
-                </span>
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                {formatUsd(appState.totalSavedByAiUsd + annualSubSavings)}
-              </div>
-              <div className="mt-1 text-[11px] text-zinc-600 tabular-nums">
-                {formatUsd(appState.totalSavedByAiUsd)} realized
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigateTo("bounties")}
-              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-600">
-                  Bounties Paid
-                </span>
-                <UserCheck className="h-3.5 w-3.5 text-indigo-600" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                {formatUsd(appState.totalEarnedFromBountiesUsd)}
-              </div>
-              <div className="mt-1 text-[11px] text-zinc-600">
-                Instant PayPal Payouts
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigateTo("bryntum")}
-              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-600">
-                  Active Escrow Holds
-                </span>
-                <Lock className="h-3.5 w-3.5 text-indigo-600" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                {formatUsd(appState.totalEscrowProtectedUsd)}
-              </div>
-              <div className="mt-1 text-[11px] text-zinc-600">
-                PayPal Orders v2 Auth
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigateTo("aggrid")}
-              className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-600">
-                  {appState.walletBalanceUsd < 0 ? "Net balance" : "Wallet balance"}
-                </span>
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-              </div>
-              <div
-                className={`mt-2 text-2xl font-bold tabular-nums tracking-tight ${
-                  appState.walletBalanceUsd < 0 ? "text-red-700" : "text-zinc-950"
-                }`}
-              >
-                {formatUsd(appState.walletBalanceUsd)}
-              </div>
-              <div className="mt-1 text-[11px] text-zinc-600">
-                Verified Ledger Balance
-              </div>
-            </button>
-          </div>
-        </section>
-
-        {/* INTERACTIVE AI CFO COMMAND BAR */}
-        <section
-          aria-labelledby="gemini-console-heading"
-          className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs w-full"
-        >
-          <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-100">
-            <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-indigo-600" />
-              <h2 id="gemini-console-heading" className="text-xs font-semibold text-zinc-950">
-                Autonomous CFO
-              </h2>
-              <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 font-medium">
-                gemini-4-argon
-              </span>
-              {turnCount > 0 && (
-                <span className="rounded bg-emerald-50 text-emerald-700 font-mono text-[10px] px-1.5 py-0.5 font-medium">
-                  Turn #{turnCount}
-                </span>
-              )}
-            </div>
-
-            {agentResponse && (
-              <button
-                type="button"
-                onClick={() => {
-                  setAgentResponse(null);
-                  setTurnCount(0);
-                }}
-                className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2 py-1 text-xs text-zinc-600 transition"
-              >
-                <RotateCcw className="h-3 w-3" />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-
-          <form
-            onSubmit={(e) => handleRunAgentInteraction(undefined, e)}
-            className="mt-3 space-y-2.5"
-          >
-            <div className="flex flex-col sm:flex-row gap-2">
-              <label htmlFor="gemini-agent-prompt-input" className="visually-hidden">
-                Ask your Autonomous CFO
-              </label>
-              <input
-                id="gemini-agent-prompt-input"
-                type="text"
-                value={agentPrompt}
-                onChange={(e) => setAgentPrompt(e.target.value)}
-                className="flex-1 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-xs text-zinc-900 placeholder:text-zinc-400 focus:bg-white focus:border-indigo-500 shadow-2xs"
-                placeholder="Ask your Autonomous CFO to audit subscriptions, buy deals, or verify escrow..."
-              />
-              <button
-                type="submit"
-                disabled={agentRunning}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white transition shrink-0"
-              >
-                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
-                <span>{agentRunning ? "Reviewing..." : "Review my spending"}</span>
-              </button>
-            </div>
-
-            {/* Quick Action Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="text-zinc-400 text-[11px]">Quick:</span>
-              {[
-                { label: "Audit Subscriptions", prompt: "Optimize my unused PayPal subscription and downgrade idle GPU plan to save money" },
-                { label: "Best Deal", prompt: "Buy the NVIDIA Jetson Orin Nano deal on Channel3 via PayPal Order v2" },
-                { label: "Top Bounties", prompt: "Rank open Proof-of-Human Oracle bounties by hourly PayPal Payout yield" },
-                { label: "Verify Escrow", prompt: "Audit A2A Smart Escrow milestones and Dispute Shield tracking status" },
-              ].map((chip) => (
-                <button
-                  key={chip.label}
-                  type="button"
-                  onClick={() => handleRunAgentInteraction(chip.prompt)}
-                  className="rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2 py-0.5 text-[11px] text-zinc-600 hover:text-zinc-950 transition font-medium"
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          </form>
-
-          {/* Autonomous AI CFO Formatted Document Output */}
-          {agentResponse && (
-            <CfoExecutiveDocumentOutput
-              response={agentResponse}
-              onNavigate={navigateTo}
-            />
-          )}
-        </section>
-        </>
-        )}
-
-        {/* MOBILE / TABLET WORKSPACE NAVIGATION */}
+        {/* MOBILE / TABLET WORKSPACE NAVIGATION (clean quick switch when inside tools) */}
         <div
           role="tablist"
-          aria-label="NexusPulse Main Navigation"
+          aria-label="Workspace navigation"
           className="flex lg:hidden flex-wrap items-center justify-between gap-2 border-b border-zinc-200 pb-3"
         >
           <div className="flex flex-wrap items-center gap-1.5">
@@ -982,13 +699,12 @@ export default function NexusPulseHomePage() {
               role="tab"
               aria-selected={activeTab === "overview"}
               onClick={() => navigateTo("overview")}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`inline-flex h-8 items-center gap-1.5 rounded-[6px] px-3 text-[13px] font-medium transition-colors ${
                 activeTab === "overview"
                   ? "bg-zinc-950 text-white"
                   : "bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
               }`}
             >
-              <Layers className="h-3.5 w-3.5" />
               <span>Overview</span>
             </button>
 
@@ -997,43 +713,37 @@ export default function NexusPulseHomePage() {
               role="tab"
               aria-selected={activeTab !== "overview"}
               onClick={() => {
-                if (activeTab === "overview") {
-                  navigateTo("channel3");
-                }
+                if (activeTab === "overview") navigateTo("channel3");
               }}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`inline-flex h-8 items-center gap-1.5 rounded-[6px] px-3 text-[13px] font-medium transition-colors ${
                 activeTab !== "overview"
                   ? "bg-zinc-950 text-white"
                   : "bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
               }`}
             >
-              <ShoppingBag className="h-3.5 w-3.5" />
-              <span>Engines</span>
+              <span>Tools</span>
             </button>
 
             <Link
               href="/about"
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
+              className="inline-flex h-8 items-center rounded-[6px] px-3 text-[13px] font-medium bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
             >
-              <Info className="h-3.5 w-3.5 text-indigo-600" />
-              <span>About</span>
+              About
             </Link>
 
             <Link
               href="/contact"
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
+              className="inline-flex h-8 items-center rounded-[6px] px-3 text-[13px] font-medium bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200"
             >
-              <Mail className="h-3.5 w-3.5 text-zinc-600" />
-              <span>Contact</span>
+              Contact
             </Link>
           </div>
 
-          {/* Quick Engine Selector Pill on Mobile when in Engines */}
           {activeTab !== "overview" && (
-            <div className="flex items-center gap-1 text-[11px] font-medium bg-zinc-100 p-1 rounded-lg">
+            <div className="flex flex-wrap items-center gap-1 text-[12px] font-medium bg-zinc-100 p-1 rounded-[6px]">
               {[
-                { id: "channel3", label: "Deals" },
-                { id: "bounties", label: "Bounties" },
+                { id: "channel3", label: "Price watch" },
+                { id: "bounties", label: "Tasks" },
                 { id: "bryntum", label: "Escrow" },
                 { id: "aggrid", label: "Ledger" },
               ].map((sub) => (
@@ -1041,9 +751,9 @@ export default function NexusPulseHomePage() {
                   key={sub.id}
                   type="button"
                   onClick={() => navigateTo(sub.id as WorkspaceTabId)}
-                  className={`px-2 py-0.5 rounded font-semibold transition ${
+                  className={`px-2 py-1 rounded-[4px] font-medium transition-colors ${
                     activeTab === sub.id
-                      ? "bg-white text-zinc-950 shadow-2xs"
+                      ? "bg-white text-zinc-950"
                       : "text-zinc-600 hover:text-zinc-950"
                   }`}
                 >
@@ -1054,216 +764,392 @@ export default function NexusPulseHomePage() {
           )}
         </div>
 
-        {/* OVERVIEW TAB: 3-ENGINE HUB & PROBLEM-SOLUTION MATRIX */}
+        {/* OVERVIEW: HEADLINE -> PROOF UI -> 3-COLUMN CAPABILITIES -> BUILT WITH */}
         {activeTab === "overview" && (
           <>
-          <section
-            id="autonomous-engines-hub"
-            aria-label="NexusPulse 3-Engine Clearinghouse Hub"
-            className="space-y-4 pt-2"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
-                  Autonomous Engines
-                </h2>
-                <p className="text-xs text-zinc-500">
-                  Three automated financial protocols connecting Gemini AI with PayPal.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Engine 01 Card */}
-              <div
-                id="engine-channel3"
-                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
+            {/* 1. Calm Hero */}
+            <section
+              aria-labelledby="product-hero-heading"
+              className="pt-4 sm:pt-8 max-w-2xl"
+            >
+              <h1
+                id="product-hero-heading"
+                className="np-h1"
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
-                      <ShoppingBag className="h-4 w-4 text-indigo-600" />
-                      Deal Hunter
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500 font-medium">100M+ SKUs</span>
+                Spend smarter. Pay people fairly. Release money when work is done.
+              </h1>
+
+              <p className="mt-4 text-[16px] text-zinc-600 leading-[1.55] max-w-xl">
+                Find savings in your subscriptions, track prices on things you want, and hold payments until the work is verified. Built on PayPal.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("spending-review-panel");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                    const input = document.getElementById("gemini-agent-prompt-input") as HTMLInputElement | null;
+                    if (input) input.focus({ preventScroll: true });
+                  }}
+                  className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
+                >
+                  <span>Try the demo</span>
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                </button>
+
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-1 text-[13px] font-medium text-zinc-700 hover:text-indigo-600 transition-colors"
+                >
+                  <span>How it works</span>
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </Link>
+              </div>
+            </section>
+
+            {/* 2. Proof: Single Focused Spending Review Workspace + 4 Clean KPI Numbers */}
+            <section
+              id="spending-review-panel"
+              aria-labelledby="gemini-console-heading"
+              className="rounded-[12px] border border-zinc-200 bg-white overflow-hidden"
+            >
+              {/* 4 KPI Numbers Max — no corner icons, tabular 28px/600 values */}
+              <div
+                id="kpi-telemetry-ribbon"
+                aria-label="Key account numbers"
+                className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-zinc-200 border-b border-zinc-200"
+              >
+                <button
+                  type="button"
+                  onClick={() => navigateTo("channel3")}
+                  className="p-5 text-left hover:bg-zinc-50 transition-colors"
+                >
+                  <div className="text-[13px] font-medium text-zinc-600">
+                    Annual savings
+                  </div>
+                  <div className="mt-1.5 text-[28px] leading-tight font-semibold text-zinc-950 tabular-nums tracking-[-0.015em]">
+                    {formatUsd(appState.totalSavedByAiUsd + annualSubSavings)}
+                  </div>
+                  <div className="mt-1 text-[12px] font-medium text-emerald-700 tabular-nums">
+                    +{formatUsd(appState.totalSavedByAiUsd)} realized
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigateTo("bounties")}
+                  className="p-5 text-left hover:bg-zinc-50 transition-colors"
+                >
+                  <div className="text-[13px] font-medium text-zinc-600">
+                    Verified payouts
+                  </div>
+                  <div className="mt-1.5 text-[28px] leading-tight font-semibold text-zinc-950 tabular-nums tracking-[-0.015em]">
+                    {formatUsd(appState.totalEarnedFromBountiesUsd)}
+                  </div>
+                  <div className="mt-1 text-[12px] text-zinc-600">
+                    Sent to contributors
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigateTo("bryntum")}
+                  className="p-5 text-left hover:bg-zinc-50 transition-colors"
+                >
+                  <div className="text-[13px] font-medium text-zinc-600">
+                    Held in escrow
+                  </div>
+                  <div className="mt-1.5 text-[28px] leading-tight font-semibold text-zinc-950 tabular-nums tracking-[-0.015em]">
+                    {formatUsd(appState.totalEscrowProtectedUsd)}
+                  </div>
+                  <div className="mt-1 text-[12px] text-zinc-600">
+                    Released on delivery proof
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigateTo("aggrid")}
+                  className="p-5 text-left hover:bg-zinc-50 transition-colors"
+                >
+                  <div className="text-[13px] font-medium text-zinc-600">
+                    {appState.walletBalanceUsd < 0 ? "Net balance" : "Wallet balance"}
+                  </div>
+                  <div
+                    className={`mt-1.5 text-[28px] leading-tight font-semibold tabular-nums tracking-[-0.015em] ${
+                      appState.walletBalanceUsd < 0 ? "text-red-700" : "text-zinc-950"
+                    }`}
+                  >
+                    {formatUsd(appState.walletBalanceUsd)}
+                  </div>
+                  <div className="mt-1 text-[12px] text-zinc-600">
+                    Current ledger total
+                  </div>
+                </button>
+              </div>
+
+              {/* Spending Review Prompt */}
+              <div className="p-5 sm:p-6 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 id="gemini-console-heading" className="text-[15px] font-semibold text-zinc-950">
+                      Spending review
+                    </h2>
+                    <p className="text-[13px] text-zinc-600 mt-0.5">
+                      Ask for a subscription check, target-price recommendation, or escrow summary.
+                    </p>
                   </div>
 
-                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
-                    Automated price drop monitoring with instant PayPal v6 checkout and SaaS plan downgrades.
-                  </p>
+                  {agentResponse && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAgentResponse(null);
+                        setTurnCount(0);
+                      }}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[12px] font-medium text-zinc-700 transition-colors"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Clear</span>
+                    </button>
+                  )}
+                </div>
 
-                  {/* Compact Deal Previews */}
-                  <div className="mt-4 space-y-2">
-                    {appState.channel3Deals.slice(0, 2).map((deal) => (
-                      <div
-                        key={deal.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
+                <form
+                  onSubmit={(e) => handleRunAgentInteraction(undefined, e)}
+                  className="space-y-3"
+                >
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <label htmlFor="gemini-agent-prompt-input" className="visually-hidden">
+                      Ask what to review in your spending
+                    </label>
+                    <input
+                      id="gemini-agent-prompt-input"
+                      type="text"
+                      value={agentPrompt}
+                      onChange={(e) => setAgentPrompt(e.target.value)}
+                      className="flex-1 h-10 rounded-[6px] border border-zinc-200 bg-white px-3 text-[14px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
+                      placeholder="Review unused subscriptions, price targets, or escrow holds..."
+                    />
+                    <button
+                      type="submit"
+                      disabled={agentRunning}
+                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors shrink-0 disabled:opacity-50"
+                    >
+                      <span>{agentRunning ? "Reviewing..." : "Review my spending"}</span>
+                      <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
+                    <span className="text-zinc-600 mr-1">Prompts:</span>
+                    {[
+                      {
+                        label: "Check subscriptions",
+                        prompt: "Optimize my unused PayPal subscription and downgrade idle GPU plan to save money",
+                      },
+                      {
+                        label: "Review price watch",
+                        prompt: "Buy the NVIDIA Jetson Orin Nano deal on Channel3 via PayPal Order v2",
+                      },
+                      {
+                        label: "List open tasks",
+                        prompt: "Rank open Proof-of-Human Oracle bounties by PayPal Payout reward",
+                      },
+                      {
+                        label: "Inspect escrow holds",
+                        prompt: "Audit escrow milestones and delivery verification status",
+                      },
+                    ].map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => handleRunAgentInteraction(chip.prompt)}
+                        className="rounded-[6px] border border-zinc-200 bg-[#fafafa] hover:bg-zinc-100 px-2.5 py-1 text-[12px] text-zinc-700 hover:text-zinc-950 transition-colors font-medium"
                       >
-                        <div className="min-w-0 flex-1">
-                          <div
-                            title={deal.title}
-                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
-                          >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </form>
+
+                {agentResponse && (
+                  <CfoExecutiveDocumentOutput
+                    response={agentResponse}
+                    onNavigate={navigateTo}
+                  />
+                )}
+              </div>
+            </section>
+
+            {/* 3. Three Capabilities in a Plain 3-Column List (no nested card boxes) */}
+            <section
+              id="autonomous-engines-hub"
+              aria-labelledby="capabilities-heading"
+              className="space-y-6"
+            >
+              <div className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-4">
+                <div>
+                  <h2 id="capabilities-heading" className="np-h2">
+                    What you can do
+                  </h2>
+                  <p className="mt-1 text-[15px] text-zinc-600">
+                    Open a tool directly to monitor prices, pay contributors, or manage milestone holds.
+                  </p>
+                </div>
+
+                {!currentUser && (
+                  <button
+                    type="button"
+                    onClick={() => setAuthModalOpen(true)}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 text-[13px] font-medium text-zinc-900 transition-colors"
+                  >
+                    <span>Sign in to continue</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Price watch */}
+                <div id="engine-channel3" className="flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
+                      <ShoppingBag className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <span>Price watch</span>
+                    </div>
+                    <p className="text-[14px] text-zinc-600 leading-relaxed">
+                      Set your maximum price on hardware and complete checkout with PayPal only once it drops.
+                    </p>
+                    <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
+                      {appState.channel3Deals.slice(0, 2).map((deal) => (
+                        <li key={deal.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
+                          <span title={deal.title} className="text-zinc-900 line-clamp-2 min-w-0">
                             {deal.title}
-                          </div>
-                          <div className="text-[11px] text-zinc-600 tabular-nums">
-                            Retail: {formatUsd(deal.retail_price)}
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-bold text-emerald-700">
+                          </span>
+                          <span className="tabular-nums font-medium text-emerald-700 shrink-0">
                             {formatUsd(deal.channel3_best_price)}
-                          </div>
-                          <span className="text-[10px] text-zinc-600">
-                            Save {deal.savings_percent}%
                           </span>
-                        </div>
-                      </div>
-                    ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!currentUser) setAuthModalOpen(true);
+                        else navigateTo("channel3");
+                      }}
+                      className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
+                    >
+                      <span>Open price watch</span>
+                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    </button>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!currentUser) setAuthModalOpen(true);
-                    else navigateTo("channel3");
-                  }}
-                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
-                >
-                  <span>{currentUser ? "Open Deal Hunter" : "Sign In to Access Deal Hunter"}</span>
-                  <ArrowRight className="h-3 w-3 text-zinc-400" />
-                </button>
-              </div>
-
-              {/* Engine 02 Card */}
-              <div
-                id="engine-bounties"
-                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
-                      <UserCheck className="h-4 w-4 text-emerald-600" />
-                      Human Bounties
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500 font-medium">Instant Payouts</span>
-                  </div>
-
-                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
-                    Physical verification tasks audited by Gemini AI with immediate PayPal disbursements.
-                  </p>
-
-                  {/* Compact Bounty Previews */}
-                  <div className="mt-4 space-y-2">
-                    {appState.bounties.slice(0, 2).map((b) => (
-                      <div
-                        key={b.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div
-                            title={b.title}
-                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
-                          >
+                {/* Verified tasks */}
+                <div id="engine-bounties" className="flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
+                      <UserCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <span>Verified tasks</span>
+                    </div>
+                    <p className="text-[14px] text-zinc-600 leading-relaxed">
+                      Post short inspection checks and send fast PayPal payouts once supporting evidence is verified.
+                    </p>
+                    <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
+                      {appState.bounties.slice(0, 2).map((b) => (
+                        <li key={b.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
+                          <span title={b.title} className="text-zinc-900 line-clamp-2 min-w-0">
                             {b.title}
-                          </div>
-                          <div className="text-[11px] text-zinc-600">
-                            ~{b.estimated_seconds}s check
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-bold text-emerald-700">
+                          </span>
+                          <span className="tabular-nums font-medium text-zinc-950 shrink-0">
                             {formatSignedUsd(b.reward.value)}
-                          </div>
-                          <span className="text-[10px] text-zinc-600">
-                            PayPal Payout
                           </span>
-                        </div>
-                      </div>
-                    ))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!currentUser) setAuthModalOpen(true);
+                        else navigateTo("bounties");
+                      }}
+                      className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
+                    >
+                      <span>Open verified tasks</span>
+                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    </button>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!currentUser) setAuthModalOpen(true);
-                    else navigateTo("bounties");
-                  }}
-                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
-                >
-                  <span>{currentUser ? "Explore Bounties" : "Sign In to Claim Bounties"}</span>
-                  <ArrowRight className="h-3 w-3 text-zinc-400" />
-                </button>
-              </div>
-
-              {/* Engine 03 Card */}
-              <div
-                id="engine-bryntum"
-                className="rounded-xl border border-zinc-200 bg-white p-5 shadow-2xs hover:border-zinc-300 transition-colors flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900">
-                      <Lock className="h-4 w-4 text-indigo-600" />
-                      Smart Escrow
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-500 font-medium">Dispute Shield</span>
-                  </div>
-
-                  <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
-                    PayPal authorization holds released on deliverable proof with automated shipment tracking.
-                  </p>
-
-                  {/* Compact Escrow Previews */}
-                  <div className="mt-4 space-y-2">
-                    {appState.escrowMilestones.slice(0, 2).map((m) => (
-                      <div
-                        key={m.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div
-                            title={m.project_name}
-                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
-                          >
+                {/* Milestone escrow */}
+                <div id="engine-bryntum" className="flex flex-col justify-between space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
+                      <Lock className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <span>Milestone escrow</span>
+                    </div>
+                    <p className="text-[14px] text-zinc-600 leading-relaxed">
+                      Authorize project funds on a milestone schedule and capture payment once deliverables are confirmed.
+                    </p>
+                    <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
+                      {appState.escrowMilestones.slice(0, 2).map((m) => (
+                        <li key={m.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
+                          <span title={m.project_name} className="text-zinc-900 line-clamp-2 min-w-0">
                             {m.project_name}
-                          </div>
-                          <div className="text-[11px] text-zinc-600">
-                            Progress: {m.progress_percent}%
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-bold text-zinc-900">
-                            {formatUsd(m.amount.value)}
-                          </div>
-                          <span className="text-[10px] text-zinc-600">
-                            {m.status === "AI_VERIFIED_CAPTURED" ? "Captured" : "Scheduled"}
                           </span>
-                        </div>
-                      </div>
-                    ))}
+                          <span className="tabular-nums font-medium text-zinc-950 shrink-0">
+                            {formatUsd(m.amount.value)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!currentUser) setAuthModalOpen(true);
+                        else navigateTo("bryntum");
+                      }}
+                      className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
+                    >
+                      <span>Open milestone escrow</span>
+                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    </button>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!currentUser) setAuthModalOpen(true);
-                    else navigateTo("bryntum");
-                  }}
-                  className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
-                >
-                  <span>{currentUser ? "View Escrow Gantt" : "Sign In to View Escrow Gantt"}</span>
-                  <ArrowRight className="h-3 w-3 text-zinc-400" />
-                </button>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* PROBLEM & SOLUTION COMPARISON MATRIX */}
-          <ProblemSolutionComparison onSelectEngine={navigateTo} />
+            {/* 4. Quiet Built With Row */}
+            <section aria-label="Built with" className="border-t border-zinc-200 pt-8">
+              <div className="flex flex-wrap items-center justify-between gap-4 text-[13px] text-zinc-600">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                  <span className="text-zinc-600">Built with</span>
+                  <span className="font-medium text-zinc-700">PayPal</span>
+                  <span className="font-medium text-zinc-700">Google Gemini</span>
+                  <span className="font-medium text-zinc-700">Supabase</span>
+                  <span className="font-medium text-zinc-700">AG Grid</span>
+                </div>
+                <Link
+                  href="/about"
+                  className="text-[13px] font-medium text-zinc-700 hover:text-zinc-950 inline-flex items-center gap-1"
+                >
+                  <span>Architecture &amp; details</span>
+                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </Link>
+              </div>
+            </section>
           </>
         )}
 
@@ -1323,100 +1209,66 @@ export default function NexusPulseHomePage() {
               }}
             />
 
-            {/* PAYPAL WEBHOOKS V1 SIGNATURE VERIFIER & APIMATIC SDK INSPECTOR */}
-            <div id="webhooks-security" className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                      PayPal Webhooks v1 Security
-                    </span>
-                    <h3 className="mt-1 text-base font-bold text-slate-900">
-                      Webhook Signature Verifier
-                    </h3>
-                    <p className="text-xs text-slate-600">
-                      Simulate and verify live PayPal events with SHA256withRSA signature validation.
-                    </p>
-                  </div>
-                </div>
+            {/* WEBHOOK TEST EVENTS (no sponsor/architecture blocks on the ledger page) */}
+            <section
+              id="webhooks-security"
+              aria-labelledby="webhook-tester-heading"
+              className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4"
+            >
+              <div className="border-b border-zinc-200 pb-3">
+                <h3 id="webhook-tester-heading" className="text-[15px] font-semibold text-zinc-950">
+                  Webhook signature tests
+                </h3>
+                <p className="text-[13px] text-zinc-600 mt-0.5">
+                  Send a signed test event to verify deduplication and ledger updates.
+                </p>
+              </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "PAYMENT.CAPTURE.COMPLETED",
-                    "PAYMENT.PAYOUTS-ITEM.SUCCEEDED",
-                    "CUSTOMER.DISPUTE.CREATED",
-                    "BILLING.SUBSCRIPTION.UPDATED",
-                  ].map((evt) => (
-                    <button
-                      key={evt}
-                      type="button"
-                      disabled={webhookSimulating}
-                      onClick={() => handleSimulateWebhook(evt)}
-                      className="rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-indigo-400 hover:shadow-xs px-3 py-1.5 font-mono text-xs text-slate-800 font-medium transition active:scale-95"
-                    >
-                      Simulate {evt}
-                    </button>
-                  ))}
-                </div>
-
-                {webhookResult && (
-                  <div
-                    role="status"
-                    aria-live="polite"
-                    className="nexus-fade-in rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs space-y-1"
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {[
+                  { event: "PAYMENT.CAPTURE.COMPLETED", label: "Send test: payment captured" },
+                  { event: "PAYMENT.PAYOUTS-ITEM.SUCCEEDED", label: "Send test: payout sent" },
+                  { event: "CUSTOMER.DISPUTE.CREATED", label: "Send test: dispute opened" },
+                  { event: "BILLING.SUBSCRIPTION.UPDATED", label: "Send test: plan updated" },
+                ].map((item) => (
+                  <button
+                    key={item.event}
+                    type="button"
+                    disabled={webhookSimulating}
+                    onClick={() => handleSimulateWebhook(item.event)}
+                    className="rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-2 text-left transition-colors disabled:opacity-50"
                   >
-                    <div className="flex items-center justify-between font-mono">
-                      <span className="font-bold text-emerald-900">
-                        Signature Verification: {webhookResult.verification_status}
-                      </span>
-                      <span className="text-slate-600">
-                        Event ID: {webhookResult.eventId}
-                      </span>
-                    </div>
-                    <p className="text-slate-700 text-xs">
-                      Deduplicated &amp; logged to Webhook Event Ledger (Mode:{" "}
-                      <strong className="text-slate-900">{webhookResult.mode.toUpperCase()}</strong>).
-                    </p>
-                  </div>
-                )}
+                    <span className="block text-[13px] font-medium text-zinc-900">
+                      {item.label}
+                    </span>
+                    <span className="block mt-0.5 font-mono text-[11px] text-zinc-600 truncate">
+                      {item.event}
+                    </span>
+                  </button>
+                ))}
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-all space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
-                      <KeyRound className="h-3.5 w-3.5 text-indigo-600" />
-                      Sponsor: APIMatic SDK + Credential-First Live Gateway
+              {webhookResult && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-[6px] border border-zinc-200 bg-[#fafafa] px-4 py-3 text-[13px] space-y-1"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <StatusDot
+                      label={`Verified (${webhookResult.verification_status})`}
+                      tone="positive"
+                    />
+                    <span className="font-mono text-[12px] text-zinc-600">
+                      {webhookResult.eventId}
                     </span>
-                    <h3 className="mt-1 text-base font-bold text-slate-900">
-                      APIMatic Architecture &amp; Slot 013 Live Sandbox
-                    </h3>
                   </div>
+                  <p className="text-[12px] text-zinc-600">
+                    Event checked, deduplicated, and recorded in the ledger.
+                  </p>
                 </div>
-
-                <ul className="space-y-2 text-xs text-slate-700">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>
-                      <strong className="text-slate-900">APIMatic Strongly-Typed SDK:</strong> Powered by <code className="text-indigo-700 font-mono text-[11px]">@paypal/paypal-server-sdk v2.5.0</code> with automatic OAuth2 token caching and idempotency headers.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>
-                      <strong className="text-slate-900">Credential-First Execution:</strong> Boots live against Slot 013 PayPal Sandbox REST &amp; JS SDK v6, retaining deterministic Mirror mode for offline unit tests.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>
-                      <strong className="text-slate-900">Cloud Blueprint:</strong> Production <code className="text-indigo-700 font-mono text-[11px]">render.yaml</code> blueprint with autonomous hourly background sweeps.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+              )}
+            </section>
           </div>
         )}
       </main>

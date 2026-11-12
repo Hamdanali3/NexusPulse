@@ -61,7 +61,7 @@ export function ListRow({
     >
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-medium text-zinc-950 line-clamp-2">{title}</div>
-        {subtitle && <div className="mt-0.5 text-[12px] text-zinc-600 truncate">{subtitle}</div>}
+        {subtitle && <div className="mt-0.5 text-[12px] text-zinc-600 leading-relaxed">{subtitle}</div>}
       </div>
       {(amount || action) && (
         <div className="flex items-center gap-3 shrink-0">

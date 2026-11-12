@@ -6,17 +6,13 @@ import {
   CheckCircle2,
   Plus,
   Search,
-  Shield,
-  ShoppingBag,
-  Tag,
-  Zap,
 } from "lucide-react";
 import type {
   Channel3ProductDeal,
   PayPalExecutionMode,
 } from "@/lib/paypal/paypal-types";
 import PayPalV6CheckoutWidget from "@/components/paypal/PayPalV6CheckoutWidget";
-import { FormField, StatusDot } from "@/components/ui";
+import { Button, FormField, ListRow, ListSection, StatusDot } from "@/components/ui";
 import { formatUsd } from "@/lib/format";
 
 interface Channel3DealHunterPanelProps {
@@ -173,117 +169,99 @@ export default function Channel3DealHunterPanel({
   return (
     <section
       aria-labelledby="engine-1-heading"
-      className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs space-y-6"
+      className="space-y-6"
     >
       {mandateBanner && (
         <div
           role={mandateBanner.type === "error" ? "alert" : "status"}
           aria-live="polite"
-          className={`flex items-center justify-between rounded-xl border px-4 py-3 text-xs shadow-xs transition-all ${
+          className={`flex items-center justify-between rounded-[12px] border px-4 py-3 text-[13px] transition-colors ${
             mandateBanner.type === "success"
-              ? "border-emerald-200 bg-emerald-50/80 text-emerald-900"
-              : "border-rose-200 bg-rose-50/80 text-rose-900"
+              ? "border-emerald-200 bg-emerald-50/70 text-emerald-900"
+              : "border-red-200 bg-red-50/70 text-red-900"
           }`}
         >
           <div className="flex items-center gap-2">
             {mandateBanner.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-700" strokeWidth={1.5} />
             ) : (
-              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-700" strokeWidth={1.5} />
             )}
             <span className="font-medium">{mandateBanner.text}</span>
           </div>
           <button
             type="button"
             onClick={() => setMandateBanner(null)}
-            className="text-xs font-semibold px-2 py-0.5 rounded text-zinc-600 hover:text-zinc-900 transition"
+            className="text-[12px] font-medium px-2 py-0.5 rounded-[6px] text-zinc-700 hover:text-zinc-950 transition-colors"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+      <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-              <ShoppingBag className="h-3 w-3 text-zinc-500" />
-              100M+ Catalog
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-              <Shield className="h-3 w-3 text-zinc-500" />
-              PayPal Orders v2
-            </span>
-          </div>
-          <h3 id="engine-1-heading" className="mt-1.5 text-base font-semibold text-zinc-900">
-            Deal Arbitrage &amp; 1-Click Checkout
-          </h3>
-          <p className="text-xs text-zinc-500">
-            Catalog matching against target price mandates, payable instantly via PayPal.
+          <h2 id="engine-1-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
+            Price watch
+          </h2>
+          <p className="mt-1 text-[14px] text-zinc-600">
+            Track product prices against your target and check out when the price drops.
           </p>
         </div>
 
-        {/* Search Filter Form + New Mandate Button */}
+        {/* Search Filter Form + New Price Alert Button */}
         <div className="flex flex-wrap items-center gap-2">
           <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <label htmlFor="channel3-search-input" className="visually-hidden">
                 Search SKU, brand, or product
               </label>
-              <Search className="h-3.5 w-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={1.5} />
               <input
                 id="channel3-search-input"
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search SKU or brand..."
-                className="h-8 rounded-lg border border-zinc-200 bg-zinc-50/50 pl-8 pr-3 text-xs text-zinc-900 placeholder:text-zinc-400 transition focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                placeholder="Search SKU or brand"
+                className="h-9 rounded-[6px] border border-zinc-200 bg-white pl-9 pr-3 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
-            <button
-              type="submit"
-              disabled={searching}
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3 text-xs font-medium text-white transition disabled:opacity-50"
-            >
-              <Search className="h-3.5 w-3.5 text-zinc-300" />
+            <Button type="submit" variant="secondary" size="sm" loading={searching}>
               {searching ? "Searching..." : "Search"}
-            </button>
+            </Button>
             {filteredDeals && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="text-xs text-zinc-500 hover:text-zinc-900 px-1 py-1 font-medium transition"
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={handleResetFilters}>
                 Reset
-              </button>
+              </Button>
             )}
           </form>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={() => setShowMandateForm((v) => !v)}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 shadow-2xs transition"
           >
-            <Plus className="h-3.5 w-3.5 text-zinc-500" />
-            New Mandate
-          </button>
+            <Plus className="h-4 w-4" strokeWidth={1.5} />
+            Add price alert
+          </Button>
         </div>
       </div>
 
-      {/* Create Custom Channel3 Price-Drop Mandate Drawer */}
+      {/* Create Custom Price-Drop Alert Drawer */}
       {showMandateForm && (
         <form
           onSubmit={handleCreateMandate}
-          className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3 nexus-fade-in"
+          className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-900">
-              New Autonomous Price-Drop Mandate
+          <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
+            <span className="text-[14px] font-semibold text-zinc-950">
+              Add price alert
             </span>
             <button
               type="button"
               onClick={() => setShowMandateForm(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-900 font-medium"
+              className="text-[13px] text-zinc-600 hover:text-zinc-950 font-medium"
             >
               Close
             </button>
@@ -399,130 +377,99 @@ export default function Channel3DealHunterPanel({
       )}
 
       {/* Main 2-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Deal Catalog Cards */}
-        <div className="lg:col-span-7 space-y-3">
-          <div className="flex items-center justify-between text-xs text-zinc-500 pb-1">
-            <span>
-              {displayedDeals.length} active price mandates
-            </span>
-            <span className="font-mono text-[11px] text-zinc-600 font-medium">
-              Live Price Feed
-            </span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Dense Hairline Price Watch List */}
+        <div className="lg:col-span-7 space-y-2.5">
+          <div className="flex items-center justify-between text-[13px] text-zinc-600 px-0.5">
+            <span>{displayedDeals.length} active price alerts</span>
+            <span className="text-[12px] text-zinc-600">Updated price feed</span>
           </div>
 
           {displayedDeals.length === 0 ? (
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-8 text-center text-xs text-zinc-500">
+            <div className="rounded-[12px] border border-zinc-200 bg-white p-8 text-center text-[13px] text-zinc-600">
               No products found matching &quot;{searchQuery}&quot;.
               <button
                 type="button"
                 onClick={handleResetFilters}
                 className="mt-2 block mx-auto text-indigo-600 font-medium hover:underline"
               >
-                Reset Search
+                Reset search
               </button>
             </div>
           ) : (
-            displayedDeals.map((deal) => {
-              const isSelected = activeDeal?.id === deal.id;
-              const isPurchased = deal.mandate_status === "PURCHASED_VIA_PAYPAL";
+            <ListSection>
+              {displayedDeals.map((deal) => {
+                const isSelected = activeDeal?.id === deal.id;
+                const isPurchased = deal.mandate_status === "PURCHASED_VIA_PAYPAL";
+                const showBnpl =
+                  deal.bnpl_eligible &&
+                  deal.channel3_best_price >= 30 &&
+                  deal.channel3_best_price <= 1500;
 
-              return (
-                <div
-                  key={deal.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={isSelected}
-                  onClick={() => setActiveCheckoutDealId(deal.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setActiveCheckoutDealId(deal.id);
-                    }
-                  }}
-                  className={`rounded-xl border p-4 transition cursor-pointer shadow-2xs ${
-                    isSelected
-                      ? "border-indigo-600 bg-indigo-50/20 ring-1 ring-indigo-500/20"
-                      : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/40"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-700 whitespace-nowrap">
-                          {deal.sku}
-                        </span>
-                        <span className="text-[11px] text-zinc-600">
-                          {deal.brand} · {deal.category}
-                        </span>
-                      </div>
-                      <h4
-                        title={deal.title}
-                        className="text-sm font-semibold text-zinc-900 leading-snug line-clamp-2"
-                      >
-                        {deal.title}
-                      </h4>
-                    </div>
-
-                    <div className="text-right tabular-nums shrink-0">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <span className="text-xs text-zinc-500 line-through">
-                          {formatUsd(deal.retail_price)}
-                        </span>
-                        <span className="text-base font-bold text-zinc-900">
-                          {formatUsd(deal.channel3_best_price)}
-                        </span>
-                      </div>
-                      <span className="text-[12px] font-medium text-emerald-700 tabular-nums">
-                        Save {formatUsd(deal.savings_amount)} ({deal.savings_percent}%)
+                return (
+                  <ListRow
+                    key={deal.id}
+                    selected={isSelected}
+                    onSelect={() => setActiveCheckoutDealId(deal.id)}
+                    title={<span title={deal.title}>{deal.title}</span>}
+                    subtitle={
+                      <span>
+                        <span className="font-mono text-zinc-700">{deal.sku}</span>
+                        {" · "}
+                        {deal.merchant_name}
+                        {showBnpl ? ` · 4 × ${formatUsd(deal.bnpl_installment_monthly)}` : ""}
                       </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-[12px] text-zinc-600">
-                    <div>
-                      {deal.merchant_name}
-                      {deal.bnpl_eligible &&
-                      deal.channel3_best_price >= 30 &&
-                      deal.channel3_best_price <= 1500
-                        ? ` · 4 × ${formatUsd(deal.bnpl_installment_monthly)}`
-                        : ""}
-                    </div>
-
-                    <StatusDot
-                      label={
-                        isPurchased
-                          ? "Purchased"
-                          : `Target met (${formatUsd(deal.target_mandate_price)})`
-                      }
-                      tone={isPurchased ? "positive" : "accent"}
-                    />
-                  </div>
-                </div>
-              );
-            })
+                    }
+                    amount={
+                      <div className="flex flex-col items-end gap-0.5 tabular-nums">
+                        <div className="flex items-baseline justify-end gap-1.5">
+                          <span className="text-[12px] text-zinc-500 line-through">
+                            {formatUsd(deal.retail_price)}
+                          </span>
+                          <span className="text-[14px] font-semibold text-zinc-950">
+                            {formatUsd(deal.channel3_best_price)}
+                          </span>
+                        </div>
+                        <span className="text-[12px] font-medium text-emerald-700">
+                          Save {formatUsd(deal.savings_amount)} ({deal.savings_percent}%)
+                        </span>
+                        <StatusDot
+                          label={
+                            isPurchased
+                              ? "Purchased"
+                              : `Target ${formatUsd(deal.target_mandate_price)}`
+                          }
+                          tone={isPurchased ? "positive" : "accent"}
+                          className="mt-0.5 text-[12px]"
+                        />
+                      </div>
+                    }
+                  />
+                );
+              })}
+            </ListSection>
           )}
         </div>
 
-        {/* Right Column: Order Summary & PayPal Checkout */}
+        {/* Right Column: Sticky Order Summary & PayPal Checkout */}
         <div className="lg:col-span-5">
           {activeDeal && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 sticky top-20">
-              <div className="border-b border-zinc-100 pb-3">
+            <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4 lg:sticky lg:top-20">
+              <div className="border-b border-zinc-200 pb-3">
                 <span className="text-[12px] font-medium text-zinc-600">
                   Order summary
                 </span>
-                <h4
+                <h3
                   title={activeDeal.title}
-                  className="mt-1 text-sm font-semibold text-zinc-900 line-clamp-2"
+                  className="mt-1 text-[15px] font-semibold text-zinc-950 line-clamp-2"
                 >
                   {activeDeal.title}
-                </h4>
+                </h3>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="text-xs text-zinc-600">
+                  <span className="text-[13px] text-zinc-600">
                     Current price
                   </span>
-                  <span className="tabular-nums text-xl font-semibold text-zinc-950">
+                  <span className="tabular-nums text-[22px] font-semibold text-zinc-950">
                     {formatUsd(activeDeal.channel3_best_price)}
                   </span>
                 </div>

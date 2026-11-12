@@ -5,18 +5,12 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle2,
-  Clock,
   ExternalLink,
-  Filter,
-  Info,
-  Layers,
   Lock,
   Plus,
   Search,
   ShieldCheck,
   Sliders,
-  TrendingDown,
-  Truck,
   Wallet,
   X,
 } from "lucide-react";
@@ -31,7 +25,7 @@ import {
   formatUsdPerMonth,
   humanizeEscrowStatus,
 } from "@/lib/format";
-import { ConfirmDialog, FormField, StatusDot } from "@/components/ui";
+import { Button, ConfirmDialog, FormField, ListSection, StatusDot } from "@/components/ui";
 
 interface BryntumEscrowTimelineProps {
   milestones: PayPalEscrowMilestone[];
@@ -442,48 +436,39 @@ export default function BryntumEscrowTimeline({
         </div>
       )}
 
-      {/* BRYNTUM INTERACTIVE ESCROW GANTT & RESOURCE TIMELINE */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+      {/* MILESTONE ESCROW TIMELINE */}
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                <Calendar className="h-3 w-3 text-zinc-500" />
-                Escrow Timeline
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                <Lock className="h-3 w-3 text-zinc-500" />
-                Orders v2 AUTHORIZE
-              </span>
-            </div>
-            <h3 id="engine-3-heading" className="mt-1.5 text-base font-semibold text-zinc-900">
-              Interactive Milestone Escrow &amp; Dispute Protection
-            </h3>
-            <p className="text-xs text-zinc-500">
-              Inspect milestones, adjust progress, reschedule dates, and trigger Gemini audit verification.
+            <h2 id="engine-3-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
+              Milestone escrow
+            </h2>
+            <p className="mt-1 text-[14px] text-zinc-600">
+              Inspect scheduled milestones, update dates, and verify completed deliverables before release.
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={() => setShowNewMilestoneModal((v) => !v)}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3 text-xs font-medium text-white transition"
           >
-            <Plus className="h-3.5 w-3.5 text-zinc-400" />
-            New Milestone
-          </button>
+            <Plus className="h-4 w-4" strokeWidth={1.5} />
+            Add milestone
+          </Button>
         </div>
 
-        {/* Interactive Filter & Search Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-1.5">
+        {/* Filter & Search Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-[13px]">
+          <div role="group" aria-label="Filter milestones" className="flex flex-wrap items-center gap-1 rounded-[6px] bg-zinc-100 p-1">
             <button
               type="button"
               onClick={() => setStatusFilter("ALL")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 statusFilter === "ALL"
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
               All ({localMilestones.length})
@@ -491,21 +476,21 @@ export default function BryntumEscrowTimeline({
             <button
               type="button"
               onClick={() => setStatusFilter("AUTH_HOLD")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 statusFilter === "AUTH_HOLD"
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
-              Auth Holds ({localMilestones.filter((m) => m.status === "AUTH_HOLD_PENDING_DELIVERABLE").length})
+              Held ({localMilestones.filter((m) => m.status === "AUTH_HOLD_PENDING_DELIVERABLE").length})
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter("CAPTURED")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
+              className={`rounded-[6px] px-2.5 py-1 text-[13px] font-medium transition-colors ${
                 statusFilter === "CAPTURED"
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-zinc-950 border border-zinc-200"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
               Captured ({localMilestones.filter((m) => m.status === "AI_VERIFIED_CAPTURED").length})
@@ -513,13 +498,17 @@ export default function BryntumEscrowTimeline({
           </div>
 
           <div className="relative">
-            <Search className="h-3.5 w-3.5 text-zinc-400 absolute left-2.5 top-2 pointer-events-none" />
+            <label htmlFor="escrow-search-input" className="visually-hidden">
+              Search milestone
+            </label>
+            <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={1.5} />
             <input
+              id="escrow-search-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search milestone..."
-              className="h-8 pl-8 pr-3 text-xs rounded-lg border border-zinc-200 bg-zinc-50/50 placeholder:text-zinc-400 w-52 transition focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+              placeholder="Search milestone"
+              className="h-9 pl-9 pr-3 text-[13px] rounded-[6px] border border-zinc-200 bg-white placeholder:text-zinc-500 w-56 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
         </div>
@@ -528,16 +517,16 @@ export default function BryntumEscrowTimeline({
         {showNewMilestoneModal && (
           <form
             onSubmit={handleCreateEscrowMilestone}
-            className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 space-y-3 nexus-fade-in"
+            className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-900">
-                Create PayPal Authorization Hold
+            <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
+              <span className="text-[14px] font-semibold text-zinc-950">
+                Create escrow hold
               </span>
               <button
                 type="button"
                 onClick={() => setShowNewMilestoneModal(false)}
-                className="text-xs text-zinc-500 hover:text-zinc-900 font-medium"
+                className="text-[13px] text-zinc-600 hover:text-zinc-950 font-medium"
               >
                 Close
               </button>
@@ -810,18 +799,15 @@ export default function BryntumEscrowTimeline({
           </div>
         </div>
 
-        {/* Selected Milestone Interactive Workspace */}
+        {/* Selected Milestone Detail Inspector */}
         {selectedMilestone && (
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4 shadow-2xs nexus-fade-in space-y-4">
+          <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-800">
-                    {selectedMilestone.id}
-                  </span>
-                  <h4 className="text-sm font-semibold text-zinc-900">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h3 className="text-[16px] font-semibold text-zinc-950">
                     {selectedMilestone.project_name}
-                  </h4>
+                  </h3>
                   <StatusDot
                     label={
                       selectedMilestone.status === "AI_VERIFIED_CAPTURED"
@@ -841,30 +827,58 @@ export default function BryntumEscrowTimeline({
                     }
                   />
                 </div>
-                <p className="mt-1 text-xs text-zinc-600">
-                  <span className="text-zinc-900 font-medium">Requirement:</span>{" "}
+                <p className="text-[13px] text-zinc-600">
                   {selectedMilestone.deliverable_requirement}
                 </p>
               </div>
 
-              <div className="text-right tabular-nums">
-                <div className="text-[11px] text-zinc-600">Escrow amount</div>
-                <div className="text-lg font-bold text-zinc-900">
+              <div className="text-right tabular-nums shrink-0">
+                <div className="text-[12px] text-zinc-600">Escrow amount</div>
+                <div className="text-[20px] font-semibold text-zinc-950">
                   {formatUsd(selectedMilestone.amount.value)}
                 </div>
               </div>
             </div>
 
-            {/* Interactive Progress Slider & Date Rescheduling */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-zinc-200/60">
-              {/* Interactive Progress Slider */}
-              <div className="rounded-lg bg-white border border-zinc-200 p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <label htmlFor="interactive-progress-slider" className="font-medium text-zinc-700 flex items-center gap-1.5">
-                    <Sliders className="h-3.5 w-3.5 text-zinc-400" />
-                    Progress:
+            <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-3 border-y border-zinc-200 py-3.5 text-[13px]">
+              <div>
+                <dt className="text-[12px] text-zinc-600">Milestone ID</dt>
+                <dd className="mt-0.5 font-mono text-[12px] font-medium text-zinc-900">
+                  {selectedMilestone.id}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[12px] text-zinc-600">Provider</dt>
+                <dd className="mt-0.5 font-medium text-zinc-900">
+                  {selectedMilestone.provider_name}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[12px] text-zinc-600">Schedule</dt>
+                <dd className="mt-0.5 font-medium text-zinc-900">
+                  {formatDateRange(selectedMilestone.start_date, selectedMilestone.end_date)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[12px] text-zinc-600">Hold reference</dt>
+                <dd className="mt-0.5 font-mono text-[12px] text-zinc-800">
+                  {selectedMilestone.paypal_authorization_id || selectedMilestone.paypal_order_id}
+                </dd>
+              </div>
+            </dl>
+
+            {/* Progress Slider & Date-Range Picker */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4 border-b border-zinc-200">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-[13px]">
+                  <label
+                    htmlFor="interactive-progress-slider"
+                    className="font-medium text-zinc-800 flex items-center gap-1.5"
+                  >
+                    <Sliders className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                    Completion progress
                   </label>
-                  <span className="font-mono font-semibold text-zinc-900">
+                  <span className="font-mono font-medium text-zinc-950 tabular-nums">
                     {selectedMilestone.progress_percent}%
                   </span>
                 </div>
@@ -878,9 +892,9 @@ export default function BryntumEscrowTimeline({
                   onChange={(e) =>
                     handleUpdateProgress(selectedMilestone.id, Number(e.target.value))
                   }
-                  className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-zinc-200 rounded-lg"
+                  className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-zinc-200 rounded-[6px]"
                 />
-                <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() =>
@@ -889,36 +903,35 @@ export default function BryntumEscrowTimeline({
                         Math.min(100, selectedMilestone.progress_percent + 25)
                       )
                     }
-                    className="rounded bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-700 transition"
+                    className="rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 py-1 text-[12px] font-medium text-zinc-800 transition-colors"
                   >
                     +25%
                   </button>
                   <button
                     type="button"
                     onClick={() => handleUpdateProgress(selectedMilestone.id, 100)}
-                    className="rounded bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 text-[11px] font-medium text-indigo-700 transition"
+                    className="rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 py-1 text-[12px] font-medium text-indigo-700 transition-colors"
                   >
-                    Set 100%
+                    Mark 100%
                   </button>
                 </div>
               </div>
 
-              {/* Interactive Date-Range Picker */}
-              <div className="rounded-lg bg-white border border-zinc-200 p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-zinc-700 flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-zinc-500" />
-                    Schedule
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-[13px]">
+                  <span className="font-medium text-zinc-800 flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                    Date range
                   </span>
-                  <span className="text-zinc-700 font-medium text-xs">
+                  <span className="text-[12px] text-zinc-600 font-medium">
                     {formatDateRange(selectedMilestone.start_date, selectedMilestone.end_date)}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label
                       htmlFor="milestone-start-date"
-                      className="block text-[11px] text-zinc-600 mb-0.5"
+                      className="block text-[12px] text-zinc-600 mb-1"
                     >
                       Start date
                     </label>
@@ -933,13 +946,13 @@ export default function BryntumEscrowTimeline({
                           selectedMilestone.end_date
                         )
                       }
-                      className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                      className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                   <div>
                     <label
                       htmlFor="milestone-end-date"
-                      className="block text-[11px] text-zinc-600 mb-0.5"
+                      className="block text-[12px] text-zinc-600 mb-1"
                     >
                       End date
                     </label>
@@ -954,25 +967,25 @@ export default function BryntumEscrowTimeline({
                           e.target.value
                         )
                       }
-                      className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                      className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Live Sandbox Buyer Approval Gate when Authorization Hold is newly created */}
+            {/* Buyer Approval Gate when Authorization Hold is newly created */}
             {selectedMilestone.status !== "AI_VERIFIED_CAPTURED" &&
               selectedMilestone.approve_url &&
               !selectedMilestone.paypal_authorization_id && (
-                <div className="pt-3 border-t border-zinc-200/60 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-200 bg-sky-50/70 px-3 py-2.5 text-xs text-sky-950">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-zinc-200 bg-[#fafafa] px-4 py-3 text-[13px]">
                   <div className="space-y-0.5">
-                    <div className="font-semibold flex items-center gap-1.5">
-                      <Wallet className="h-3.5 w-3.5 text-sky-600" />
-                      <span>PayPal Order {selectedMilestone.paypal_order_id} Awaiting Buyer Approval</span>
+                    <div className="font-medium text-zinc-950 flex items-center gap-1.5">
+                      <Wallet className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <span>Order {selectedMilestone.paypal_order_id} awaiting approval</span>
                     </div>
-                    <p className="text-[11px] text-sky-800">
-                      Sign in as Slot 013 Buyer in PayPal Sandbox, approve this AUTHORIZE hold, then click Finalize Authorization.
+                    <p className="text-[12px] text-zinc-600">
+                      Approve this authorization hold with your test buyer account, then confirm below.
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -980,33 +993,34 @@ export default function BryntumEscrowTimeline({
                       href={selectedMilestone.approve_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#003087] hover:bg-[#002366] px-3 text-xs font-semibold text-white transition"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[13px] font-medium text-white transition-colors"
                     >
-                      <span>Approve in Sandbox</span>
-                      <ExternalLink className="h-3 w-3" />
+                      <span>Approve hold</span>
+                      <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
                     </a>
-                    <button
+                    <Button
                       type="button"
-                      disabled={finalizingAuthId === selectedMilestone.id}
+                      variant="secondary"
+                      size="sm"
+                      loading={finalizingAuthId === selectedMilestone.id}
                       onClick={() => handleFinalizeAuthorization(selectedMilestone)}
-                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3 text-xs font-medium text-white transition disabled:opacity-50"
                     >
                       {finalizingAuthId === selectedMilestone.id
-                        ? "Finalizing..."
-                        : "Finalize Authorization"}
-                    </button>
+                        ? "Confirming..."
+                        : "Confirm hold"}
+                    </Button>
                   </div>
                 </div>
               )}
 
-            {/* Cryptographic Deliverable Verification & Capture Console */}
+            {/* Deliverable Verification & Release */}
             {selectedMilestone.status !== "AI_VERIFIED_CAPTURED" ? (
-              <div className="pt-3 border-t border-zinc-200/60 space-y-2">
+              <div className="space-y-2">
                 <label
                   htmlFor="deliverable-proof-input"
-                  className="block text-xs font-medium text-zinc-700"
+                  className="block text-[13px] font-medium text-zinc-900"
                 >
-                  Deliverable Proof (Commit Hash / Audit Output):
+                  Deliverable link or note
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
@@ -1014,33 +1028,35 @@ export default function BryntumEscrowTimeline({
                     type="text"
                     value={deliverableInput}
                     onChange={(e) => setDeliverableInput(e.target.value)}
-                    className="flex-1 h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
-                    placeholder="https://github.com/... or commit hash..."
+                    className="flex-1 h-9 rounded-[6px] border border-zinc-200 bg-white px-3 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="https://github.com/... or completion note"
                   />
-                  <button
+                  <Button
                     type="button"
-                    disabled={verifyingId === selectedMilestone.id}
+                    variant="primary"
+                    size="sm"
+                    loading={verifyingId === selectedMilestone.id}
                     onClick={() => handleVerifyAndCapture(selectedMilestone)}
-                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3.5 text-xs font-medium text-white transition disabled:opacity-50 shrink-0"
+                    className="shrink-0"
                   >
-                    <ShieldCheck className="h-3.5 w-3.5 text-zinc-200" />
+                    <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />
                     {verifyingId === selectedMilestone.id
                       ? "Verifying..."
                       : `Verify & release ${formatUsd(selectedMilestone.amount.value)}`}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
-              <div className="pt-3 border-t border-zinc-200/60 flex flex-wrap items-center justify-between gap-2 text-xs text-emerald-800 bg-emerald-50/80 px-3 py-2 rounded-lg border border-emerald-200">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-emerald-900 bg-emerald-50/70 px-3.5 py-2.5 rounded-[6px] border border-emerald-200">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
                   <span>
-                    <strong>Audit Complete:</strong> {selectedMilestone.ai_audit_notes}
+                    <strong className="font-semibold">Released:</strong> {selectedMilestone.ai_audit_notes}
                   </span>
                 </div>
                 {selectedMilestone.tracking_number && (
-                  <span className="font-mono text-[11px] text-zinc-600">
-                    Dispute Shield: <strong>{selectedMilestone.tracking_number}</strong>
+                  <span className="font-mono text-[12px] text-zinc-700">
+                    Tracking {selectedMilestone.tracking_number}
                   </span>
                 )}
               </div>
@@ -1049,21 +1065,15 @@ export default function BryntumEscrowTimeline({
         )}
       </div>
 
-      {/* SUBSCRIPTION RENEWAL SCHEDULER & AUTONOMOUS GUARD */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-100">
+      {/* SUBSCRIPTIONS & RENEWAL MANAGEMENT */}
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-4 pb-3 border-b border-zinc-200">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                <TrendingDown className="h-3 w-3 text-zinc-500" />
-                Subscriptions v1
-              </span>
-            </div>
-            <h3 className="mt-1 text-base font-semibold text-zinc-900">
-              Subscription Optimization &amp; Renewal Guard
+            <h3 className="text-[18px] font-semibold tracking-tight text-zinc-950">
+              Subscriptions
             </h3>
-            <p className="text-xs text-zinc-500">
-              Autonomous CFO detects unused seats and executes plan downgrades.
+            <p className="mt-0.5 text-[13px] text-zinc-600">
+              Spot unused seats and downgrade or cancel recurring plans before renewal.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1072,93 +1082,85 @@ export default function BryntumEscrowTimeline({
                 href={liveSubApproveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#003087] hover:bg-[#002366] px-3 text-xs font-semibold text-white transition"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[13px] font-medium text-white transition-colors"
               >
-                <span>Approve Subscription in Sandbox</span>
-                <ExternalLink className="h-3 w-3" />
+                <span>Approve plan</span>
+                <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
               </a>
             )}
-            <button
+            <Button
               type="button"
-              disabled={creatingLiveSub}
+              variant="secondary"
+              size="sm"
+              loading={creatingLiveSub}
               onClick={handleCreateLiveSubscription}
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 transition disabled:opacity-50"
             >
-              <Plus className="h-3.5 w-3.5 text-indigo-600" />
-              <span>{creatingLiveSub ? "Provisioning..." : "Provision Sandbox Plan"}</span>
-            </button>
+              <Plus className="h-4 w-4" strokeWidth={1.5} />
+              <span>{creatingLiveSub ? "Adding plan..." : "Add test plan"}</span>
+            </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ListSection>
           {subscriptions.map((sub) => (
-            <div
-              key={sub.id}
-              className="rounded-xl border border-zinc-200 bg-white p-4 space-y-3 shadow-2xs hover:border-zinc-300 transition"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="font-mono text-[11px] text-zinc-500">
-                    {sub.id}
-                  </span>
-                  <h4 className="text-sm font-semibold text-zinc-900">
-                    {sub.plan_name}
-                  </h4>
-                  <p className="text-xs text-zinc-500">{sub.merchant_name}</p>
+            <div key={sub.id} className="px-5 py-4 space-y-3 hover:bg-zinc-50/60 transition-colors">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="text-[15px] font-semibold text-zinc-950">
+                      {sub.plan_name}
+                    </h4>
+                    <StatusDot
+                      label={sub.status === "ACTIVE" ? "Active" : "Cancelled"}
+                      tone={sub.status === "ACTIVE" ? "positive" : "neutral"}
+                      className="text-[12px]"
+                    />
+                  </div>
+                  <p className="text-[13px] text-zinc-600">
+                    {sub.merchant_name} · <span className="font-mono text-[12px] text-zinc-700">{sub.id}</span> · {sub.ai_rationale}
+                  </p>
                 </div>
-                <div className="text-right shrink-0">
-                  <div className="text-sm font-bold text-zinc-900 tabular-nums">
+
+                <div className="text-right shrink-0 tabular-nums">
+                  <div className="text-[15px] font-semibold text-zinc-950">
                     {formatUsdPerMonth(sub.billing_amount.value)}
                   </div>
-                  <span className="inline-flex items-center gap-1.5 mt-0.5 text-[12px] font-medium text-zinc-700">
-                    <span
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        sub.status === "ACTIVE" ? "bg-emerald-600" : "bg-zinc-400"
-                      }`}
-                      aria-hidden="true"
-                    />
-                    {sub.status === "ACTIVE" ? "Active" : sub.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-zinc-50 border border-zinc-200 p-2.5 text-xs text-zinc-700 space-y-1">
-                <p className="text-[11px] text-zinc-600">
-                  {sub.ai_rationale}
-                </p>
-                <div className="font-medium text-emerald-700 text-[11px] tabular-nums">
-                  Potential savings: {formatUsdPerMonth(sub.potential_monthly_savings.value)} (
-                  {formatUsd(Number(sub.potential_monthly_savings.value) * 12)}/yr)
+                  <div className="text-[12px] font-medium text-emerald-700">
+                    Potential savings: {formatUsdPerMonth(sub.potential_monthly_savings.value)} (
+                    {formatUsd(Number(sub.potential_monthly_savings.value) * 12)}/yr)
+                  </div>
                 </div>
               </div>
 
               {sub.status === "ACTIVE" && (
-                <div className="flex items-center gap-2 pt-1">
-                  <button
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <Button
                     type="button"
+                    variant="secondary"
+                    size="sm"
                     disabled={optimizingSubId === sub.id}
                     onClick={() =>
                       setConfirmSubAction({ sub, action: "REVISE_DOWNGRADE" })
                     }
-                    className="flex-1 h-8 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-xs font-medium text-zinc-900 transition disabled:opacity-50"
                   >
                     {optimizingSubId === sub.id ? "Downgrading..." : "Downgrade"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="danger"
+                    size="sm"
                     disabled={optimizingSubId === sub.id}
                     onClick={() =>
                       setConfirmSubAction({ sub, action: "CANCEL_UNUSED" })
                     }
-                    className="h-8 rounded-md border border-red-200 bg-white hover:bg-red-50 px-2.5 text-xs font-medium text-red-700 transition disabled:opacity-50"
                   >
                     Cancel subscription
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
           ))}
-        </div>
+        </ListSection>
       </div>
 
       {/* Confirmation dialog naming the exact subscription and projected savings */}

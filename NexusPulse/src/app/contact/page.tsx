@@ -6,33 +6,19 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  Bot,
-  Building2,
   Check,
   CheckCircle2,
   ChevronDown,
-  Clock,
   Copy,
   ExternalLink,
-  FileText,
-  Gavel,
-  Hash,
-  HelpCircle,
-  KeyRound,
-  LifeBuoy,
-  Lock,
   Mail,
-  MessageSquare,
-  RefreshCw,
   Send,
   ShieldCheck,
-  Terminal,
-  User,
-  Zap,
 } from "lucide-react";
 import NexusHeader from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
+import { Button } from "@/components/ui";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
 import {
@@ -42,6 +28,8 @@ import {
   type ContactUrgency,
   validateContactForm,
 } from "@/lib/security/validation";
+
+const SUPPORT_EMAIL = "support@nexuspulse.example";
 
 interface SubmitSuccessData {
   ticketId: string;
@@ -63,72 +51,20 @@ interface SubmitSuccessData {
 
 const FAQ_ITEMS = [
   {
-    q: "How can PayPal Hackathon judges test with Slot 013 or their own Sandbox credentials?",
-    a: "NexusPulse boots Credential-First in Live PayPal Sandbox mode (Slot 013) whenever .env.local credentials are set, and judges can also open the PayPal Sandbox drawer in the top navigation bar to hot-swap Client ID & Secret or switch to offline Mirror Mode at runtime.",
+    q: "How do I test NexusPulse with sandbox accounts?",
+    a: "Sign in using a sample profile from the Sign in dialog or open the Workspace menu in the header to enter your own sandbox Client ID and Secret.",
   },
   {
-    q: "What are the pre-configured Slot 013 Sandbox test accounts for verification?",
-    a: "Personal Buyer (AEME4VE2LQ8D8): sb-ifqau51324237@personal.example.com. Business Merchant (6NGH9RSQMDEUJ): sb-mokyu51324247@business.example.com. Both Slot 013 Sandbox accounts are active for Orders v2, JS SDK v6, Payouts v1, Invoicing v2, and Subscriptions v1.",
+    q: "How are verified tasks checked before payout release?",
+    a: "Submitted task notes and optional uploaded photos or receipts are checked against the listed task requirements prior to sending the payout.",
   },
   {
-    q: "How fast are Proof-of-Human bounties verified and paid?",
-    a: "Google Gemini 3.8 Flash audits photo and textual evidence in under 2 seconds via @google/genai structured outputs. Upon verification, PayPal Payouts v1 executes instant single-item payouts directly to the contributor's PayPal or Venmo account.",
+    q: "How does milestone escrow hold funds safely?",
+    a: "Project milestones use PayPal authorization holds so funds are reserved on the order without releasing payment until work criteria are confirmed.",
   },
   {
-    q: "How does A2A Smart Escrow prevent chargebacks and disputes?",
-    a: "NexusPulse holds project milestone funds using PayPal Orders v2 intent: 'AUTHORIZE'. When deliverables are verified, funds are captured and PayPal Shipment Trackers API v2 attaches proof telemetry, activating PayPal's seller & buyer dispute protections.",
-  },
-  {
-    q: "Is submitted contact information secure?",
-    a: "All submissions are protected by Fetch Metadata resource isolation (Sec-Fetch-Site), sanitized against XSS, validated against strict schemas, and stored with unique cryptographic tracking IDs. No sensitive credentials are ever transmitted through this form.",
-  },
-];
-
-const PRESETS = [
-  {
-    id: "judge",
-    label: "⚖️ Hackathon Judge Review",
-    data: {
-      fullName: "PayPal AI Hackathon Judge",
-      email: "judge-evaluator@hackathon.paypal.com",
-      role: "judge" as ContactInquirerRole,
-      inquiryType: "hackathon_judging" as ContactInquiryType,
-      urgency: "urgent_judge" as ContactUrgency,
-      subject: "Judge Review: Evaluating Dual-Mode Parity & APIMatic Controllers",
-      referenceId: "PAYPAL-AI-HACK-2026",
-      message:
-        "Hello NexusPulse Team, I am evaluating your project for the PayPal AI Hackathon. I am testing the Google Gemini CFO sweep, Channel3 Deal Hunter with PayPal JS SDK v6, Proof-of-Human Payouts v1, and Bryntum Escrow timeline. Please provide any additional judge documentation if required.",
-    },
-  },
-  {
-    id: "developer",
-    label: "💻 Developer / APIMatic SDK",
-    data: {
-      fullName: "Autonomous Agent Developer",
-      email: "developer@agentic-systems.io",
-      role: "developer" as ContactInquirerRole,
-      inquiryType: "developer_api" as ContactInquiryType,
-      urgency: "high" as ContactUrgency,
-      subject: "Integration Query: Utilizing @paypal/paypal-server-sdk v2.5.0 with A2A Escrow",
-      referenceId: "API-DEV-9021",
-      message:
-        "We are building autonomous agents that need to lock milestone funds before initiating long-running compute jobs. How can we import your Orders v2 AUTHORIZE flow and Bryntum Gantt dependencies into our agent framework?",
-    },
-  },
-  {
-    id: "security",
-    label: "🛡️ Security & Dispute Shield",
-    data: {
-      fullName: "Security Auditor",
-      email: "sec-ops@fintech-auditing.org",
-      role: "merchant" as ContactInquirerRole,
-      inquiryType: "security_disclosure" as ContactInquiryType,
-      urgency: "normal" as ContactUrgency,
-      subject: "Inquiry on SHA256withRSA Webhook Signature Verification and Idempotency",
-      referenceId: "SEC-AUDIT-440",
-      message:
-        "We reviewed your implementation of POST /v1/notifications/verify-webhook-signature and the PayPal-Request-Id idempotency headers. We would like to confirm your testing coverage for replay attack mitigation.",
-    },
+    q: "How is contact data protected?",
+    a: "Form inputs are validated, sanitized before recording, and protected by strict same-origin request headers. Never share passwords or private keys here.",
   },
 ];
 
@@ -142,12 +78,11 @@ export default function ContactPage() {
   const [voiceLoading, setVoiceLoading] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState<string | null>(null);
 
-  // Form State
   const [formData, setFormData] = useState<ContactFormData>({
     fullName: "",
     email: "",
     inquiryType: "general",
-    role: "judge",
+    role: "developer",
     urgency: "normal",
     subject: "",
     referenceId: "",
@@ -165,7 +100,6 @@ export default function ContactPage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  // Sync state with backend
   const fetchState = useCallback(async () => {
     try {
       const res = await fetch("/api/state", { cache: "no-store" });
@@ -185,7 +119,6 @@ export default function ContactPage() {
     fetchState();
   }, [fetchState]);
 
-  // Live validation on field changes
   const runLiveValidation = (currentData: ContactFormData) => {
     const res = validateContactForm(currentData);
     const errs: Record<string, string> = {};
@@ -196,10 +129,7 @@ export default function ContactPage() {
     return res;
   };
 
-  const handleFieldChange = (
-    field: keyof ContactFormData,
-    value: unknown
-  ) => {
+  const handleFieldChange = (field: keyof ContactFormData, value: unknown) => {
     const next = { ...formData, [field]: value };
     setFormData(next);
     if (touched[field]) {
@@ -213,35 +143,12 @@ export default function ContactPage() {
     runLiveValidation(formData);
   };
 
-  const handleApplyPreset = (presetKey: string) => {
-    const target = PRESETS.find((p) => p.id === presetKey);
-    if (!target) return;
-    const next: ContactFormData = {
-      ...formData,
-      ...target.data,
-      agreedToTerms: true,
-    };
-    setFormData(next);
-    setTouched({
-      fullName: true,
-      email: true,
-      role: true,
-      inquiryType: true,
-      urgency: true,
-      subject: true,
-      message: true,
-      agreedToTerms: true,
-    });
-    setFieldErrors({});
-    if (submitError) setSubmitError(null);
-  };
-
   const handleResetForm = () => {
     setFormData({
       fullName: "",
       email: "",
       inquiryType: "general",
-      role: "judge",
+      role: "developer",
       urgency: "normal",
       subject: "",
       referenceId: "",
@@ -270,7 +177,7 @@ export default function ContactPage() {
 
     const validation = runLiveValidation(formData);
     if (!validation.valid) {
-      setSubmitError("Please correct the highlighted errors before submitting.");
+      setSubmitError("Please review the highlighted fields before submitting.");
       return;
     }
 
@@ -288,8 +195,7 @@ export default function ContactPage() {
 
       if (!res.ok || !result.success) {
         setSubmitError(
-          result.error ||
-            "Unable to submit inquiry. Please review the form and try again."
+          result.error || "Unable to submit message. Please check your entries and try again."
         );
         if (result.errors) {
           setFieldErrors(result.errors);
@@ -299,9 +205,7 @@ export default function ContactPage() {
 
       setSuccessData(result);
     } catch {
-      setSubmitError(
-        "Network connection error while contacting the clearinghouse desk. Please try again."
-      );
+      setSubmitError("Network error while sending your message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -314,7 +218,6 @@ export default function ContactPage() {
     setTimeout(() => setCopiedTicket(false), 2000);
   };
 
-  // Header Handlers
   async function handleSwitchMode(nextPref: "auto" | "live" | "sandbox" | "mirror") {
     setPreferredMode(nextPref);
     try {
@@ -333,10 +236,7 @@ export default function ContactPage() {
     }
   }
 
-  async function handleSaveRuntimeCredentials(
-    clientId: string,
-    clientSecret: string
-  ) {
+  async function handleSaveRuntimeCredentials(clientId: string, clientSecret: string) {
     try {
       const res = await fetch("/api/state", {
         method: "POST",
@@ -398,9 +298,11 @@ export default function ContactPage() {
     }
   }
 
+  const inputBaseClass =
+    "w-full h-9 rounded-[6px] border px-3 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition-colors focus:outline-none focus:ring-2";
+
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-950 antialiased">
-      {/* Header */}
+    <div className="min-h-screen flex flex-col bg-[#fafafa] text-zinc-950 antialiased">
       <NexusHeader
         activeTab="contact"
         activeMode={activeMode}
@@ -414,193 +316,104 @@ export default function ContactPage() {
         onResetDemoState={handleResetDemoState}
       />
 
-      {/* Main Content */}
-      <main className="flex-1 mx-auto w-full max-w-5xl px-5 sm:px-8 py-8 space-y-8">
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-zinc-500">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1 hover:text-zinc-900 font-medium transition"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Overview</span>
-          </Link>
-          <span className="text-zinc-300">/</span>
-          <span className="font-medium text-zinc-900">Contact &amp; Judge Desk</span>
-        </nav>
+      <main className="flex-1 mx-auto w-full max-w-[1200px] px-5 sm:px-8 py-10 space-y-12">
+        {/* Breadcrumb & Page Header */}
+        <div className="space-y-4">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[13px] text-zinc-600">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 hover:text-zinc-950 font-medium transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span>Overview</span>
+            </Link>
+            <span className="text-zinc-400">/</span>
+            <span className="font-medium text-zinc-950">Contact</span>
+          </nav>
 
-        {/* Hero Section */}
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs">
-          <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-0.5 text-xs font-medium text-zinc-700">
-              <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
-              <span>Judge &amp; Developer Desk</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-950">
-              Contact NexusPulse
+          <section className="max-w-2xl space-y-2">
+            <h1 className="text-[34px] sm:text-[42px] font-semibold tracking-[-0.02em] leading-[1.1] text-zinc-950">
+              Contact support
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-              Direct channel for <strong>PayPal AI Hackathon judges</strong>, developers integrating{" "}
-              <strong>PayPal SDKs</strong>, oracle contributors, and partners deploying{" "}
-              <strong>Smart Escrow</strong>. Every inquiry is logged with an SLA guarantee.
+            <p className="text-[15px] text-zinc-600 leading-relaxed">
+              Send product questions, integration requests, or evaluation feedback directly to our team.
             </p>
+          </section>
+        </div>
 
-            {/* SLA Badges */}
-            <div className="pt-2 flex flex-wrap items-center gap-2.5 text-xs">
-              <div className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-emerald-800 text-[11px] font-medium">
-                <Clock className="h-3 w-3 text-emerald-600" />
-                <span>Judge Review SLA: &lt; 2 Hours</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2.5 py-1 text-zinc-700 text-[11px] font-medium">
-                <ShieldCheck className="h-3 w-3 text-zinc-500" />
-                <span>Cryptographic Inquiry Receipt</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Main 2-Column Grid: Form on Left, Verification & Direct Channels on Right */}
+        {/* 2-Column Grid: Clean Form (Left) + Support Email & Collapsed Reviewer Info (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT COLUMN: Contact Form / Confirmation */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Quick-Fill Presets for Judges & Developers */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <Zap className="h-3.5 w-3.5 text-amber-500" />
-                  Quick-Fill Presets for Instant Testing
-                </span>
-                <button
-                  type="button"
-                  onClick={handleResetForm}
-                  className="text-xs text-slate-500 hover:text-slate-800 transition inline-flex items-center gap-1 font-medium"
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  <span>Reset Form</span>
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    onClick={() => handleApplyPreset(preset.id)}
-                    className="rounded-lg border border-slate-200 bg-slate-50 hover:bg-sky-50 hover:border-sky-300 px-3 py-1.5 text-xs font-medium text-slate-800 transition active:scale-95 shadow-xs"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Form or Success State */}
+          {/* LEFT: Single Clean Form */}
+          <div className="lg:col-span-8">
             {successData ? (
-              <div className="nexus-fade-in rounded-2xl border border-emerald-200 bg-white p-6 sm:p-8 shadow-xs space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-                  </div>
+              <div className="rounded-[12px] border border-zinc-200 bg-white p-6 sm:p-8 space-y-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div className="space-y-1">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
-                      Inquiry Dispatched Successfully
-                    </span>
-                    <h2 className="text-xl font-extrabold text-slate-950">
-                      Thank You, {successData.summary.fullName}!
+                    <h2 className="text-[20px] font-semibold text-zinc-950">
+                      Inquiry received, {successData.summary.fullName}
                     </h2>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-[14px] text-zinc-600 leading-relaxed">
                       {successData.message}
                     </p>
                   </div>
                 </div>
 
-                {/* Ticket Details Box */}
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+                <div className="rounded-[6px] border border-zinc-200 bg-[#fafafa] p-4 space-y-3 text-[13px]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-200">
                     <div>
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
-                        Clearinghouse Tracking Ticket
-                      </span>
-                      <div className="font-mono text-base font-bold text-slate-950">
+                      <span className="text-[12px] text-zinc-600 block">Tracking reference</span>
+                      <span className="font-mono font-semibold text-zinc-950">
                         {successData.ticketId}
-                      </div>
+                      </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={copyTicketId}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition"
-                    >
+                    <Button type="button" variant="secondary" size="sm" onClick={copyTicketId}>
                       {copiedTicket ? (
                         <>
-                          <Check className="h-3.5 w-3.5 text-emerald-600" />
-                          <span>Copied!</span>
+                          <Check className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+                          <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="h-3.5 w-3.5 text-slate-500" />
-                          <span>Copy Ticket ID</span>
+                          <Copy className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                          <span>Copy ID</span>
                         </>
                       )}
-                    </button>
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
                     <div>
-                      <span className="text-slate-500">Contact Email:</span>
-                      <p className="font-semibold text-slate-800">{successData.summary.email}</p>
+                      <dt className="text-[12px] text-zinc-600">Reply email</dt>
+                      <dd className="font-medium text-zinc-900">{successData.summary.email}</dd>
                     </div>
                     <div>
-                      <span className="text-slate-500">Estimated Response SLA:</span>
-                      <p className="font-semibold text-emerald-700">{successData.estimatedSla}</p>
+                      <dt className="text-[12px] text-zinc-600">Target response time</dt>
+                      <dd className="font-medium text-emerald-700">{successData.estimatedSla}</dd>
                     </div>
                     <div>
-                      <span className="text-slate-500">Category:</span>
-                      <p className="font-semibold text-slate-800 uppercase">{successData.summary.inquiryType.replace(/_/g, " ")}</p>
+                      <dt className="text-[12px] text-zinc-600">Topic</dt>
+                      <dd className="font-medium text-zinc-900">
+                        {successData.summary.inquiryType.replace(/_/g, " ")}
+                      </dd>
                     </div>
                     <div>
-                      <span className="text-slate-500">Subject:</span>
-                      <p className="font-semibold text-slate-800">{successData.summary.subject}</p>
+                      <dt className="text-[12px] text-zinc-600">Routed to</dt>
+                      <dd className="font-mono text-[12px] text-zinc-900">{SUPPORT_EMAIL}</dd>
                     </div>
-                    <div>
-                      <span className="text-slate-500">Dispatched To:</span>
-                      <p className="font-semibold text-indigo-700 font-mono">
-                        {successData.routedTo || "hamdanaly651@gmail.com"}
-                      </p>
-                    </div>
-                    {successData.summary.referenceId && (
-                      <div className="sm:col-span-2">
-                        <span className="text-slate-500">Transaction / Reference ID:</span>
-                        <p className="font-mono font-semibold text-slate-800">{successData.summary.referenceId}</p>
-                      </div>
-                    )}
-                  </div>
+                  </dl>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <a
-                    href={
-                      successData.mailtoUrl ||
-                      `mailto:hamdanaly651@gmail.com?subject=${encodeURIComponent(
-                        `[NexusPulse Inquiry #${successData.ticketId}] ${successData.summary.subject}`
-                      )}`
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                    <span>Send Email Copy to hamdanaly651@gmail.com</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleResetForm}
-                    className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-5 py-2.5 text-xs font-bold text-slate-800 shadow-xs transition"
-                  >
-                    Submit Another Inquiry
-                  </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button type="button" variant="secondary" onClick={handleResetForm}>
+                    Send another message
+                  </Button>
                   <Link
                     href="/"
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
                   >
-                    <span>Return to Overview</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span>Return to workspace</span>
+                    <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
                   </Link>
                 </div>
               </div>
@@ -608,9 +421,9 @@ export default function ContactPage() {
               <form
                 onSubmit={handleSubmit}
                 noValidate
-                className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5"
+                className="rounded-[12px] border border-zinc-200 bg-white p-6 sm:p-8 space-y-5"
               >
-                {/* Honeypot field (hidden from legitimate users) */}
+                {/* Honeypot */}
                 <input
                   type="text"
                   name="website_url_hp"
@@ -622,86 +435,62 @@ export default function ContactPage() {
                   className="hidden"
                 />
 
-                {/* Form Header */}
-                <div className="border-b border-slate-100 pb-4">
-                  <h2 className="text-lg font-bold text-slate-950 flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-sky-600" />
-                    <span>Send a Validated Communications Request</span>
+                <div className="border-b border-zinc-200 pb-4">
+                  <h2 className="text-[18px] font-semibold text-zinc-950">
+                    Send a message
                   </h2>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Fields marked with an asterisk (<span className="text-rose-500">*</span>) are mandatory and validated against RFC standards.
+                  <p className="mt-1 text-[13px] text-zinc-600">
+                    Fields marked with an asterisk (<span className="text-red-700">*</span>) are required.
                   </p>
                 </div>
 
-                {/* Submit Error Banner */}
                 {submitError && (
                   <div
                     role="alert"
-                    className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 flex items-start gap-2.5"
+                    className="rounded-[6px] border border-red-200 bg-red-50/70 p-3.5 text-[13px] text-red-900 flex items-start gap-2.5"
                   >
-                    <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                    <div className="space-y-0.5">
-                      <strong className="font-bold">Submission Blocked:</strong>
-                      <p>{submitError}</p>
-                    </div>
+                    <AlertCircle className="h-4 w-4 text-red-700 shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <span>{submitError}</span>
                   </div>
                 )}
 
-                {/* Grid: Full Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Full Name */}
                   <div className="space-y-1.5">
                     <label
                       htmlFor="contact-fullName"
-                      className="text-xs font-semibold text-slate-800 flex items-center justify-between"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5 text-slate-500" />
-                        Full Name / Organization <span className="text-rose-500">*</span>
-                      </span>
-                      {touched.fullName && !fieldErrors.fullName && formData.fullName.length >= 2 && (
-                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      )}
+                      Name or organization <span className="text-red-700">*</span>
                     </label>
                     <input
                       id="contact-fullName"
                       type="text"
                       required
-                      placeholder="e.g. Jane Doe (PayPal Evaluator)"
+                      placeholder="Jane Doe"
                       value={formData.fullName}
                       onChange={(e) => handleFieldChange("fullName", e.target.value)}
                       onBlur={() => handleBlur("fullName")}
                       aria-invalid={Boolean(touched.fullName && fieldErrors.fullName)}
                       aria-describedby={fieldErrors.fullName ? "fullName-error" : undefined}
-                      className={`w-full rounded-lg border px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 shadow-xs transition ${
+                      className={`${inputBaseClass} ${
                         touched.fullName && fieldErrors.fullName
-                          ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/30"
-                          : touched.fullName && !fieldErrors.fullName && formData.fullName
-                            ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200 bg-white"
-                            : "border-slate-200 focus:border-sky-500 focus:ring-sky-100 bg-white"
+                          ? "border-red-500 focus:border-red-600 focus:ring-red-500/15 bg-white"
+                          : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500/20 bg-white"
                       }`}
                     />
                     {touched.fullName && fieldErrors.fullName && (
-                      <p id="fullName-error" role="alert" className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
+                      <p id="fullName-error" role="alert" className="text-[12px] text-red-700">
                         {fieldErrors.fullName}
                       </p>
                     )}
                   </div>
 
-                  {/* Email */}
                   <div className="space-y-1.5">
                     <label
                       htmlFor="contact-email"
-                      className="text-xs font-semibold text-slate-800 flex items-center justify-between"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <Mail className="h-3.5 w-3.5 text-slate-500" />
-                        Email Address <span className="text-rose-500">*</span>
-                      </span>
-                      {touched.email && !fieldErrors.email && formData.email.includes("@") && (
-                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      )}
+                      Email address <span className="text-red-700">*</span>
                     </label>
                     <input
                       id="contact-email"
@@ -713,33 +502,27 @@ export default function ContactPage() {
                       onBlur={() => handleBlur("email")}
                       aria-invalid={Boolean(touched.email && fieldErrors.email)}
                       aria-describedby={fieldErrors.email ? "email-error" : undefined}
-                      className={`w-full rounded-lg border px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 shadow-xs transition ${
+                      className={`${inputBaseClass} ${
                         touched.email && fieldErrors.email
-                          ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/30"
-                          : touched.email && !fieldErrors.email && formData.email
-                            ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200 bg-white"
-                            : "border-slate-200 focus:border-sky-500 focus:ring-sky-100 bg-white"
+                          ? "border-red-500 focus:border-red-600 focus:ring-red-500/15 bg-white"
+                          : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500/20 bg-white"
                       }`}
                     />
                     {touched.email && fieldErrors.email && (
-                      <p id="email-error" role="alert" className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
+                      <p id="email-error" role="alert" className="text-[12px] text-red-700">
                         {fieldErrors.email}
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Grid: Role & Category */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Inquirer Role */}
                   <div className="space-y-1.5">
                     <label
                       htmlFor="contact-role"
-                      className="text-xs font-semibold text-slate-800 flex items-center gap-1.5"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <Building2 className="h-3.5 w-3.5 text-slate-500" />
-                      Your Primary Role <span className="text-rose-500">*</span>
+                      Role <span className="text-red-700">*</span>
                     </label>
                     <div className="relative">
                       <select
@@ -749,27 +532,25 @@ export default function ContactPage() {
                           handleFieldChange("role", e.target.value as ContactInquirerRole)
                         }
                         onBlur={() => handleBlur("role")}
-                        className="w-full appearance-none rounded-lg border border-slate-200 bg-white px-3 py-2 pr-8 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 shadow-xs"
+                        className="w-full h-9 appearance-none rounded-[6px] border border-zinc-200 bg-white px-3 pr-8 text-[13px] text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       >
-                        <option value="judge">⚖️ Hackathon Judge / Evaluator</option>
-                        <option value="developer">💻 AI Agent Developer / Engineer</option>
-                        <option value="merchant">🏪 Enterprise Merchant / Business</option>
-                        <option value="oracle_worker">👤 Proof-of-Human Contributor</option>
-                        <option value="investor_researcher">🔬 Researcher / Venture Capital</option>
-                        <option value="other">🌐 General Inquirer</option>
+                        <option value="developer">Engineer or developer</option>
+                        <option value="merchant">Business or finance</option>
+                        <option value="judge">Reviewer or evaluator</option>
+                        <option value="oracle_worker">Task contributor</option>
+                        <option value="investor_researcher">Researcher</option>
+                        <option value="other">Other</option>
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                     </div>
                   </div>
 
-                  {/* Category */}
                   <div className="space-y-1.5">
                     <label
                       htmlFor="contact-inquiryType"
-                      className="text-xs font-semibold text-slate-800 flex items-center gap-1.5"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <HelpCircle className="h-3.5 w-3.5 text-slate-500" />
-                      Inquiry Category <span className="text-rose-500">*</span>
+                      Topic <span className="text-red-700">*</span>
                     </label>
                     <div className="relative">
                       <select
@@ -779,165 +560,116 @@ export default function ContactPage() {
                           handleFieldChange("inquiryType", e.target.value as ContactInquiryType)
                         }
                         onBlur={() => handleBlur("inquiryType")}
-                        className="w-full appearance-none rounded-lg border border-slate-200 bg-white px-3 py-2 pr-8 text-xs text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 shadow-xs"
+                        className="w-full h-9 appearance-none rounded-[6px] border border-zinc-200 bg-white px-3 pr-8 text-[13px] text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       >
-                        <option value="general">General Collaboration / Inquiries</option>
-                        <option value="hackathon_judging">PayPal Hackathon Judging &amp; Verification</option>
-                        <option value="developer_api">APIMatic SDK &amp; Developer Integration</option>
-                        <option value="oracle_bounties">Engine 2: Proof-of-Human Tasks &amp; Payouts</option>
-                        <option value="enterprise_escrow">Engine 3: A2A Smart Escrow Deployment</option>
-                        <option value="security_disclosure">Security, Webhooks &amp; Bug Disclosure</option>
+                        <option value="general">General inquiry</option>
+                        <option value="developer_api">API or integration support</option>
+                        <option value="oracle_bounties">Verified tasks and payouts</option>
+                        <option value="enterprise_escrow">Milestone escrow</option>
+                        <option value="hackathon_judging">Evaluator review</option>
+                        <option value="security_disclosure">Security inquiry</option>
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                     </div>
                   </div>
                 </div>
 
-                {/* Priority / Urgency Selection Pills */}
-                <div className="space-y-2">
-                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-slate-500" />
-                    Response Urgency SLA Target
+                {/* Priority */}
+                <div className="space-y-1.5">
+                  <span className="text-[13px] font-medium text-zinc-900 block">
+                    Priority
                   </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
-                      {
-                        id: "urgent_judge" as ContactUrgency,
-                        title: "Judge Expedited (<2h)",
-                        desc: "Reserved for Hackathon judges & evaluations",
-                        badge: "Highest Priority",
-                        style:
-                          formData.urgency === "urgent_judge"
-                            ? "border-sky-500 bg-sky-50/80 text-sky-950 ring-2 ring-sky-200"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700",
-                      },
-                      {
-                        id: "high" as ContactUrgency,
-                        title: "High Priority (<12h)",
-                        desc: "Technical integration blockers & escrow holds",
-                        badge: "Expedited",
-                        style:
-                          formData.urgency === "high"
-                            ? "border-indigo-500 bg-indigo-50/80 text-indigo-950 ring-2 ring-indigo-200"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700",
-                      },
-                      {
-                        id: "normal" as ContactUrgency,
-                        title: "Standard (24-48h)",
-                        desc: "General inquiries, feedback & partnerships",
-                        badge: "Standard SLA",
-                        style:
-                          formData.urgency === "normal"
-                            ? "border-slate-800 bg-slate-100 text-slate-950 ring-2 ring-slate-300"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700",
-                      },
-                    ].map((urg) => (
-                      <button
-                        key={urg.id}
-                        type="button"
-                        onClick={() => handleFieldChange("urgency", urg.id)}
-                        className={`rounded-xl border p-3 text-left transition shadow-xs ${urg.style}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs">{urg.title}</span>
-                          <span className="text-[10px] uppercase font-mono font-semibold opacity-75">
-                            {urg.badge}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[11px] opacity-80 leading-snug">{urg.desc}</p>
-                      </button>
-                    ))}
+                      { id: "normal" as ContactUrgency, title: "Standard (24–48h)", desc: "General requests" },
+                      { id: "high" as ContactUrgency, title: "High (<12h)", desc: "Integration issues" },
+                      { id: "urgent_judge" as ContactUrgency, title: "Urgent (<2h)", desc: "Time-sensitive reviews" },
+                    ].map((urg) => {
+                      const active = formData.urgency === urg.id;
+                      return (
+                        <button
+                          key={urg.id}
+                          type="button"
+                          onClick={() => handleFieldChange("urgency", urg.id)}
+                          className={`rounded-[6px] border px-3 py-2 text-left transition-colors ${
+                            active
+                              ? "border-indigo-600 bg-indigo-50/50 text-zinc-950"
+                              : "border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700"
+                          }`}
+                        >
+                          <div className="text-[13px] font-medium text-zinc-950">{urg.title}</div>
+                          <div className="text-[12px] text-zinc-600">{urg.desc}</div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Grid: Subject & Reference ID */}
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                  {/* Subject */}
                   <div className="sm:col-span-8 space-y-1.5">
                     <label
                       htmlFor="contact-subject"
-                      className="text-xs font-semibold text-slate-800 flex items-center justify-between"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <span className="flex items-center gap-1.5">
-                        <FileText className="h-3.5 w-3.5 text-slate-500" />
-                        Inquiry Subject <span className="text-rose-500">*</span>
-                      </span>
-                      {touched.subject && !fieldErrors.subject && formData.subject.length >= 4 && (
-                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      )}
+                      Subject <span className="text-red-700">*</span>
                     </label>
                     <input
                       id="contact-subject"
                       type="text"
                       required
-                      placeholder="e.g. PayPal Orders v2 AUTHORIZE hold testing feedback"
+                      placeholder="Brief summary of your question"
                       value={formData.subject}
                       onChange={(e) => handleFieldChange("subject", e.target.value)}
                       onBlur={() => handleBlur("subject")}
                       aria-invalid={Boolean(touched.subject && fieldErrors.subject)}
                       aria-describedby={fieldErrors.subject ? "subject-error" : undefined}
-                      className={`w-full rounded-lg border px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 shadow-xs transition ${
+                      className={`${inputBaseClass} ${
                         touched.subject && fieldErrors.subject
-                          ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/30"
-                          : touched.subject && !fieldErrors.subject && formData.subject
-                            ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200 bg-white"
-                            : "border-slate-200 focus:border-sky-500 focus:ring-sky-100 bg-white"
+                          ? "border-red-500 focus:border-red-600 focus:ring-red-500/15 bg-white"
+                          : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500/20 bg-white"
                       }`}
                     />
                     {touched.subject && fieldErrors.subject && (
-                      <p id="subject-error" role="alert" className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
+                      <p id="subject-error" role="alert" className="text-[12px] text-red-700">
                         {fieldErrors.subject}
                       </p>
                     )}
                   </div>
 
-                  {/* Reference ID (Optional) */}
                   <div className="sm:col-span-4 space-y-1.5">
                     <label
                       htmlFor="contact-referenceId"
-                      className="text-xs font-semibold text-slate-800 flex items-center gap-1.5"
+                      className="text-[13px] font-medium text-zinc-900 block"
                     >
-                      <Hash className="h-3.5 w-3.5 text-slate-500" />
-                      Ref / Order ID <span className="text-slate-400 font-normal">(Optional)</span>
+                      Reference ID <span className="text-zinc-500 font-normal">(optional)</span>
                     </label>
                     <input
                       id="contact-referenceId"
                       type="text"
-                      placeholder="e.g. 5O190127TN..."
+                      placeholder="Order or escrow ID"
                       value={formData.referenceId || ""}
                       onChange={(e) => handleFieldChange("referenceId", e.target.value)}
                       onBlur={() => handleBlur("referenceId")}
                       aria-invalid={Boolean(touched.referenceId && fieldErrors.referenceId)}
                       aria-describedby={fieldErrors.referenceId ? "referenceId-error" : undefined}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 shadow-xs"
+                      className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-3 text-[13px] font-mono text-zinc-900 placeholder:font-sans placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                     {touched.referenceId && fieldErrors.referenceId && (
-                      <p id="referenceId-error" role="alert" className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
+                      <p id="referenceId-error" role="alert" className="text-[12px] text-red-700">
                         {fieldErrors.referenceId}
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Message Body */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <label
-                      htmlFor="contact-message"
-                      className="font-semibold text-slate-800 flex items-center gap-1.5"
-                    >
-                      <MessageSquare className="h-3.5 w-3.5 text-slate-500" />
-                      Detailed Message <span className="text-rose-500">*</span>
+                  <div className="flex items-center justify-between text-[13px]">
+                    <label htmlFor="contact-message" className="font-medium text-zinc-900">
+                      Message <span className="text-red-700">*</span>
                     </label>
                     <span
-                      className={`font-mono text-[11px] ${
-                        formData.message.length > 2400
-                          ? "text-rose-600 font-bold"
-                          : formData.message.length < 15
-                            ? "text-slate-400"
-                            : "text-slate-500"
+                      className={`font-mono text-[12px] tabular-nums ${
+                        formData.message.length > 2400 ? "text-red-700" : "text-zinc-600"
                       }`}
                     >
                       {formData.message.length} / 2500
@@ -947,269 +679,187 @@ export default function ContactPage() {
                     id="contact-message"
                     required
                     rows={5}
-                    placeholder="Provide detailed feedback, integration requirements, bounty verification queries, or judge review notes..."
+                    placeholder="Share context, relevant order IDs, or steps to reproduce"
                     value={formData.message}
                     onChange={(e) => handleFieldChange("message", e.target.value)}
                     onBlur={() => handleBlur("message")}
                     aria-invalid={Boolean(touched.message && fieldErrors.message)}
                     aria-describedby={fieldErrors.message ? "message-error" : undefined}
-                    className={`w-full rounded-lg border p-3 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 shadow-xs transition leading-relaxed ${
+                    className={`w-full rounded-[6px] border p-3 text-[13px] text-zinc-900 placeholder:text-zinc-500 focus:outline-none focus:ring-2 leading-relaxed ${
                       touched.message && fieldErrors.message
-                        ? "border-rose-400 focus:border-rose-500 focus:ring-rose-200 bg-rose-50/30"
-                        : touched.message && !fieldErrors.message && formData.message.length >= 15
-                          ? "border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200 bg-white"
-                          : "border-slate-200 focus:border-sky-500 focus:ring-sky-100 bg-white"
+                        ? "border-red-500 focus:border-red-600 focus:ring-red-500/15 bg-white"
+                        : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500/20 bg-white"
                     }`}
                   />
                   {touched.message && fieldErrors.message && (
-                    <p id="message-error" role="alert" className="text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
+                    <p id="message-error" role="alert" className="text-[12px] text-red-700">
                       {fieldErrors.message}
                     </p>
                   )}
                 </div>
 
-                {/* Consent & Data Policy Checkbox */}
-                <div className="pt-1">
-                  <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer">
+                <div>
+                  <label className="flex items-start gap-2.5 text-[13px] text-zinc-600 cursor-pointer">
                     <input
                       type="checkbox"
                       required
                       checked={formData.agreedToTerms}
                       onChange={(e) => handleFieldChange("agreedToTerms", e.target.checked)}
                       onBlur={() => handleBlur("agreedToTerms")}
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-950 focus:ring-sky-500"
+                      className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <span className="leading-snug">
-                      I authorize the NexusPulse team to process this inquiry and securely contact me regarding my request. No credentials or passwords will ever be requested.
+                      I agree to let NexusPulse use these details to respond to my inquiry.
                     </span>
                   </label>
                   {touched.agreedToTerms && fieldErrors.agreedToTerms && (
-                    <p role="alert" className="mt-1 text-[11px] font-medium text-rose-600 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
+                    <p role="alert" className="mt-1 text-[12px] text-red-700">
                       {fieldErrors.agreedToTerms}
                     </p>
                   )}
                 </div>
 
-                {/* Submit Button */}
-                <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
-                  <div className="text-[11px] text-slate-500 flex items-center gap-1">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>Protected by Fetch Metadata Isolation &amp; CSRF Guards</span>
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200">
+                  <div className="text-[12px] text-zinc-600 flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+                    <span>Do not include passwords or API secrets.</span>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center gap-2 rounded-xl bg-slate-950 hover:bg-slate-800 disabled:opacity-50 px-6 py-3 text-xs font-bold text-white shadow-sm transition active:scale-95 cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 animate-spin text-sky-400" />
-                        <span>Transmitting to Operations Desk...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 text-sky-400" />
-                        <span>Submit Secure Inquiry</span>
-                      </>
-                    )}
-                  </button>
+                  <Button type="submit" variant="primary" loading={isSubmitting}>
+                    <Send className="h-4 w-4" strokeWidth={1.5} />
+                    <span>{isSubmitting ? "Sending..." : "Send message"}</span>
+                  </Button>
                 </div>
               </form>
             )}
           </div>
 
-          {/* RIGHT COLUMN: Direct Channels, Judge SLA & Sandbox Info */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Direct Contact Channel */}
-            <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-950">
-                  <Mail className="h-4 w-4 text-indigo-600" />
-                  <span>Lead Developer &amp; Direct Desk</span>
+          {/* RIGHT: Direct Support Email & Collapsed For Reviewers */}
+          <div className="lg:col-span-4 space-y-5">
+            <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[14px] font-semibold text-zinc-950">
+                  <Mail className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                  <span>Direct support</span>
                 </div>
-                <span className="rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-[10px] font-mono font-semibold text-emerald-800 flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                <p className="text-[13px] text-zinc-600 leading-relaxed">
+                  Reach our team by email for account assistance or technical feedback.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-[6px] bg-[#fafafa] border border-zinc-200">
+                <span className="font-mono text-[12px] font-medium text-zinc-900 select-all">
+                  {SUPPORT_EMAIL}
                 </span>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                All hackathon evaluations, technical feedback, and partner inquiries are routed directly to lead engineer:
-              </p>
-              <div className="rounded-xl border border-indigo-100 bg-white p-3.5 space-y-2.5 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-slate-500">Official Creator Email</span>
-                  <span className="text-[10px] font-mono text-indigo-600 font-semibold">
-                    Direct Routing
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200/80">
-                  <span className="font-mono text-xs font-bold text-slate-950 select-all">
-                    hamdanaly651@gmail.com
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (typeof navigator !== "undefined" && navigator.clipboard) {
-                        navigator.clipboard.writeText("hamdanaly651@gmail.com");
-                        setCopiedEmail(true);
-                        setTimeout(() => setCopiedEmail(false), 2000);
-                      }
-                    }}
-                    className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition"
-                  >
-                    {copiedEmail ? (
-                      <>
-                        <Check className="h-3 w-3 text-emerald-600" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3 w-3 text-slate-500" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                <a
-                  href="mailto:hamdanaly651@gmail.com?subject=PayPal%20AI%20Hackathon%20Inquiry%20-%20NexusPulse"
-                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 text-xs font-bold text-white shadow-xs transition"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(SUPPORT_EMAIL);
+                      setCopiedEmail(true);
+                      setTimeout(() => setCopiedEmail(false), 2000);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2 py-1 text-[12px] font-medium text-zinc-700 transition-colors"
                 >
-                  <Send className="h-3 w-3 text-indigo-200" />
-                  <span>Send Direct Email to hamdanaly651@gmail.com</span>
-                </a>
+                  {copiedEmail ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-700" strokeWidth={1.5} />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3 text-zinc-500" strokeWidth={1.5} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
 
-            {/* Hackathon Judge VIP Channel */}
-            <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-900">
-                <Gavel className="h-4 w-4 text-sky-600" />
-                <span>PayPal Hackathon Judge Desk</span>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                If you are reviewing NexusPulse for the hackathon and require live verification assistance, direct credential provisioning, or code walkthroughs:
-              </p>
-              <div className="space-y-2 text-xs">
-                <div className="rounded-lg bg-white p-3 border border-sky-100 space-y-1">
-                  <span className="text-[11px] font-semibold text-slate-500">Expedited Judge Response SLA</span>
-                  <div className="font-bold text-sky-950 flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                    Under 2 Hours Direct Escalation
-                  </div>
-                </div>
-                <div className="rounded-lg bg-white p-3 border border-sky-100 space-y-1 text-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500">Slot 013 Sandbox Accounts</span>
-                  <p className="font-mono text-[11px] text-slate-800 break-all">
-                    Buyer: sb-ifqau51324237@personal.example.com
-                  </p>
-                  <p className="font-mono text-[11px] text-slate-800 break-all">
-                    Merchant: sb-mokyu51324247@business.example.com
-                  </p>
-                </div>
-              </div>
-            </div>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("NexusPulse Support Inquiry")}`}
+                className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[13px] font-medium text-zinc-900 transition-colors"
+              >
+                <Mail className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+                <span>Email {SUPPORT_EMAIL}</span>
+              </a>
 
-            {/* Developer & Open Source Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900">
-                <Terminal className="h-4 w-4 text-indigo-600" />
-                <span>Developer &amp; Open Source</span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Explore the open source codebase, test suite, and APIMatic controller bindings directly on GitHub.
-              </p>
-              <div className="space-y-2 text-xs">
+              <div className="pt-3 border-t border-zinc-200 space-y-2 text-[13px]">
                 <a
                   href="https://github.com/Hamdanali3/NexusPulse"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-lg border border-slate-200 p-2.5 hover:bg-slate-50 text-slate-800 transition font-medium"
+                  className="flex items-center justify-between text-zinc-700 hover:text-zinc-950 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <ExternalLink className="h-3.5 w-3.5 text-slate-500" />
-                    GitHub Repository
-                  </span>
-                  <span className="text-slate-400 font-mono text-[11px]">Hamdanali3/NexusPulse</span>
+                  <span>Source repository</span>
+                  <ExternalLink className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
                 </a>
                 <Link
                   href="/about"
-                  className="flex items-center justify-between rounded-lg border border-slate-200 p-2.5 hover:bg-slate-50 text-slate-800 transition font-medium"
+                  className="flex items-center justify-between text-zinc-700 hover:text-zinc-950 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
-                    Product architecture &amp; documentation
-                  </span>
-                  <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+                  <span>Architecture &amp; documentation</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
                 </Link>
               </div>
             </div>
 
-            {/* Cryptographic & Security Assurances */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900">
-                <Lock className="h-4 w-4 text-emerald-600" />
-                <span>Dispute Shield &amp; Security</span>
+            {/* Collapsed Reviewer & Sandbox Credentials Disclosure */}
+            <details className="rounded-[12px] border border-zinc-200 bg-white p-5">
+              <summary className="cursor-pointer list-none flex items-center justify-between text-[14px] font-semibold text-zinc-950">
+                <span>For reviewers</span>
+                <ChevronDown className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              </summary>
+              <div className="mt-4 pt-4 border-t border-zinc-200 space-y-3 text-[12px] text-zinc-600">
+                <p className="leading-relaxed">
+                  Use the pre-configured sandbox test accounts below when evaluating checkout,
+                  payouts, or escrow flows.
+                </p>
+                <div className="space-y-1.5 rounded-[6px] border border-zinc-200 bg-[#fafafa] p-3 font-mono text-zinc-800 break-all">
+                  <div>
+                    <span className="text-zinc-600">Buyer: </span>
+                    sb-ifqau51324237@personal.example.com
+                  </div>
+                  <div>
+                    <span className="text-zinc-600">Merchant: </span>
+                    sb-mokyu51324247@business.example.com
+                  </div>
+                </div>
+                <p className="text-[12px] text-zinc-600">
+                  Evaluators can also add custom sandbox keys inside the Workspace menu in the header.
+                </p>
               </div>
-              <ul className="space-y-2 text-xs text-slate-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>SHA256withRSA:</strong> Webhook signature verification verified via raw bytes.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Idempotency:</strong> Every transaction includes strict <code>PayPal-Request-Id</code>.
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Data Hygiene:</strong> Inputs strictly sanitized against script injection.
-                  </span>
-                </li>
-              </ul>
-            </div>
+            </details>
           </div>
         </div>
 
-        {/* FAQ Section */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-xs space-y-6">
-          <div className="max-w-2xl space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-sky-600 flex items-center gap-1.5">
-              <LifeBuoy className="h-3.5 w-3.5" />
-              Frequently Asked Questions
-            </span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950">
-              Clear Answers for Evaluators &amp; Partners
-            </h2>
-            <p className="text-xs text-slate-500">
-              Common questions regarding our PayPal developer architecture, Gemini verification, and sandbox testing.
-            </p>
-          </div>
+        {/* Concise FAQ Section */}
+        <section className="rounded-[12px] border border-zinc-200 bg-white p-6 sm:p-8 space-y-4">
+          <h2 className="text-[18px] font-semibold text-zinc-950">
+            Frequently asked questions
+          </h2>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-zinc-200">
             {FAQ_ITEMS.map((item, index) => {
               const isOpen = openFaqIndex === index;
               return (
-                <div key={index} className="py-4">
+                <div key={item.q} className="py-3.5">
                   <button
                     type="button"
+                    aria-expanded={isOpen}
                     onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between text-left text-xs sm:text-sm font-bold text-slate-900 hover:text-sky-600 transition"
+                    className="w-full flex items-center justify-between gap-4 text-left text-[14px] font-medium text-zinc-950 hover:text-indigo-700 transition-colors"
                   >
                     <span>{item.q}</span>
                     <ChevronDown
-                      className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-sky-600" : ""
+                      className={`h-4 w-4 text-zinc-500 shrink-0 transition-transform duration-150 ${
+                        isOpen ? "rotate-180 text-indigo-600" : ""
                       }`}
+                      strokeWidth={1.5}
                     />
                   </button>
                   {isOpen && (
-                    <p className="nexus-fade-in mt-2 text-xs text-slate-600 leading-relaxed">
+                    <p className="mt-2 text-[13px] text-zinc-600 leading-relaxed">
                       {item.a}
                     </p>
                   )}
@@ -1220,13 +870,8 @@ export default function ContactPage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <NexusFooter
-        activeMode={activeMode}
-        databaseSource={databaseSource}
-      />
+      <NexusFooter activeMode={activeMode} databaseSource={databaseSource} />
 
-      {/* AI Assistant Chatbot */}
       <NexusAiChatbot
         appState={appState}
         onSelectTab={(tabId) => {
