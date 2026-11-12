@@ -26,7 +26,6 @@ import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
 import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
 import AuthModal from "@/components/auth/AuthModal";
-import LandingAuthCard from "@/components/auth/LandingAuthCard";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
@@ -597,96 +596,6 @@ export default function NexusPulseHomePage() {
             </button>
           </div>
         </section>
-
-        {/* EVALUATOR DEMO PERSONAS BANNER (When Logged Out: Embedded Auth Card. When Logged In: Active Persona Bar) */}
-        {!currentUser ? (
-          <section className="nexus-fade-in w-full py-2">
-            <LandingAuthCard onLoginSuccess={handleLoginSuccess} />
-          </section>
-        ) : (
-          <section
-            aria-label="Active Account & Persona Switcher"
-            className="nexus-fade-in rounded-xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/50 via-white to-indigo-50/40 p-4 shadow-2xs w-full"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-zinc-100">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold uppercase shrink-0 ring-2 ring-emerald-500/30">
-                  {currentUser.fullName.slice(0, 2)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-zinc-950">{currentUser.fullName}</span>
-                    <span className="rounded bg-emerald-100 text-emerald-800 border border-emerald-200/80 text-[10px] font-mono font-medium px-2 py-0.5">
-                      {currentUser.role} • Unlocked
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-600 mt-0.5">
-                    {currentUser.roleTitle} — Active clearinghouse balance:{" "}
-                    <span className="font-semibold text-zinc-900 font-mono">${currentUser.walletBalanceUsd.toFixed(2)}</span>
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAuthModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-2xs transition"
-                >
-                  <User className="h-3 w-3 text-indigo-500" />
-                  <span>Switch Persona</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white hover:bg-rose-50 hover:text-rose-600 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition"
-                >
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <span className="text-[11px] font-semibold text-zinc-500">Quick-Switch Evaluator Persona:</span>
-              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                {Object.entries(DEMO_EVALUATOR_ACCOUNTS).map(([key, demo]) => {
-                  const isSelected = currentUser?.email === demo.email;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => handleSwitchPersona(key)}
-                      className={`text-left rounded-lg p-2.5 transition flex flex-col justify-between border ${
-                        isSelected
-                          ? "border-indigo-500 bg-white ring-2 ring-indigo-500/20 shadow-xs"
-                          : "border-zinc-200/80 bg-white/80 hover:border-zinc-300 hover:bg-white"
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-bold text-zinc-900 truncate">
-                            {demo.fullName}
-                          </span>
-                          <span className={`text-[9px] font-mono font-medium rounded px-1.5 py-0.2 border shrink-0 ${demo.badgeColor}`}>
-                            {demo.badgeLabel}
-                          </span>
-                        </div>
-                        <div className="mt-1 text-[11px] text-zinc-500 line-clamp-1">
-                          {demo.roleTitle}
-                        </div>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between pt-1 border-t border-zinc-100 text-[10px]">
-                        <span className="text-zinc-400 font-mono">${demo.walletBalanceUsd.toFixed(0)}</span>
-                        <span className={`font-semibold ${isSelected ? "text-indigo-600" : "text-zinc-500"}`}>
-                          {isSelected ? "Active" : "Switch →"}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* MINIMAL FINANCIAL TELEMETRY STRIP */}
         <section

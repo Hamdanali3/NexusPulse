@@ -48,6 +48,8 @@ interface SubmitSuccessData {
   ticketId: string;
   receivedAt: string;
   estimatedSla: string;
+  routedTo?: string;
+  mailtoUrl?: string;
   summary: {
     fullName: string;
     email: string;
@@ -161,6 +163,7 @@ export default function ContactPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<SubmitSuccessData | null>(null);
   const [copiedTicket, setCopiedTicket] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Sync state with backend
@@ -558,6 +561,12 @@ export default function ContactPage() {
                       <span className="text-slate-500">Subject:</span>
                       <p className="font-semibold text-slate-800">{successData.summary.subject}</p>
                     </div>
+                    <div>
+                      <span className="text-slate-500">Dispatched To:</span>
+                      <p className="font-semibold text-indigo-700 font-mono">
+                        {successData.routedTo || "hamdanaly651@gmail.com"}
+                      </p>
+                    </div>
                     {successData.summary.referenceId && (
                       <div className="sm:col-span-2">
                         <span className="text-slate-500">Transaction / Reference ID:</span>
@@ -568,6 +577,18 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <a
+                    href={
+                      successData.mailtoUrl ||
+                      `mailto:hamdanaly651@gmail.com?subject=${encodeURIComponent(
+                        `[NexusPulse Inquiry #${successData.ticketId}] ${successData.summary.subject}`
+                      )}`
+                    }
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    <span>Send Email Copy to hamdanaly651@gmail.com</span>
+                  </a>
                   <button
                     type="button"
                     onClick={handleResetForm}
@@ -1003,6 +1024,65 @@ export default function ContactPage() {
 
           {/* RIGHT COLUMN: Direct Channels, Judge SLA & Sandbox Info */}
           <div className="lg:col-span-4 space-y-6">
+            {/* Direct Founder & Developer Contact Channel */}
+            <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-sky-50/50 p-5 shadow-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-950">
+                  <Mail className="h-4 w-4 text-indigo-600" />
+                  <span>Lead Developer &amp; Direct Desk</span>
+                </div>
+                <span className="rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-[10px] font-mono font-semibold text-emerald-800 flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-700 leading-relaxed">
+                All hackathon evaluations, technical feedback, and partner inquiries are routed directly to lead engineer:
+              </p>
+              <div className="rounded-xl border border-indigo-100 bg-white p-3.5 space-y-2.5 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-slate-500">Official Creator Email</span>
+                  <span className="text-[10px] font-mono text-indigo-600 font-semibold">
+                    Direct Routing
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200/80">
+                  <span className="font-mono text-xs font-bold text-slate-950 select-all">
+                    hamdanaly651@gmail.com
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof navigator !== "undefined" && navigator.clipboard) {
+                        navigator.clipboard.writeText("hamdanaly651@gmail.com");
+                        setCopiedEmail(true);
+                        setTimeout(() => setCopiedEmail(false), 2000);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white hover:bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition"
+                  >
+                    {copiedEmail ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        <span>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3 text-slate-500" />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <a
+                  href="mailto:hamdanaly651@gmail.com?subject=PayPal%20AI%20Hackathon%20Inquiry%20-%20NexusPulse"
+                  className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-2 text-xs font-bold text-white shadow-xs transition"
+                >
+                  <Send className="h-3 w-3 text-indigo-200" />
+                  <span>Send Direct Email to hamdanaly651@gmail.com</span>
+                </a>
+              </div>
+            </div>
+
             {/* Hackathon Judge VIP Channel */}
             <div className="rounded-2xl border border-sky-200 bg-sky-50/70 p-5 shadow-xs space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-900">

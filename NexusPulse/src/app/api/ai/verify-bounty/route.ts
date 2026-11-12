@@ -64,7 +64,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ok: true,
-        ...result,
+        success: true,
+        audit: {
+          passed: result.verification.passed,
+          score: result.verification.score,
+          gemini_model: result.verification.model,
+          reasoning: result.verification.reasoning,
+        },
+        verification: result.verification,
+        payout_batch_id: result.payout?.payout_batch_id,
+        payout: result.payout,
+        bounty: result.bounty,
         state,
       },
       { headers: VARY_HEADERS }

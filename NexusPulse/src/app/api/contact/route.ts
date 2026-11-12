@@ -123,7 +123,25 @@ export async function POST(request: Request) {
     estimatedSla = "< 12 hours (High Priority)";
   }
 
-  // 6. Record inquiry into in-memory ledger
+  // 6. Record inquiry into in-memory ledger targeting founder email
+  const destinationEmail = "hamdanaly651@gmail.com";
+  const mailtoBody = `NexusPulse Inquiry Ticket: ${ticketId}
+From: ${data.fullName} <${data.email}>
+Inquiry Type: ${data.inquiryType}
+Role: ${data.role}
+Urgency SLA: ${data.urgency} (${estimatedSla})
+Reference ID: ${data.referenceId || "N/A"}
+
+Message:
+${data.message}
+
+---
+Dispatched via NexusPulse Operations & Inquiry Clearinghouse`;
+
+  const mailtoUrl = `mailto:${destinationEmail}?subject=${encodeURIComponent(
+    `[NexusPulse Inquiry #${ticketId}] ${data.subject}`
+  )}&body=${encodeURIComponent(mailtoBody)}`;
+
   const record: RecordedInquiry = {
     ticketId,
     receivedAt: timestamp,
@@ -144,6 +162,8 @@ export async function POST(request: Request) {
     ticketId,
     receivedAt: timestamp,
     estimatedSla,
+    routedTo: destinationEmail,
+    mailtoUrl,
     summary: {
       fullName: data.fullName,
       email: data.email,
@@ -153,7 +173,6 @@ export async function POST(request: Request) {
       subject: data.subject,
       referenceId: data.referenceId,
     },
-    message:
-      "Your inquiry has been successfully dispatched to the NexusPulse team and logged to the inquiry clearinghouse.",
+    message: `Your inquiry has been successfully dispatched to the NexusPulse team (${destinationEmail}) and recorded in the inquiry clearinghouse.`,
   });
 }

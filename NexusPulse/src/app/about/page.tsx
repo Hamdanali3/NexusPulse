@@ -404,7 +404,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 50-YEAR AGI ECONOMIC THESIS & RESEARCH CITATIONS */}
+        {/* FRONTIER AI RESEARCH CITATIONS & THEORETICAL FOUNDATIONS */}
         <section
           id="thesis"
           className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 lg:p-12 shadow-xs space-y-8"
@@ -412,79 +412,233 @@ export default function AboutPage() {
           <div className="max-w-3xl space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-xs font-semibold text-indigo-800">
               <Brain className="h-3.5 w-3.5 text-indigo-600" />
-              <span>Macroeconomic Foundation</span>
+              <span>Academic &amp; Theoretical Foundations</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-950 tracking-tight">
-              The 50-Year AGI Economic Thesis
+              Frontier Research &amp; Economic Foundations
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              NexusPulse is grounded in cutting-edge literature on autonomous economic systems and macroeconomic transitions to AGI. Rather than viewing AI as a replacement for human agency, our protocol bridges human livelihoods with agentic financial settlement.
+              NexusPulse is directly grounded in cutting-edge literature on autonomous multi-agent economies, human-in-the-loop oracle networks, and macroeconomic transitions to AGI. Rather than viewing AI as a replacement for human livelihood, our protocol bridges human verification with autonomous financial settlement on the PayPal platform.
             </p>
           </div>
 
-          {/* Dual Crisis Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Crisis 1: Subscription Bloat & Price Asymmetry */}
-            <div className="rounded-2xl border border-rose-200 bg-rose-50/40 p-6 space-y-3">
-              <div className="flex items-center gap-2 text-rose-800 text-xs font-bold uppercase tracking-wider">
-                <TrendingDown className="h-4 w-4 text-rose-600" />
-                <span>The Immediate Crisis: Retail Asymmetry</span>
+          {/* Three Structural Economic Pillars Solved by NexusPulse */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Pillar 1: Retail Asymmetry */}
+            <div className="rounded-2xl border border-rose-200 bg-rose-50/40 p-6 space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-rose-800 text-xs font-bold uppercase tracking-wider">
+                  <TrendingDown className="h-4 w-4 text-rose-600" />
+                  <span>01 · Consumer Asymmetry</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-950">
+                  $1,548+/yr Lost to Zombie Subscriptions &amp; Price Gouging
+                </h3>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  Individual buyers lack real-time telemetry to audit contracts and negotiate optimal prices across fragmented marketplaces, silently losing thousands annually to idle compute and forgotten subscriptions.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">
-                $1,548+ Per Year Lost to Zombie Subscriptions &amp; Price Gouging
-              </h3>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                Consumers face unprecedented subscription fatigue. Recurring plans continue billing for idle compute, abandoned SaaS tiers, and inflated retail margins. Individual buyers lack the real-time telemetry to audit contracts and negotiate optimal prices across fragmented marketplaces.
-              </p>
-              <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-rose-900">
-                <CheckCircle2 className="h-4 w-4 text-rose-600" />
-                <span>Solved by Engine 1: Autonomous CFO + Channel3 Deal Hunter</span>
+              <div className="pt-3 border-t border-rose-200/60 flex items-center gap-2 text-xs font-semibold text-rose-900">
+                <CheckCircle2 className="h-4 w-4 text-rose-600 shrink-0" />
+                <span>Operationalized by Engine 1: Deal Hunter</span>
               </div>
             </div>
 
-            {/* Crisis 2: Physical Ground Truth & Human Income Bottleneck */}
-            <div className="rounded-2xl border border-sky-200 bg-sky-50/40 p-6 space-y-3">
-              <div className="flex items-center gap-2 text-sky-800 text-xs font-bold uppercase tracking-wider">
-                <Users className="h-4 w-4 text-sky-600" />
-                <span>The 50-Year AGI Crisis: The Physical Truth Gap</span>
+            {/* Pillar 2: The Physical Truth Gap */}
+            <div className="rounded-2xl border border-sky-200 bg-sky-50/40 p-6 space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sky-800 text-xs font-bold uppercase tracking-wider">
+                  <Users className="h-4 w-4 text-sky-600" />
+                  <span>02 · The Physical Truth Gap</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-950">
+                  AI Agents Cannot Verify Physical Reality Without Humans
+                </h3>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  As cognitive execution automates, human comparative advantage shifts decisively toward physical-world ground truth, in-person hardware audits, and cultural nuance that digital models cannot verify alone.
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-950">
-                AI Agents Cannot Verify Physical Reality Without Humans
-              </h3>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                As routine cognitive tasks automate, human comparative advantage shifts decisively toward physical-world ground truth, in-person hardware inspections, security auditing, and cultural nuance. AI agents desperately need verified physical sensors with cryptographic escrow guarantees.
-              </p>
-              <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-sky-900">
-                <CheckCircle2 className="h-4 w-4 text-sky-600" />
-                <span>Solved by Engine 2: Proof-of-Human Bounties + Instant PayPal Payouts</span>
+              <div className="pt-3 border-t border-sky-200/60 flex items-center gap-2 text-xs font-semibold text-sky-900">
+                <CheckCircle2 className="h-4 w-4 text-sky-600 shrink-0" />
+                <span>Operationalized by Engine 2: Human Oracles</span>
+              </div>
+            </div>
+
+            {/* Pillar 3: Agentic Settlement Trust */}
+            <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-6 space-y-3 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-indigo-800 text-xs font-bold uppercase tracking-wider">
+                  <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                  <span>03 · Settlement Trust</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-950">
+                  Autonomous Multi-Agent Markets Require Bounded Escrow
+                </h3>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                  High-velocity agent-to-agent contracts demand cryptographic authorization holds and clear deliverable dependencies to eliminate payment fraud, counterparty risk, and merchant chargebacks.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-indigo-200/60 flex items-center gap-2 text-xs font-semibold text-indigo-900">
+                <CheckCircle2 className="h-4 w-4 text-indigo-600 shrink-0" />
+                <span>Operationalized by Engine 3: Smart Escrow</span>
               </div>
             </div>
           </div>
 
-          {/* Academic Citations Box */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-indigo-600" />
-              <span>Frontier Research Citations &amp; Economic Foundations</span>
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs text-slate-700">
-              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-1">
-                <strong className="text-slate-950 block">Google DeepMind</strong>
-                <p className="text-slate-600 text-[11px]">
-                  <em>Virtual Agent Economies</em> (<code>arXiv:2509.10147</code>) &amp; <em>Distributional AGI Safety</em> (<code>arXiv:2512.16856</code>).
+          {/* Interactive Curated Research Papers Matrix */}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-4">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-indigo-600" />
+                  <span>Frontier Literature &amp; Research Citations</span>
+                </h4>
+                <p className="text-xs text-slate-600 mt-1">
+                  Peer-reviewed papers and frontier lab research establishing the theoretical foundations of NexusPulse:
                 </p>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-1">
-                <strong className="text-slate-950 block">Anthropic Research</strong>
-                <p className="text-slate-600 text-[11px]">
-                  <em>Anthropic Economic Index I &amp; II</em> (<code>arXiv:2503.04761</code>, <code>arXiv:2511.15080</code>).
-                </p>
+              <span className="text-[11px] font-mono text-slate-500 bg-white px-2.5 py-1 rounded-md border border-slate-200 shrink-0">
+                Full Text Curated in Repository
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              {/* Paper 1: Google DeepMind */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-2xs hover:shadow-xs transition flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <span className="text-[11px] font-bold text-sky-800 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded">
+                      Google DeepMind
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-500">2025–2026</span>
+                  </div>
+                  <h5 className="text-sm font-bold text-slate-950">
+                    Virtual Agent Economies &amp; Distributional AGI Safety
+                  </h5>
+                  <p className="text-[11px] text-slate-500 italic">
+                    Tomašev, Franklin, Leibo et al.
+                  </p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Examines multi-agent autonomous transactions and proves that bounded spending mandates and cryptographic authorization gates are essential to prevent consumer exploitation.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="text-[11px] font-medium text-slate-700">
+                    <span className="text-indigo-600 font-bold">Implementation:</span> Powers Engine 1 spending mandates &amp; Engine 3 PayPal Orders v2 AUTHORIZE holds.
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <a
+                      href="https://arxiv.org/abs/2509.10147"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-sky-700 hover:text-sky-900 font-semibold bg-sky-50 px-2 py-0.5 rounded border border-sky-200 transition"
+                    >
+                      <span>arXiv:2509.10147</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://arxiv.org/abs/2512.16856"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-sky-700 hover:text-sky-900 font-semibold bg-sky-50 px-2 py-0.5 rounded border border-sky-200 transition"
+                    >
+                      <span>arXiv:2512.16856</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-1">
-                <strong className="text-slate-950 block">Macroeconomic AGI Theory</strong>
-                <p className="text-slate-600 text-[11px]">
-                  <em>Some Simple Economics of AGI</em> (<code>arXiv:2602.20946</code>) &amp; <em>The Agentic Economy</em> (<code>arXiv:2505.15799</code>).
-                </p>
+
+              {/* Paper 2: Anthropic Research */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-2xs hover:shadow-xs transition flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
+                      Anthropic Research
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-500">2025–2026</span>
+                  </div>
+                  <h5 className="text-sm font-bold text-slate-950">
+                    The Anthropic Economic Index I &amp; II
+                  </h5>
+                  <p className="text-[11px] text-slate-500 italic">
+                    Anthropic Macroeconomics &amp; Governance Group
+                  </p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Documents how cognitive automation shifts human labor toward supervisory oversight, auditing, and physical-world verification tasks in autonomous agent ecosystems.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="text-[11px] font-medium text-slate-700">
+                    <span className="text-emerald-600 font-bold">Implementation:</span> Directly inspires Engine 2 Proof-of-Human Oracles with instant PayPal Payouts v1.
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <a
+                      href="https://arxiv.org/abs/2503.04761"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-amber-700 hover:text-amber-900 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 transition"
+                    >
+                      <span>arXiv:2503.04761</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://arxiv.org/abs/2511.15080"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-amber-700 hover:text-amber-900 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 transition"
+                    >
+                      <span>arXiv:2511.15080</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Paper 3: Macroeconomic Theory */}
+              <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-3 shadow-2xs hover:shadow-xs transition flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <span className="text-[11px] font-bold text-indigo-800 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
+                      MIT / Academic Consortium
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-500">2025–2026</span>
+                  </div>
+                  <h5 className="text-sm font-bold text-slate-950">
+                    Some Simple Economics of AGI &amp; The Agentic Economy
+                  </h5>
+                  <p className="text-[11px] text-slate-500 italic">
+                    Rothschild, Mobius et al.
+                  </p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Identifies that as the marginal cost of cognitive execution approaches zero, human physical verification bandwidth and sovereign buyer agents become the foundational economic anchors.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="text-[11px] font-medium text-slate-700">
+                    <span className="text-indigo-600 font-bold">Implementation:</span> Unifies personal buyer agents with global earning loops on the PayPal financial network.
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <a
+                      href="https://arxiv.org/abs/2602.20946"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-indigo-700 hover:text-indigo-900 font-semibold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 transition"
+                    >
+                      <span>arXiv:2602.20946</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <a
+                      href="https://arxiv.org/abs/2505.15799"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-indigo-700 hover:text-indigo-900 font-semibold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200 transition"
+                    >
+                      <span>arXiv:2505.15799</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -571,43 +725,74 @@ export default function AboutPage() {
                 </Link>
               </div>
 
-              {/* 4-Step Lifecycle Flow */}
+              {/* 4-Stage Architectural Pipeline */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
-                    1
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
+                      1
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Subscription Telemetry &amp; Usage Audit</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Continuous telemetry scan of active recurring subscriptions to identify zombie tiers, idle GPU compute allocations, and dormant SaaS licenses.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Subscription Telemetry</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Audits active plans via <code>v1/billing/subscriptions</code>, identifying zombie tiers with zero API utilization.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-fuchsia-700 font-semibold">
+                      PayPal Subscriptions API v1
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
-                    2
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
+                      2
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Autonomous Plan Optimization</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Autonomous revision to baseline pricing tiers, eliminating overcharges and recovering an average of $1,548+ annually per subscriber.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Automated Downgrade</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Executes <code>POST /v1/billing/subscriptions/{'{id}'}/revise</code> to eliminate overcharges, saving $1,548+/yr.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-fuchsia-700 font-semibold">
+                      Automated Plan Revision
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
-                    3
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
+                      3
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Channel3 Mandate Matching</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Real-time price scanning across Channel3&apos;s 100M+ SKU product catalog against user spending mandates to capture verified hardware discounts.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Channel3 Mandate Match</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Scans 100M+ SKUs against cryptographic spending mandates for hardware and essentials below market MSRP.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-fuchsia-700 font-semibold">
+                      Channel3 100M+ Product Catalog
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
-                    4
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-fuchsia-100 border border-fuchsia-200 flex items-center justify-center font-bold text-xs text-fuchsia-800">
+                      4
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Frictionless Multi-Fund Checkout</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Automated, multi-funding order execution through PayPal JS SDK v6 with PayPal Wallet, Pay Later installments, and Venmo options.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">PayPal JS SDK v6 Checkout</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Instant multi-funding checkout via <code>&lt;paypal-button&gt;</code>, <code>&lt;paylater-button&gt;</code>, and Orders v2.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-fuchsia-700 font-semibold">
+                      PayPal JS SDK v6 &amp; Orders v2
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -619,7 +804,7 @@ export default function AboutPage() {
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-6">
                 <div>
                   <span className="text-xs font-mono uppercase tracking-wider text-emerald-600 font-semibold">
-                    Engine 02 · 50-Year AGI Income Bridge
+                    Engine 02 · Human Earning &amp; Verification Protocol
                   </span>
                   <h3 className="text-2xl font-extrabold text-slate-950 mt-1">
                     Proof-of-Human Oracle Micro-Bounties &amp; Instant PayPal Payouts
@@ -637,43 +822,74 @@ export default function AboutPage() {
                 </Link>
               </div>
 
-              {/* 4-Step Lifecycle Flow */}
+              {/* 4-Stage Architectural Pipeline */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
-                    1
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
+                      1
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Agent Task Publication</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Autonomous agents publish physical verification tasks ($15–$45 for 30–60s effort) for server hardware checks, facility audits, and local ground truth.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Agent Posts Bounty</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    AI agents post physical verification tasks ($15–$45 for 30–60s work) for datacenter checks and ground truth.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                      Agentic Task Queue
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
-                    2
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
+                      2
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Multimodal Evidence Intake</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Human contributors capture and submit timestamped photos, telemetry metrics, and field notes directly via the mobile or desktop interface.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Human Submits Proof</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Contributor captures timestamped photo or text evidence from the physical site and enters their PayPal email.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                      Multimodal Intake Protocol
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
-                    3
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
+                      3
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Sub-2s Gemini Vision Audit</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Google Gemini 3.8 Flash evaluates submitted evidence against cryptographic criteria in under 2 seconds, scoring ground truth authenticity.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Gemini 3.8 Flash Audit</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Multimodal structured evaluation verifies evidence authenticity, score (0–100), and fraud indicators in &lt;2s.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                      Gemini 3.8 Flash Oracle
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
-                    4
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center font-bold text-xs text-emerald-800">
+                      4
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Instant Batch Payout Settlement</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Dispatches instant verified payouts directly to the contributor&apos;s PayPal or Venmo account with automatic idempotency key injection.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Instant PayPal Payouts v1</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Dispatches instant single-item payout via <code>POST /v1/payments/payouts</code> with idempotency key.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                      PayPal Payouts API v1
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -703,43 +919,74 @@ export default function AboutPage() {
                 </Link>
               </div>
 
-              {/* 4-Step Lifecycle Flow */}
+              {/* 4-Stage Architectural Pipeline */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
-                    1
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
+                      1
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Milestone AUTHORIZE Hold</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Milestone capital is placed under authorization hold without immediate capture, guaranteeing buyer protection and contract integrity.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Orders v2 AUTHORIZE Hold</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Milestone funds locked securely via <code>POST /v2/checkout/orders</code> with <code>intent: &quot;AUTHORIZE&quot;</code>.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-indigo-700 font-semibold">
+                      PayPal Orders v2 AUTHORIZE
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
-                    2
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
+                      2
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Bryntum WBS Gantt Timeline</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Interactive visual scheduling of milestone dependencies, critical-path status, deliverables, and carrier tracking events in real time.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Bryntum WBS Gantt Timeline</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Tracks milestone dependencies, critical-path status, deliverables, and carrier proofs in real time.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-indigo-700 font-semibold">
+                      Bryntum Gantt Suite
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
-                    3
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
+                      3
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Gemini 4 Argon Deliverable Audit</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Autonomous agent audits cryptographic deliverable proofs and milestone completion criteria prior to unlocking funds.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Gemini 4 Argon Deliverable Audit</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Audits cryptographic deliverable proofs, approves milestone release, and executes authorization capture.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-indigo-700 font-semibold">
+                      Gemini 4 Argon Reasoning
+                    </span>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                  <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
-                    4
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-7 w-7 rounded-lg bg-indigo-100 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-800">
+                      4
+                    </div>
+                    <strong className="text-xs text-slate-950 block">Carrier Tracking &amp; Dispute Shield</strong>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      Attaches DHL carrier tracking telemetry upon capture via Shipment Trackers v2, activating PayPal seller &amp; buyer dispute protections.
+                    </p>
                   </div>
-                  <strong className="text-xs text-slate-950 block">Dispute Shield &amp; Trackers v2</strong>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Attaches carrier tracking telemetry via <code>POST /v2/checkout/orders/{'{id}'}/track</code>, preventing chargebacks.
-                  </p>
+                  <div className="pt-2 border-t border-slate-200/60">
+                    <span className="text-[10px] font-mono text-indigo-700 font-semibold">
+                      PayPal Shipment Trackers v2
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
