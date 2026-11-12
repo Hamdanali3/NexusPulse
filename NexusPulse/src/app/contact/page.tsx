@@ -26,7 +26,6 @@ import {
   RefreshCw,
   Send,
   ShieldCheck,
-  Sparkles,
   Terminal,
   User,
   Zap,
@@ -64,12 +63,12 @@ interface SubmitSuccessData {
 
 const FAQ_ITEMS = [
   {
-    q: "How can PayPal Hackathon judges test with their own Sandbox credentials?",
-    a: "Judges can click the 'Sandbox Keys' drawer in the top navigation bar at any time to hot-swap their PayPal Client ID & Secret at runtime without restarting the server. Alternatively, NexusPulse runs out-of-the-box in Deterministic Sandbox Mirror Mode with 100% schema parity.",
+    q: "How can PayPal Hackathon judges test with Slot 013 or their own Sandbox credentials?",
+    a: "NexusPulse boots Credential-First in Live PayPal Sandbox mode (Slot 013) whenever .env.local credentials are set, and judges can also open the PayPal Sandbox drawer in the top navigation bar to hot-swap Client ID & Secret or switch to offline Mirror Mode at runtime.",
   },
   {
-    q: "What are the pre-configured Sandbox test accounts for judge verification?",
-    a: "Personal Buyer: sb-buyer-nexus@personal.example.com (Password: NexusBuyer!2026). Business Merchant: sb-merchant-nexus@business.example.com (Password: NexusMerchant!2026). Both are pre-authorized for Orders v2, Subscriptions v1, and Payouts v1 testing.",
+    q: "What are the pre-configured Slot 013 Sandbox test accounts for verification?",
+    a: "Personal Buyer (AEME4VE2LQ8D8): sb-ifqau51324237@personal.example.com. Business Merchant (6NGH9RSQMDEUJ): sb-mokyu51324247@business.example.com. Both Slot 013 Sandbox accounts are active for Orders v2, JS SDK v6, Payouts v1, Invoicing v2, and Subscriptions v1.",
   },
   {
     q: "How fast are Proof-of-Human bounties verified and paid?",
@@ -1024,8 +1023,8 @@ export default function ContactPage() {
 
           {/* RIGHT COLUMN: Direct Channels, Judge SLA & Sandbox Info */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Direct Founder & Developer Contact Channel */}
-            <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-sky-50/50 p-5 shadow-xs space-y-3">
+            {/* Direct Contact Channel */}
+            <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-950">
                   <Mail className="h-4 w-4 text-indigo-600" />
@@ -1101,12 +1100,12 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="rounded-lg bg-white p-3 border border-sky-100 space-y-1 text-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500">Judge Sandbox Credentials</span>
-                  <p className="font-mono text-[11px] text-slate-800">
-                    Personal: sb-buyer-nexus@personal.example.com
+                  <span className="text-[11px] font-semibold text-slate-500">Slot 013 Sandbox Accounts</span>
+                  <p className="font-mono text-[11px] text-slate-800 break-all">
+                    Buyer: sb-ifqau51324237@personal.example.com
                   </p>
-                  <p className="font-mono text-[11px] text-slate-800">
-                    Business: sb-merchant-nexus@business.example.com
+                  <p className="font-mono text-[11px] text-slate-800 break-all">
+                    Merchant: sb-mokyu51324247@business.example.com
                   </p>
                 </div>
               </div>
@@ -1139,8 +1138,8 @@ export default function ContactPage() {
                   className="flex items-center justify-between rounded-lg border border-slate-200 p-2.5 hover:bg-slate-50 text-slate-800 transition font-medium"
                 >
                   <span className="flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-sky-600" />
-                    50-Year AGI Thesis &amp; Architecture
+                    <ShieldCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                    Product architecture &amp; documentation
                   </span>
                   <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                 </Link>

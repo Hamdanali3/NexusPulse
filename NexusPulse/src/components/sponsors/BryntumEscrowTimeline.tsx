@@ -15,7 +15,6 @@ import {
   Search,
   ShieldCheck,
   Sliders,
-  Sparkles,
   TrendingDown,
   Truck,
   Wallet,

@@ -17,7 +17,6 @@ import {
   RefreshCw,
   Send,
   ShieldCheck,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -619,8 +618,8 @@ export default function NexusAiChatbot({
           aria-haspopup="dialog"
         >
           <div className="relative flex items-center justify-center">
-            <div className="h-6 w-6 rounded-full bg-indigo-600 flex items-center justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-white" />
+            <div className="h-6 w-6 rounded-full bg-zinc-950 flex items-center justify-center">
+              <Bot className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
             </div>
           </div>
           <div className="hidden sm:flex flex-col text-left">
@@ -750,9 +749,9 @@ export default function NexusAiChatbot({
                     Personal API Key Active ({maskApiKey(savedApiKey)})
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 font-semibold text-sky-700">
-                    <Sparkles className="h-3 w-3" />
-                    Using Default Platform AI
+                  <span className="inline-flex items-center gap-1 font-medium text-zinc-700">
+                    <Bot className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    Standard assistant mode
                   </span>
                 )}
               </div>

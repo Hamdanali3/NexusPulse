@@ -17,7 +17,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
   TrendingUp,
   UserCheck,
   Zap,
@@ -294,10 +293,8 @@ export default function CfoExecutiveDocumentOutput({
       {/* 1. EXECUTIVE MEMORANDUM LETTERHEAD */}
       <div className="bg-slate-900 text-white px-5 sm:px-7 py-4.5 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-400 p-0.5 shadow-md flex items-center justify-center">
-            <div className="h-full w-full rounded-[10px] bg-slate-950 flex items-center justify-center">
-              <Bot className="h-5 w-5 text-sky-400" />
-            </div>
+          <div className="h-10 w-10 rounded-[6px] border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+            <Bot className="h-4 w-4 text-zinc-100" strokeWidth={1.5} />
           </div>
           <div>
             <div className="flex items-center gap-2">

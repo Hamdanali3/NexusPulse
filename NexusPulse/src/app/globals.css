@@ -1,146 +1,54 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-/* =========================================================================
-   NEXUSPULSE DESIGN SYSTEM — minimal, startup-style (Linear / Vercel / Stripe)
-
-   Rules:
-   1. Neutral base: zinc greys carry ~90% of the UI.
-   2. One accent (indigo #5258D4) — only for primary actions, active states,
-      focus rings and key data.
-   3. Semantic colours only for meaning: emerald = money in / success,
-      amber = pending, rose = failure. Never decorative.
-   4. Borders over shadows. Whitespace over dividers.
-
-   Palette consolidation: legacy components use many Tailwind hue families
-   (sky, cyan, blue, violet, fuchsia, teal, slate). They are mapped here onto
-   the single accent / neutral / success scales so the whole app shares one
-   restrained palette from a single source of truth.
-   ========================================================================= */
-
-@theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Accent — indigo */
-  --color-indigo-50: #f4f5fe;
-  --color-indigo-100: #e8eafc;
-  --color-indigo-200: #d3d7f8;
-  --color-indigo-300: #b2b8f2;
-  --color-indigo-400: #8b92e9;
-  --color-indigo-500: #6c73e0;
-  --color-indigo-600: #5258d4;
-  --color-indigo-700: #4347b8;
-  --color-indigo-800: #383c94;
-  --color-indigo-900: #303375;
-  --color-indigo-950: #1d1f45;
+  /* Restrict rendered font weights to 400 / 500 / 600 */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
 
-  /* Legacy accent hues → accent */
-  --color-sky-50: #f4f5fe;
-  --color-sky-100: #e8eafc;
-  --color-sky-200: #d3d7f8;
-  --color-sky-300: #b2b8f2;
-  --color-sky-400: #8b92e9;
-  --color-sky-500: #6c73e0;
-  --color-sky-600: #5258d4;
-  --color-sky-700: #4347b8;
-  --color-sky-800: #383c94;
-  --color-sky-900: #303375;
-  --color-sky-950: #1d1f45;
-
-  --color-blue-50: #f4f5fe;
-  --color-blue-100: #e8eafc;
-  --color-blue-200: #d3d7f8;
-  --color-blue-300: #b2b8f2;
-  --color-blue-400: #8b92e9;
-  --color-blue-500: #6c73e0;
-  --color-blue-600: #5258d4;
-  --color-blue-700: #4347b8;
-  --color-blue-800: #383c94;
-  --color-blue-900: #303375;
-  --color-blue-950: #1d1f45;
-
-  --color-cyan-50: #f4f5fe;
-  --color-cyan-100: #e8eafc;
-  --color-cyan-200: #d3d7f8;
-  --color-cyan-300: #b2b8f2;
-  --color-cyan-400: #8b92e9;
-  --color-cyan-500: #6c73e0;
-  --color-cyan-600: #5258d4;
-  --color-cyan-700: #4347b8;
-  --color-cyan-800: #383c94;
-  --color-cyan-900: #303375;
-  --color-cyan-950: #1d1f45;
-
-  --color-violet-50: #f4f5fe;
-  --color-violet-100: #e8eafc;
-  --color-violet-200: #d3d7f8;
-  --color-violet-300: #b2b8f2;
-  --color-violet-400: #8b92e9;
-  --color-violet-500: #6c73e0;
-  --color-violet-600: #5258d4;
-  --color-violet-700: #4347b8;
-  --color-violet-800: #383c94;
-  --color-violet-900: #303375;
-  --color-violet-950: #1d1f45;
-
-  --color-fuchsia-50: #f4f5fe;
-  --color-fuchsia-100: #e8eafc;
-  --color-fuchsia-200: #d3d7f8;
-  --color-fuchsia-300: #b2b8f2;
-  --color-fuchsia-400: #8b92e9;
-  --color-fuchsia-500: #6c73e0;
-  --color-fuchsia-600: #5258d4;
-  --color-fuchsia-700: #4347b8;
-  --color-fuchsia-800: #383c94;
-  --color-fuchsia-900: #303375;
-  --color-fuchsia-950: #1d1f45;
-
-  /* teal → success (keeps old emerald→teal gradients flat) */
-  --color-teal-50: #ecfdf5;
-  --color-teal-100: #d1fae5;
-  --color-teal-200: #a7f3d0;
-  --color-teal-300: #6ee7b7;
-  --color-teal-400: #34d399;
-  --color-teal-500: #10b981;
-  --color-teal-600: #059669;
-  --color-teal-700: #047857;
-  --color-teal-800: #065f46;
-  --color-teal-900: #064e3b;
-  --color-teal-950: #022c22;
-
-  /* Neutrals — slate → zinc (warmer, cleaner greys) */
+  /* Harmonize secondary neutrals to zinc so surface tones remain uniform */
   --color-slate-50: #fafafa;
   --color-slate-100: #f4f4f5;
   --color-slate-200: #e4e4e7;
   --color-slate-300: #d4d4d8;
-  --color-slate-400: #a1a1aa;
-  --color-slate-500: #71717a;
-  --color-slate-600: #52525b;
-  --color-slate-700: #3f3f46;
-  --color-slate-800: #27272a;
-  --color-slate-900: #18181b;
+  --color-slate-400: #52525b;
+  --color-slate-500: #52525b;
+  --color-slate-600: #3f3f46;
+  --color-slate-700: #27272a;
+  --color-slate-800: #18181b;
+  --color-slate-900: #09090b;
   --color-slate-950: #09090b;
+
+  /* Constrain rainbow accents toward single indigo accent */
+  --color-purple-50: #eef2ff;
+  --color-purple-100: #e0e7ff;
+  --color-purple-200: #c7d2fe;
+  --color-purple-600: #4f46e5;
+  --color-purple-700: #4338ca;
+  --color-fuchsia-600: #4f46e5;
+  --color-fuchsia-700: #4338ca;
 }
 
 :root {
   color-scheme: light;
-  interpolate-size: allow-keywords;
 }
 
 html {
   scroll-behavior: smooth;
-  scrollbar-gutter: stable;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+  background-color: var(--np-bg-page);
+  color: var(--np-text-primary);
 }
 
 body {
-  background-color: #fafafa;
-  color: #09090b;
-  font-family: var(--font-sans);
-  line-height: 1.5;
-  overflow-x: clip;
+  background-color: var(--np-bg-page);
+  color: var(--np-text-primary);
+  font-family: var(--np-font-sans);
+  font-size: var(--np-text-body);
+  line-height: var(--np-leading-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -149,14 +57,13 @@ h1,
 h2,
 h3,
 h4 {
-  text-wrap: balance;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  font-weight: var(--np-weight-semibold);
+  color: var(--np-text-primary);
 }
 
 p,
 li {
-  text-wrap: pretty;
+  color: inherit;
 }
 
 .tabular-nums {
@@ -164,33 +71,33 @@ li {
 }
 
 ::selection {
-  background: #d3d7f8;
-  color: #09090b;
+  background-color: var(--np-accent-subtle);
+  color: var(--np-text-primary);
 }
 
-/* Form controls: quiet by default, accent ring on focus */
 input,
 select,
 textarea {
-  color: inherit;
+  font-family: inherit;
+  border-radius: var(--np-radius-control);
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #5258d4;
-  box-shadow: 0 0 0 3px rgba(82, 88, 212, 0.15);
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--np-accent);
+  outline-offset: 1px;
 }
 
-input[type="range"]:focus {
-  box-shadow: none;
-}
-
-/* Keyboard focus */
-:where(a, button, summary, [role="tab"], [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 2px solid #5258d4;
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--np-accent);
   outline-offset: 2px;
+}
+
+:where(a, button, summary, [role="tab"], [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--np-accent);
+  outline-offset: 2px;
+  border-radius: var(--np-radius-control);
 }
 
 button:not(:disabled) {
@@ -199,33 +106,37 @@ button:not(:disabled) {
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
-/* Accessibility */
+/* Visually hidden helper for screen-reader labels */
 .visually-hidden:where(:not(:focus-within, :active)) {
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
   position: absolute;
-  white-space: nowrap;
   width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .skip-link:focus-visible {
   position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
-  z-index: 9999;
-  padding: 0.5rem 0.875rem;
-  border-radius: 0.5rem;
-  background-color: #09090b;
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 0.875rem;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 8px 14px;
+  background: var(--np-ink);
+  color: var(--np-ink-fg);
+  border-radius: var(--np-radius-control);
+  font-size: var(--np-text-label);
+  font-weight: var(--np-weight-medium);
+  text-decoration: none;
+  box-shadow: var(--np-shadow-overlay);
 }
 
-/* Voice briefing equaliser */
+/* Functional audio equalizer indicator during spoken playback */
 .audio-bars {
   display: inline-flex;
   align-items: flex-end;
@@ -235,9 +146,9 @@ button:disabled {
 
 .audio-bar {
   width: 2px;
-  background-color: currentColor;
+  background: currentColor;
   border-radius: 1px;
-  animation: audioWave 1.2s ease-in-out infinite;
+  animation: audioWave 0.9s var(--np-ease-out) infinite alternate;
 }
 
 .audio-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
@@ -246,38 +157,46 @@ button:disabled {
 .audio-bar:nth-child(4) { height: 100%; animation-delay: 0.15s; }
 
 @keyframes audioWave {
-  0%, 100% { transform: scaleY(0.3); transform-origin: bottom; }
-  50% { transform: scaleY(1); transform-origin: bottom; }
+  0% { transform: scaleY(0.35); }
+  100% { transform: scaleY(1); }
 }
 
-/* Motion: a single, subtle entrance */
+/* No gratuitous entrance animations on content blocks; keep toast state transition crisp */
 .nexus-fade-in,
 .feature-page-enter,
 .animate-fade-in {
-  animation: fadeUp 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: none;
 }
 
 .animate-slide-up {
-  animation: fadeUp 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: slideUp 180ms var(--np-ease-out) forwards;
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; translate: 0 4px; }
-  to { opacity: 1; translate: 0 0; }
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
-/* Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -288,57 +207,37 @@ button:disabled {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e4e4e7;
-  border-radius: 9999px;
+  background: #d4d4d8;
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #d4d4d8;
+  background: #a1a1aa;
 }
 
-/* =========================================================================
-   PRINT / PDF ISOLATION RULES
-   When printing or saving as PDF, only print the Autonomous CFO answer,
-   NEVER the rest of the website (headers, hero, navigation, footers, etc.)
-   ========================================================================= */
 @media print {
-  /* Hide all top-level website chrome, navigation, hero, and interactive widgets */
+  body * {
+    visibility: hidden;
+  }
+
+  .skip-link,
   header,
   footer,
-  nav,
-  aside,
-  [role="banner"],
-  [role="navigation"],
-  #main-hero,
-  #engines-section,
-  #kpi-telemetry-ribbon,
-  #nexus-chatbot-root,
-  .no-print,
-  .cfo-toolbar,
-  form,
-  .skip-link {
+  nav {
     display: none !important;
   }
 
-  /* Reset body styling for crisp, clean PDF export */
-  html,
-  body {
-    background: #ffffff !important;
-    color: #0f172a !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  #cfo-executive-report,
+  #cfo-executive-report * {
+    visibility: visible;
   }
 
-  /* Ensure the report is visible, isolated, full-width, and clean */
   #cfo-executive-report {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
     box-shadow: none !important;
-    border: 1px solid #cbd5e1 !important;
   }
 }

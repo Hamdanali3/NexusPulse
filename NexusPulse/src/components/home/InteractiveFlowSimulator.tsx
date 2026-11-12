@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
   Bot,
   UserCheck,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
@@ -150,9 +149,9 @@ export default function InteractiveFlowSimulator({
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-5">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/60 bg-indigo-50/70 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
-            <Sparkles className="h-3 w-3 text-indigo-600" />
-            <span>Interactive Protocol Walkthrough</span>
+          <div className="inline-flex items-center gap-2 rounded-[6px] border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[12px] font-medium text-zinc-700">
+            <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" strokeWidth={1.5} />
+            <span>Step-by-step walkthrough</span>
           </div>
           <h2
             id="flow-simulator-heading"
@@ -240,7 +239,7 @@ export default function InteractiveFlowSimulator({
             <div className="h-9 w-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-2xs shrink-0 mt-0.5">
               {activeStep === 1 && <Bot className="h-5 w-5 text-indigo-600" />}
               {activeStep === 2 && <Camera className="h-5 w-5 text-amber-600" />}
-              {activeStep === 3 && <Sparkles className="h-5 w-5 text-purple-600" />}
+              {activeStep === 3 && <ShieldCheck className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />}
               {activeStep === 4 && <DollarSign className="h-5 w-5 text-emerald-600" />}
             </div>
 

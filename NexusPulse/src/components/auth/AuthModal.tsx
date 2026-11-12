@@ -12,7 +12,6 @@ import {
   Shield,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
   User,
   UserCheck,
   X,
@@ -199,9 +198,8 @@ export default function AuthModal({
         {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-zinc-100">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/70 px-2.5 py-0.5 text-[11px] font-medium text-indigo-700">
-              <Sparkles className="h-3 w-3" />
-              <span>Multi-Tenant Access &amp; Evaluator Desk</span>
+            <div className="inline-flex items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[12px] font-medium text-zinc-700">
+              <span>Account access</span>
             </div>
             <h2 id="auth-modal-title" className="mt-2 text-lg font-bold text-zinc-950 tracking-tight">
               {currentUser ? "User Profile & Persona Switcher" : "Sign In to NexusPulse"}

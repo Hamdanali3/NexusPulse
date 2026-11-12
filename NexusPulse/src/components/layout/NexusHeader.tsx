@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, RotateCcw, Settings2, Sparkles, User, Volume2, X } from "lucide-react";
-import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
+import { ChevronDown, Menu, RotateCcw, Settings2, User, Volume2, X } from "lucide-react";
+import type { PayPalExecutionMode, PayPalSandboxAccountConfig } from "@/lib/paypal/paypal-types";
 import type { UserProfile } from "@/lib/auth/auth-types";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
@@ -22,6 +22,7 @@ interface NexusHeaderProps {
   activeMode: PayPalExecutionMode;
   preferredMode: "auto" | "live" | "sandbox" | "mirror";
   databaseSource: string;
+  sandboxAccounts?: PayPalSandboxAccountConfig;
   voiceLoading: boolean;
   voiceTranscript: string | null;
   currentUser?: UserProfile | null;
@@ -53,6 +54,7 @@ export default function NexusHeader({
   activeMode,
   preferredMode,
   databaseSource,
+  sandboxAccounts,
   voiceLoading,
   voiceTranscript,
   currentUser,
@@ -224,7 +226,11 @@ export default function NexusHeader({
                     : "bg-zinc-400"
               }`}
             />
-            {activeMode === "live" ? "Live" : activeMode === "sandbox" ? "Sandbox" : "Demo mode"}
+            {activeMode === "live"
+              ? "Live PayPal"
+              : activeMode === "sandbox"
+                ? `Sandbox · Slot ${sandboxAccounts?.slot ?? "013"}`
+                : "Offline Mirror"}
           </button>
 
           <button
@@ -348,6 +354,12 @@ export default function NexusHeader({
               <span className="text-xs text-zinc-400">
                 {databaseSource === "supabase_postgres" ? "Supabase" : "Local data"}
               </span>
+              {sandboxAccounts && (
+                <span className="rounded bg-sky-50 border border-sky-200 px-2 py-0.5 font-mono text-[11px] text-sky-900">
+                  Slot {sandboxAccounts.slot} · Buyer: {sandboxAccounts.buyerEmail} · Merchant:{" "}
+                  {sandboxAccounts.merchantEmail}
+                </span>
+              )}
             </div>
 
             <form onSubmit={handleCredsSubmit} className="flex flex-wrap items-center gap-2">

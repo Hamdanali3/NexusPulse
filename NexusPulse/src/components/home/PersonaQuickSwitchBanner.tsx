@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, ShieldCheck, Sparkles, ShoppingBag, UserCheck, Lock, ArrowRight } from "lucide-react";
+import { User, ShieldCheck, ShoppingBag, UserCheck, Lock, ArrowRight } from "lucide-react";
 import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
 
 interface PersonaQuickSwitchBannerProps {
@@ -66,12 +66,12 @@ export default function PersonaQuickSwitchBanner({
     <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-indigo-600 shrink-0" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
-            1-Click Interactive Evaluator Personas
+          <UserCheck className="h-4 w-4 text-indigo-600 shrink-0" strokeWidth={1.5} />
+          <h3 className="text-[13px] font-medium text-zinc-900">
+            Quick-switch sample accounts
           </h3>
-          <span className="text-[11px] text-zinc-400">
-            Test each engine from the exact user perspective
+          <span className="text-[12px] text-zinc-600">
+            Preview each workflow from a sample role
           </span>
         </div>
 

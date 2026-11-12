@@ -30,7 +30,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
   TrendingDown,
   TrendingUp,
   UserCheck,
@@ -187,8 +186,8 @@ const COMPARISON_ROWS = [
   },
   {
     dimension: "Global Developer Verification",
-    traditional: "Fails when judges lack local credentials or hit sandbox SMS phone verification blocks.",
-    nexuspulse: "Dual-Mode Zero-Blocker Gateway hot-swaps between Live PayPal Sandbox and 100% schema-identical Deterministic Mirror.",
+    traditional: "Fails when local setups break or live sandbox credentials cannot be verified end-to-end.",
+    nexuspulse: "Credential-First Slot 013 Live Sandbox Gateway with automatic offline Mirror Fallback for zero-blocker testing.",
   },
   {
     dimension: "Financial Telemetry",
@@ -381,18 +380,18 @@ export default function AboutPage() {
             </div>
             <div className="col-span-2 sm:col-span-1 rounded-xl border border-zinc-200 bg-white p-3 shadow-2xs">
               <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Gateway</span>
-              <div className="text-lg font-bold text-zinc-900">Dual-Mode</div>
-              <div className="text-[11px] text-zinc-500">Zero Blocker</div>
+              <div className="text-lg font-bold text-zinc-900">Slot 013 Live</div>
+              <div className="text-[11px] text-zinc-500">+ Mirror Fallback</div>
             </div>
           </div>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/?tab=overview"
-              className="inline-flex h-9 items-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-5 text-xs font-medium text-white transition"
+              className="inline-flex h-9 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-5 text-[13px] font-medium text-white transition"
             >
-              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-              <span>Launch Clearinghouse</span>
+              <span>Open workspace</span>
+              <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
             </Link>
             <Link
               href="/contact"
@@ -1099,10 +1098,10 @@ export default function AboutPage() {
               Security Architecture
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-              Dual-Mode Zero-Blocker &amp; Cryptographic Parity
+              Credential-First Sandbox &amp; Cryptographic Parity
             </h2>
             <p className="text-xs text-slate-500">
-              Designed from first principles so judges and developers anywhere in the world can test all flows without SMS roadblocks.
+              Built around Slot 013 Live PayPal Sandbox credentials with an offline Mirror fallback so every API flow executes cleanly anywhere.
             </p>
           </div>
 
@@ -1111,9 +1110,9 @@ export default function AboutPage() {
               <div className="h-8 w-8 rounded-xl bg-sky-100 border border-sky-200 flex items-center justify-center">
                 <Globe className="h-4 w-4 text-sky-600" />
               </div>
-              <strong className="text-xs text-slate-950 block">Dual-Mode Gateway</strong>
+              <strong className="text-xs text-slate-950 block">Credential-First Gateway</strong>
               <p className="text-[11px] text-slate-600 leading-relaxed">
-                Deterministic Sandbox Mirror provides 100% schema-identical payloads out-of-the-box. Hot-swaps to Live PayPal Sandbox at runtime.
+                Boots directly into Live PayPal Sandbox (Slot 013) via REST v1/v2 &amp; JS SDK v6, keeping Mirror mode for offline unit tests.
               </p>
             </div>
 
@@ -1165,10 +1164,10 @@ export default function AboutPage() {
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/?tab=overview"
-                className="inline-flex items-center gap-2 rounded-xl bg-white hover:bg-slate-100 px-6 py-3 text-xs font-bold text-slate-950 shadow-md transition active:scale-95"
+                className="inline-flex items-center gap-2 rounded-[6px] bg-white hover:bg-zinc-100 px-5 py-2.5 text-[13px] font-medium text-zinc-950 transition"
               >
-                <Sparkles className="h-4 w-4 text-sky-600" />
-                <span>Launch Clearinghouse</span>
+                <span>Open workspace</span>
+                <ArrowRight className="h-4 w-4 text-zinc-950" strokeWidth={1.5} />
               </Link>
               <Link
                 href="/contact"

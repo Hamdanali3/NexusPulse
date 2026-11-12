@@ -1,0 +1,182 @@
+/* ============================================================================
+   NexusPulse Design Tokens — Single Source of Truth
+   Calm, trustworthy fintech scale: neutral zinc surfaces, ink-black primary
+   actions, single indigo accent (#4F46E5), semantic green/red exclusively for
+   money deltas and verified success/error states.
+   ============================================================================ */
+
+:root {
+  /* Typography */
+  --np-font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --np-font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --np-weight-regular: 400;
+  --np-weight-medium: 500;
+  --np-weight-semibold: 600;
+
+  --np-text-h1: clamp(36px, 4.5vw, 56px);
+  --np-leading-h1: 1.1;
+  --np-tracking-h1: -0.02em;
+
+  --np-text-h2: clamp(24px, 2.2vw, 28px);
+  --np-leading-h2: 1.2;
+  --np-tracking-h2: -0.015em;
+
+  --np-text-body: 0.9375rem; /* 15px */
+  --np-text-body-lg: 1rem;    /* 16px */
+  --np-leading-body: 1.55;
+
+  --np-text-label: 0.8125rem; /* 13px */
+  --np-text-caption: 0.75rem; /* 12px */
+
+  /* Neutral Surfaces & Hairline Borders */
+  --np-bg-page: #fafafa;
+  --np-bg-surface: #ffffff;
+  --np-bg-subtle: #f4f4f5;
+  --np-bg-hover: #f4f4f5;
+  --np-border: #e4e4e7;
+  --np-border-strong: #d4d4d8;
+
+  /* Ink & Accessible Muted Text (all readable text >= 4.5:1 on white & #fafafa) */
+  --np-text-primary: #09090b;   /* 19.6:1 on #fafafa */
+  --np-text-secondary: #3f3f46; /* 10.1:1 on #fafafa */
+  --np-text-muted: #52525b;     /* 7.1:1 on #fafafa */
+  --np-text-placeholder: #71717a;
+
+  /* Actions & Single Accent */
+  --np-ink: #09090b;
+  --np-ink-hover: #27272a;
+  --np-ink-fg: #ffffff;
+
+  --np-accent: #4f46e5;        /* Focus rings, links, selected rows, chart highlight */
+  --np-accent-hover: #4338ca;
+  --np-accent-subtle: #eef2ff;
+  --np-focus-ring: rgb(79 70 229 / 0.16);
+
+  /* Semantic Status & Money Delta Only */
+  --np-positive: #047857;       /* 5.2:1 on #fafafa */
+  --np-positive-subtle: #ecfdf5;
+  --np-negative: #b91c1c;       /* 6.2:1 on #fafafa */
+  --np-negative-subtle: #fef2f2;
+
+  /* Radii (Strict 3-value system) */
+  --np-radius-control: 6px;
+  --np-radius-container: 12px;
+  --np-radius-pill: 999px;      /* Avatars and toggle switches only */
+
+  /* Elevation */
+  --np-shadow-none: none;
+  --np-shadow-overlay: 0 8px 24px -4px rgb(9 9 11 / 0.08), 0 2px 6px -1px rgb(9 9 11 / 0.04);
+
+  /* 4px Spacing Scale & Layout Grid */
+  --np-space-1: 4px;
+  --np-space-2: 8px;
+  --np-space-3: 12px;
+  --np-space-4: 16px;
+  --np-space-6: 24px;
+  --np-space-8: 32px;
+  --np-space-12: 48px;
+  --np-space-16: 64px;
+  --np-space-20: 80px;
+
+  --np-max-width: 1200px;
+  --np-gutter: 24px;
+  --np-section-gap: 72px;
+
+  /* Motion (150-250ms functional state transitions only) */
+  --np-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --np-duration-fast: 150ms;
+  --np-duration-base: 200ms;
+
+  /* Iconography (Lucide standard) */
+  --np-icon-size: 16px;
+  --np-icon-stroke: 1.5;
+}
+
+svg.lucide {
+  stroke-width: var(--np-icon-stroke);
+}
+
+/* Core Typography & Layout Token Helpers */
+.np-container {
+  max-width: var(--np-max-width);
+  margin-inline: auto;
+  padding-inline: var(--np-gutter);
+}
+
+.np-h1 {
+  font-size: var(--np-text-h1);
+  font-weight: var(--np-weight-semibold);
+  letter-spacing: var(--np-tracking-h1);
+  line-height: var(--np-leading-h1);
+  color: var(--np-text-primary);
+}
+
+.np-h2 {
+  font-size: var(--np-text-h2);
+  font-weight: var(--np-weight-semibold);
+  letter-spacing: var(--np-tracking-h2);
+  line-height: var(--np-leading-h2);
+  color: var(--np-text-primary);
+}
+
+.np-body {
+  font-size: var(--np-text-body);
+  font-weight: var(--np-weight-regular);
+  line-height: var(--np-leading-body);
+  color: var(--np-text-secondary);
+}
+
+.np-label {
+  font-size: var(--np-text-label);
+  font-weight: var(--np-weight-medium);
+  color: var(--np-text-primary);
+}
+
+.np-caption {
+  font-size: var(--np-text-caption);
+  font-weight: var(--np-weight-regular);
+  color: var(--np-text-muted);
+}
+
+.np-surface {
+  background-color: var(--np-bg-surface);
+  border: 1px solid var(--np-border);
+  border-radius: var(--np-radius-container);
+  box-shadow: var(--np-shadow-none);
+}
+
+.np-overlay {
+  background-color: var(--np-bg-surface);
+  border: 1px solid var(--np-border);
+  border-radius: var(--np-radius-container);
+  box-shadow: var(--np-shadow-overlay);
+}
+
+.np-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--np-bg-subtle) 0%,
+    var(--np-border) 50%,
+    var(--np-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: npSkeletonPulse 1.4s var(--np-ease-out) infinite;
+  border-radius: var(--np-radius-control);
+}
+
+@keyframes npSkeletonPulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .np-skeleton {
+    animation: none;
+    background: var(--np-bg-subtle);
+  }
+}

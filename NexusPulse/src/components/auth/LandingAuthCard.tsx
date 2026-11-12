@@ -10,7 +10,6 @@ import {
   Mail,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
   User,
   UserCheck,
 } from "lucide-react";

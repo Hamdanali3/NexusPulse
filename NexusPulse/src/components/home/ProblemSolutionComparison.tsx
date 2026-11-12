@@ -18,7 +18,6 @@ import {
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
   TrendingDown,
   TrendingUp,
   Truck,
@@ -234,7 +233,7 @@ export default function ProblemSolutionComparison({
         {/* Visual Mockups Grid: Without vs With */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* LEFT: THE BROKEN REALITY (RED THEME) */}
-          <div className="rounded-xl border border-red-200/70 bg-gradient-to-b from-red-50/30 to-white p-5 space-y-4 flex flex-col justify-between">
+          <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-red-700">
@@ -342,7 +341,7 @@ export default function ProblemSolutionComparison({
           </div>
 
           {/* RIGHT: THE NEXUSPULSE SOLUTION (EMERALD/INDIGO THEME) */}
-          <div className="rounded-xl border border-emerald-200/80 bg-gradient-to-b from-emerald-50/30 to-white p-5 space-y-4 flex flex-col justify-between">
+          <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800">
@@ -513,10 +512,10 @@ export default function ProblemSolutionComparison({
                       <button
                         type="button"
                         onClick={handleSimulateAction}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-zinc-950 hover:bg-zinc-800 text-white px-3 py-1.5 text-xs font-semibold shadow-2xs transition"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-white px-3 text-[12px] font-medium transition"
                       >
-                        <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-                        <span>{cfoOptimized ? "Downgrade Applied" : "1-Click Auto-Downgrade"}</span>
+                        <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        <span>{cfoOptimized ? "Downgrade applied" : "Apply downgrade"}</span>
                       </button>
                       <span className="text-[11px] font-mono text-emerald-700 font-semibold">
                         {cfoOptimized ? "Saved $1,500/yr" : "Audited 24/7"}
