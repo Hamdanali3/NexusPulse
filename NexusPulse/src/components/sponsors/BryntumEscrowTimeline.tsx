@@ -31,6 +31,7 @@ import {
   formatUsdPerMonth,
   humanizeEscrowStatus,
 } from "@/lib/format";
+import { ConfirmDialog, FormField, StatusDot } from "@/components/ui";
 
 interface BryntumEscrowTimelineProps {
   milestones: PayPalEscrowMilestone[];
@@ -72,18 +73,7 @@ export default function BryntumEscrowTimeline({
     sub: PayPalSubscriptionRecord;
     action: "REVISE_DOWNGRADE" | "CANCEL_UNUSED";
   } | null>(null);
-  const subConfirmDialogRef = useRef<HTMLDialogElement | null>(null);
   const [creatingLiveSub, setCreatingLiveSub] = useState(false);
-
-  useEffect(() => {
-    const dialog = subConfirmDialogRef.current;
-    if (!dialog) return;
-    if (confirmSubAction) {
-      if (!dialog.open) dialog.showModal();
-    } else if (dialog.open) {
-      dialog.close();
-    }
-  }, [confirmSubAction]);
   const [liveSubApproveUrl, setLiveSubApproveUrl] = useState<string | null>(null);
 
   // Interactive filters
@@ -97,17 +87,30 @@ export default function BryntumEscrowTimeline({
     y: number;
   } | null>(null);
 
-  // New Milestone Form state
+  // New Milestone Form state (empty defaults with muted placeholder examples)
   const [showNewMilestoneModal, setShowNewMilestoneModal] = useState(false);
-  const [newProjectName, setNewProjectName] = useState(
-    "Automated B2B Cross-Border Settlement Gateway"
-  );
-  const [newClientAgent, setNewClientAgent] = useState("Acme Global Logistics AI");
-  const [newAmount, setNewAmount] = useState("1450.00");
-  const [newRequirement, setNewRequirement] = useState(
-    "Verify SHA256 cryptographic proof of international carrier bill of lading"
-  );
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newClientAgent, setNewClientAgent] = useState("");
+  const [newAmount, setNewAmount] = useState("");
+  const [newRequirement, setNewRequirement] = useState("");
+  const [milestoneErrors, setMilestoneErrors] = useState<Record<string, string>>({});
   const [creatingMilestone, setCreatingMilestone] = useState(false);
+
+  function validateMilestoneField(field: "title" | "client" | "amount" | "requirement", val: string) {
+    const trimmed = val.trim();
+    let msg = "";
+    if (field === "title" && !trimmed) msg = "Enter a milestone name.";
+    if (field === "client" && !trimmed) msg = "Enter a counterparty name.";
+    if (field === "requirement" && !trimmed) msg = "Enter verification criteria.";
+    if (field === "amount") {
+      const parsed = Number(val);
+      if (!val || Number.isNaN(parsed) || parsed <= 0) {
+        msg = "Enter an amount greater than $0.00.";
+      }
+    }
+    setMilestoneErrors((prev) => ({ ...prev, [field]: msg }));
+    return !msg;
+  }
 
   // Success and Failure Alert Banners
   const [actionBanner, setActionBanner] = useState<{
@@ -540,82 +543,94 @@ export default function BryntumEscrowTimeline({
               </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label
-                  htmlFor="milestone-title-input"
-                  className="block text-[11px] font-medium text-zinc-700 mb-1"
-                >
-                  Milestone Title
-                </label>
+              <FormField
+                id="milestone-title-input"
+                label="Milestone name"
+                error={milestoneErrors.title}
+                required
+              >
                 <input
                   id="milestone-title-input"
                   type="text"
+                  placeholder="e.g. API gateway integration"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                  onBlur={(e) => validateMilestoneField("title", e.target.value)}
+                  aria-invalid={Boolean(milestoneErrors.title)}
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
                   required
                 />
-              </div>
-              <div>
-                <label
-                  htmlFor="milestone-client-input"
-                  className="block text-[11px] font-medium text-zinc-700 mb-1"
-                >
-                  Client Agent Counterparty
-                </label>
+              </FormField>
+              <FormField
+                id="milestone-client-input"
+                label="Recipient or contractor"
+                error={milestoneErrors.client}
+                required
+              >
                 <input
                   id="milestone-client-input"
                   type="text"
+                  placeholder="e.g. Acme Studio LLC"
                   value={newClientAgent}
                   onChange={(e) => setNewClientAgent(e.target.value)}
-                  className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                  onBlur={(e) => validateMilestoneField("client", e.target.value)}
+                  aria-invalid={Boolean(milestoneErrors.client)}
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
                   required
                 />
-              </div>
-              <div>
-                <label
-                  htmlFor="milestone-amount-input"
-                  className="block text-[11px] font-medium text-zinc-700 mb-1"
-                >
-                  Escrow Hold Amount (USD)
-                </label>
+              </FormField>
+              <FormField
+                id="milestone-amount-input"
+                label="Amount (USD)"
+                helperText="Held until verification passes"
+                error={milestoneErrors.amount}
+                required
+              >
                 <input
                   id="milestone-amount-input"
                   type="number"
                   step="0.01"
+                  min="1"
+                  placeholder="1,450.00"
                   value={newAmount}
                   onChange={(e) => setNewAmount(e.target.value)}
-                  className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                  onBlur={(e) => validateMilestoneField("amount", e.target.value)}
+                  aria-invalid={Boolean(milestoneErrors.amount)}
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none"
                   required
                 />
-              </div>
+              </FormField>
             </div>
-            <div>
-              <label
-                htmlFor="milestone-req-input"
-                className="block text-[11px] font-medium text-zinc-700 mb-1"
-              >
-                Verification Requirement
-              </label>
+            <FormField
+              id="milestone-req-input"
+              label="Verification criteria"
+              error={milestoneErrors.requirement}
+              required
+            >
               <input
                 id="milestone-req-input"
                 type="text"
+                placeholder="e.g. Signed bill of lading uploaded and confirmed"
                 value={newRequirement}
                 onChange={(e) => setNewRequirement(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                onBlur={(e) => validateMilestoneField("requirement", e.target.value)}
+                aria-invalid={Boolean(milestoneErrors.requirement)}
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
                 required
               />
-            </div>
+            </FormField>
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={creatingMilestone}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3.5 text-xs font-medium text-white transition disabled:opacity-50"
+                className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white transition disabled:opacity-50"
               >
                 <Lock className="h-3.5 w-3.5" />
                 {creatingMilestone
-                  ? "Locking Hold..."
-                  : `Lock $${newAmount} USD in Escrow`}
+                  ? "Holding funds..."
+                  : Number(newAmount) > 0
+                    ? `Hold ${formatUsd(Number(newAmount))}`
+                    : "Hold funds in escrow"}
               </button>
             </div>
           </form>
@@ -807,19 +822,24 @@ export default function BryntumEscrowTimeline({
                   <h4 className="text-sm font-semibold text-zinc-900">
                     {selectedMilestone.project_name}
                   </h4>
-                  <span
-                    className={`rounded px-1.5 py-0.2 text-[10px] font-medium ${
+                  <StatusDot
+                    label={
                       selectedMilestone.status === "AI_VERIFIED_CAPTURED"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-zinc-100 text-zinc-700"
-                    }`}
-                  >
-                    {selectedMilestone.status === "AI_VERIFIED_CAPTURED"
-                      ? "Captured"
-                      : selectedMilestone.approve_url && !selectedMilestone.paypal_authorization_id
-                        ? "Awaiting Buyer Approval"
-                        : "Auth Hold"}
-                  </span>
+                        ? "Captured"
+                        : selectedMilestone.approve_url && !selectedMilestone.paypal_authorization_id
+                          ? "Awaiting approval"
+                          : selectedMilestone.progress_percent > 0
+                            ? "In progress"
+                            : "Scheduled"
+                    }
+                    tone={
+                      selectedMilestone.status === "AI_VERIFIED_CAPTURED"
+                        ? "positive"
+                        : selectedMilestone.progress_percent > 0
+                          ? "accent"
+                          : "neutral"
+                    }
+                  />
                 </div>
                 <p className="mt-1 text-xs text-zinc-600">
                   <span className="text-zinc-900 font-medium">Requirement:</span>{" "}
@@ -1142,82 +1162,58 @@ export default function BryntumEscrowTimeline({
       </div>
 
       {/* Confirmation dialog naming the exact subscription and projected savings */}
-      <dialog
-        ref={subConfirmDialogRef}
-        aria-labelledby="sub-confirm-dialog-title"
+      <ConfirmDialog
+        open={Boolean(confirmSubAction)}
+        title={
+          confirmSubAction
+            ? confirmSubAction.action === "CANCEL_UNUSED"
+              ? `Cancel ${confirmSubAction.sub.merchant_name}?`
+              : `Downgrade ${confirmSubAction.sub.merchant_name}?`
+            : ""
+        }
+        description={
+          confirmSubAction ? (
+            <div className="space-y-3">
+              <p>
+                Plan:{" "}
+                <span className="font-medium text-zinc-900">
+                  {confirmSubAction.sub.plan_name}
+                </span>{" "}
+                (<code className="font-mono text-[12px]">{confirmSubAction.sub.id}</code>)
+              </p>
+              <div className="rounded-[6px] border border-zinc-200 bg-zinc-50 p-3 text-[13px] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-600">Current charge</span>
+                  <span className="tabular-nums font-medium text-zinc-950">
+                    {formatUsdPerMonth(confirmSubAction.sub.billing_amount.value)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-600">Estimated savings</span>
+                  <span className="tabular-nums font-medium text-emerald-700">
+                    {formatUsdPerMonth(confirmSubAction.sub.potential_monthly_savings.value)} (
+                    {formatUsd(Number(confirmSubAction.sub.potential_monthly_savings.value) * 12)}/yr)
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null
+        }
+        cancelLabel="Keep subscription"
+        confirmLabel={
+          confirmSubAction?.action === "CANCEL_UNUSED"
+            ? "Confirm cancellation"
+            : "Confirm downgrade"
+        }
+        confirmTone={confirmSubAction?.action === "CANCEL_UNUSED" ? "danger" : "primary"}
+        busy={Boolean(confirmSubAction && optimizingSubId === confirmSubAction.sub.id)}
         onClose={() => setConfirmSubAction(null)}
-        className="m-auto w-full max-w-md rounded-xl border border-zinc-200 bg-white p-0 shadow-lg backdrop:bg-zinc-950/40"
-      >
-        {confirmSubAction && (
-          <div className="p-5 space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h4 id="sub-confirm-dialog-title" className="text-base font-semibold text-zinc-950">
-                  {confirmSubAction.action === "CANCEL_UNUSED"
-                    ? `Cancel ${confirmSubAction.sub.merchant_name}?`
-                    : `Downgrade ${confirmSubAction.sub.merchant_name}?`}
-                </h4>
-                <p className="mt-1 text-xs text-zinc-600">
-                  Plan: <span className="font-medium text-zinc-900">{confirmSubAction.sub.plan_name}</span>{" "}
-                  (<code className="font-mono">{confirmSubAction.sub.id}</code>)
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Close confirmation dialog"
-                onClick={() => setConfirmSubAction(null)}
-                className="rounded-md p-1 text-zinc-500 hover:text-zinc-900 transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 text-xs space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-600">Current charge</span>
-                <span className="tabular-nums font-medium text-zinc-900">
-                  {formatUsdPerMonth(confirmSubAction.sub.billing_amount.value)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-600">Estimated savings</span>
-                <span className="tabular-nums font-semibold text-emerald-700">
-                  {formatUsdPerMonth(confirmSubAction.sub.potential_monthly_savings.value)} (
-                  {formatUsd(Number(confirmSubAction.sub.potential_monthly_savings.value) * 12)}/yr)
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setConfirmSubAction(null)}
-                className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-800 hover:bg-zinc-50 transition"
-              >
-                Keep subscription
-              </button>
-              <button
-                type="button"
-                disabled={optimizingSubId === confirmSubAction.sub.id}
-                onClick={() =>
-                  handleOptimizeSubscription(confirmSubAction.sub, confirmSubAction.action)
-                }
-                className={`h-9 rounded-md px-3.5 text-xs font-medium text-white transition disabled:opacity-50 ${
-                  confirmSubAction.action === "CANCEL_UNUSED"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-zinc-900 hover:bg-zinc-800"
-                }`}
-              >
-                {optimizingSubId === confirmSubAction.sub.id
-                  ? "Updating..."
-                  : confirmSubAction.action === "CANCEL_UNUSED"
-                    ? "Confirm cancellation"
-                    : "Confirm downgrade"}
-              </button>
-            </div>
-          </div>
-        )}
-      </dialog>
+        onConfirm={() => {
+          if (confirmSubAction) {
+            handleOptimizeSubscription(confirmSubAction.sub, confirmSubAction.action);
+          }
+        }}
+      />
     </section>
   );
 }

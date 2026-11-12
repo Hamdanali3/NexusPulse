@@ -47,6 +47,7 @@ import ToastNotificationContainer, {
   type ToastMessage,
   type ToastType,
 } from "@/components/common/ToastNotification";
+import { WorkspaceSkeleton } from "@/components/ui";
 
 // URL hash <-> workspace tab mapping so every feature has its own shareable "page"
 // (e.g. /#deal-hunter) and the browser Back button works between features.
@@ -664,23 +665,7 @@ export default function NexusPulseHomePage() {
   }
 
   if (loading || !appState) {
-    return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in"
-      >
-        <div className="mb-4 animate-bounce">
-          <NexusPulseLogo size="lg" showTagline={false} />
-        </div>
-        <h1 className="text-base font-bold text-slate-900">
-          Initializing NexusPulse Clearinghouse...
-        </h1>
-        <p className="mt-1 text-xs text-slate-500">
-          Connecting Slot 013 PayPal Sandbox, Channel3 Catalog, Bryntum Escrow Gantt, and AG Grid Ledger
-        </p>
-      </div>
-    );
+    return <WorkspaceSkeleton />;
   }
 
   const annualSubSavings =

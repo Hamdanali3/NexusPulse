@@ -26,9 +26,9 @@ export default function ToastNotificationContainer({
 
   return (
     <aside
-      aria-label="System Notifications"
+      aria-label="Notifications"
       aria-live="polite"
-      className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-none px-4 sm:px-0"
+      className="fixed bottom-20 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-none px-4 sm:px-0"
     >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />

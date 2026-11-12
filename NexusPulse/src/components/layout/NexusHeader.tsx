@@ -7,16 +7,10 @@ import type { PayPalExecutionMode, PayPalSandboxAccountConfig } from "@/lib/payp
 import type { UserProfile } from "@/lib/auth/auth-types";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
-export type WorkspaceTabId =
-  | "overview"
-  | "channel3"
-  | "bounties"
-  | "bryntum"
-  | "aggrid";
-
+export type WorkspaceTabId = "overview" | "channel3" | "bounties" | "bryntum" | "aggrid";
 export type HeaderNavTab = WorkspaceTabId | "about" | "contact";
 
-interface NexusHeaderProps {
+export interface NexusHeaderProps {
   activeTab: HeaderNavTab;
   onSelectTab?: (tab: WorkspaceTabId) => void;
   activeMode: PayPalExecutionMode;
@@ -38,22 +32,21 @@ export const ENGINE_ITEMS: Array<{
   label: string;
   description: string;
 }> = [
-  { id: "channel3", label: "Deal Hunter", description: "Buy at your target price" },
-  { id: "bounties", label: "Human Bounties", description: "Quick tasks, instant payouts" },
-  { id: "bryntum", label: "Smart Escrow", description: "Release funds on proof" },
-  { id: "aggrid", label: "Ledger", description: "Every transaction, one table" },
+  { id: "channel3", label: "Price watch", description: "Track target prices on items you want" },
+  { id: "bounties", label: "Verified tasks", description: "Quick checks paid out via PayPal" },
+  { id: "bryntum", label: "Milestone escrow", description: "Hold funds until delivery is verified" },
+  { id: "aggrid", label: "Ledger", description: "All payments and invoices in one table" },
 ];
 
-const linkBase = "rounded-md px-3 py-1.5 text-sm transition-colors";
-const linkIdle = "text-zinc-500 hover:text-zinc-950";
-const linkActive = "text-zinc-950 font-medium";
+const linkBase = "rounded-[6px] px-3 py-1.5 text-[13px] font-medium transition-colors duration-150";
+const linkActive = "text-zinc-950 bg-zinc-100";
+const linkIdle = "text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100/70";
 
 export default function NexusHeader({
   activeTab,
   onSelectTab,
   activeMode,
   preferredMode,
-  databaseSource,
   sandboxAccounts,
   voiceLoading,
   voiceTranscript,
@@ -64,24 +57,42 @@ export default function NexusHeader({
   onPlayVoiceBriefing,
   onResetDemoState,
 }: NexusHeaderProps) {
-  const [showSettings, setShowSettings] = useState(false);
+  const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showSandboxKeys, setShowSandboxKeys] = useState(false);
   const [showEngines, setShowEngines] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [sandboxClientId, setSandboxClientId] = useState("");
   const [sandboxClientSecret, setSandboxClientSecret] = useState("");
   const [savingCreds, setSavingCreds] = useState(false);
+
   const enginesRef = useRef<HTMLDivElement | null>(null);
+  const toolsRef = useRef<HTMLDivElement | null>(null);
 
   const isEngineActive = ENGINE_ITEMS.some((e) => e.id === activeTab);
+  const isDemoSession = activeMode === "mirror" || preferredMode === "mirror";
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
       if (enginesRef.current && !enginesRef.current.contains(e.target as Node)) {
         setShowEngines(false);
       }
+      if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
+        setShowToolsMenu(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setShowEngines(false);
+        setShowToolsMenu(false);
+      }
     }
     document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   function go(tab: WorkspaceTabId) {
@@ -94,316 +105,400 @@ export default function NexusHeader({
     }
   }
 
-  async function handleCredsSubmit(e: React.FormEvent) {
+  async function handleSaveCredentialsSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!sandboxClientId.trim() || !sandboxClientSecret.trim()) return;
     setSavingCreds(true);
     try {
-      await onSaveRuntimeCredentials(sandboxClientId, sandboxClientSecret);
-      setShowSettings(false);
+      await onSaveRuntimeCredentials(sandboxClientId.trim(), sandboxClientSecret.trim());
+      setShowSandboxKeys(false);
     } finally {
       setSavingCreds(false);
     }
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200/70 bg-white/80 backdrop-blur-lg">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-        <div className="flex items-center gap-3 sm:gap-6">
-          <NexusPulseLogo onNavigateHome={() => onSelectTab?.("overview")} />
+    <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur-sm">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-6 min-w-0">
+          <NexusPulseLogo onNavigateHome={() => go("overview")} />
 
-          {/* Primary navigation — 4 items */}
-          <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
-            <button
-              type="button"
-              onClick={() => go("overview")}
-              aria-current={activeTab === "overview" ? "page" : undefined}
-              className={`${linkBase} ${activeTab === "overview" ? linkActive : linkIdle}`}
-            >
-              Overview
-            </button>
+          <nav aria-label="Primary" className="hidden md:flex items-center gap-1">
+            {onSelectTab ? (
+              <button
+                type="button"
+                onClick={() => go("overview")}
+                className={`${linkBase} ${activeTab === "overview" ? linkActive : linkIdle}`}
+                aria-current={activeTab === "overview" ? "page" : undefined}
+              >
+                Overview
+              </button>
+            ) : (
+              <Link
+                href="/"
+                className={`${linkBase} ${activeTab === "overview" ? linkActive : linkIdle}`}
+              >
+                Overview
+              </Link>
+            )}
 
             <div className="relative" ref={enginesRef}>
               <button
                 type="button"
+                onClick={() => setShowEngines((s) => !s)}
                 aria-expanded={showEngines}
                 aria-haspopup="menu"
-                onClick={() => setShowEngines((v) => !v)}
                 className={`${linkBase} inline-flex items-center gap-1 ${isEngineActive ? linkActive : linkIdle}`}
               >
-                Engines
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showEngines ? "rotate-180" : ""}`} />
+                <span>Tools</span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform duration-150 ${showEngines ? "rotate-180" : ""}`}
+                />
               </button>
 
               {showEngines && (
                 <div
                   role="menu"
-                  className="nexus-fade-in absolute left-0 mt-2 w-64 rounded-xl border border-zinc-200 bg-white p-1.5 shadow-lg shadow-zinc-950/5"
+                  aria-label="Tools menu"
+                  className="absolute left-0 mt-2 w-64 rounded-[12px] border border-zinc-200 bg-white p-1.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)]"
                 >
-                  {ENGINE_ITEMS.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => go(item.id)}
-                      className={`flex w-full flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-zinc-50 ${
-                        activeTab === item.id ? "bg-zinc-50" : ""
-                      }`}
-                    >
-                      <span className="text-sm font-medium text-zinc-950">{item.label}</span>
-                      <span className="text-xs text-zinc-500">{item.description}</span>
-                    </button>
-                  ))}
+                  {ENGINE_ITEMS.map((item) => {
+                    const selected = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="menuitem"
+                        onClick={() => go(item.id)}
+                        className={`w-full text-left rounded-[6px] px-3 py-2 transition-colors duration-150 flex flex-col gap-0.5 ${
+                          selected
+                            ? "bg-indigo-50/70 text-zinc-950 border-l-2 border-l-indigo-600"
+                            : "text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+                        }`}
+                      >
+                        <span className="text-[13px] font-medium text-zinc-950">{item.label}</span>
+                        <span className="text-[12px] text-zinc-600">{item.description}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            <Link href="/about" className={`${linkBase} ${activeTab === "about" ? linkActive : linkIdle}`}>
+            <Link
+              href="/about"
+              className={`${linkBase} ${activeTab === "about" ? linkActive : linkIdle}`}
+              aria-current={activeTab === "about" ? "page" : undefined}
+            >
               About
             </Link>
-            <Link href="/contact" className={`${linkBase} ${activeTab === "contact" ? linkActive : linkIdle}`}>
+
+            <Link
+              href="/contact"
+              className={`${linkBase} ${activeTab === "contact" ? linkActive : linkIdle}`}
+              aria-current={activeTab === "contact" ? "page" : undefined}
+            >
               Contact
             </Link>
           </nav>
         </div>
 
-        {/* Quiet controls & Auth Action */}
-        <div className="flex items-center gap-2">
-          {/* TOP RIGHT: Sign In / Sign Up & Evaluator Demo Switcher */}
-          <button
-            type="button"
-            onClick={onOpenAuthModal}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition"
-            title={
-              currentUser
-                ? `Signed in as ${currentUser.fullName} (${currentUser.role})`
-                : "Sign In, Sign Up, or select an Evaluator Demo Persona"
-            }
-          >
-            {currentUser ? (
-              <>
-                <div className="h-5 w-5 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold uppercase shrink-0">
-                  {currentUser.fullName.slice(0, 2)}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Single labeled Workspace Menu containing Audio Briefing, Reset Demo Data, and Mode switching */}
+          <div className="relative" ref={toolsRef}>
+            <button
+              type="button"
+              onClick={() => setShowToolsMenu((s) => !s)}
+              aria-expanded={showToolsMenu}
+              aria-haspopup="menu"
+              className="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[13px] font-medium text-zinc-700 transition-colors duration-150"
+            >
+              <Settings2 className="h-3.5 w-3.5 text-zinc-600" />
+              <span>Workspace</span>
+              <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+            </button>
+
+            {showToolsMenu && (
+              <div
+                role="menu"
+                aria-label="Workspace actions"
+                className="absolute right-0 mt-2 w-64 rounded-[12px] border border-zinc-200 bg-white p-1.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)] space-y-1"
+              >
+                <div className="px-3 py-1.5">
+                  <div className="text-[12px] font-medium text-zinc-600 mb-1.5">Payment environment</div>
+                  <div className="inline-flex w-full rounded-[6px] border border-zinc-200 bg-zinc-50 p-0.5">
+                    {(["auto", "mirror", "sandbox"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => {
+                          onSwitchMode(m);
+                          setBannerDismissed(false);
+                        }}
+                        className={`flex-1 rounded-[4px] py-1 text-[12px] font-medium transition-colors duration-150 ${
+                          preferredMode === m
+                            ? "bg-white text-zinc-950 border border-zinc-200"
+                            : "text-zinc-600 hover:text-zinc-950"
+                        }`}
+                      >
+                        {m === "auto" ? "Auto" : m === "mirror" ? "Demo" : "Sandbox"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <span className="font-semibold text-zinc-900 max-w-[85px] sm:max-w-[130px] truncate">
-                  {currentUser.fullName}
-                </span>
-                <span className="rounded bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono text-[9px] px-1 py-0.2 font-medium">
-                  {currentUser.role === "CONSUMER"
-                    ? "Consumer"
-                    : currentUser.role === "ORACLE_WORKER"
-                    ? "Oracle"
-                    : currentUser.role === "ENTERPRISE_AGENT"
-                    ? "Agent"
-                    : "Admin"}
-                </span>
-              </>
-            ) : (
-              <>
-                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                <span className="font-semibold text-zinc-900">Sign In</span>
-                <span className="text-zinc-300">/</span>
-                <span className="font-semibold text-zinc-900 hidden sm:inline">Sign Up</span>
-                <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.2 font-medium">
-                  Demo
-                </span>
-              </>
+
+                <div className="border-t border-zinc-100 my-1" />
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowToolsMenu(false);
+                    onPlayVoiceBriefing();
+                  }}
+                  disabled={voiceLoading}
+                  className="w-full flex items-center justify-between rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 disabled:opacity-50"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Volume2 className="h-4 w-4 text-zinc-600" />
+                    <span>{voiceLoading ? "Preparing audio summary..." : "Play audio summary"}</span>
+                  </span>
+                  {voiceTranscript && (
+                    <span className="audio-bars text-indigo-600" aria-hidden="true">
+                      <span className="audio-bar" />
+                      <span className="audio-bar" />
+                      <span className="audio-bar" />
+                      <span className="audio-bar" />
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowToolsMenu(false);
+                    onResetDemoState();
+                  }}
+                  className="w-full flex items-center gap-2 rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+                >
+                  <RotateCcw className="h-4 w-4 text-zinc-600" />
+                  <span>Reset demo data</span>
+                </button>
+
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowToolsMenu(false);
+                    setShowSandboxKeys((s) => !s);
+                  }}
+                  className="w-full flex items-center justify-between rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+                >
+                  <span>PayPal sandbox keys</span>
+                  <span className="text-[12px] text-zinc-600">
+                    {sandboxAccounts?.merchantEmail ? "Ready" : "Configure"}
+                  </span>
+                </button>
+              </div>
             )}
-          </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setShowSettings((v) => !v)}
-            aria-expanded={showSettings}
-            title="PayPal connection settings"
-            className="hidden items-center gap-2 rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-950 sm:inline-flex"
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                activeMode === "live"
-                  ? "bg-emerald-500 ring-2 ring-emerald-500/20"
-                  : activeMode === "sandbox"
-                    ? "bg-sky-500 ring-2 ring-sky-500/20"
-                    : "bg-zinc-400"
-              }`}
-            />
-            {activeMode === "live"
-              ? "Live PayPal"
-              : activeMode === "sandbox"
-                ? `Sandbox · Slot ${sandboxAccounts?.slot ?? "013"}`
-                : "Offline Mirror"}
-          </button>
-
-          <button
-            type="button"
-            onClick={onPlayVoiceBriefing}
-            disabled={voiceLoading}
-            aria-label="Play voice briefing"
-            title="Voice briefing"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
-          >
-            {voiceLoading ? (
-              <span className="audio-bars text-indigo-600" aria-hidden="true">
-                <span className="audio-bar" />
-                <span className="audio-bar" />
-                <span className="audio-bar" />
-                <span className="audio-bar" />
+          {currentUser ? (
+            <button
+              type="button"
+              onClick={onOpenAuthModal}
+              className="inline-flex h-8 items-center gap-2 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[13px] font-medium text-zinc-900 transition-colors duration-150"
+              title={`Signed in as ${currentUser.fullName}`}
+            >
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zinc-950 text-[11px] font-medium text-white">
+                {currentUser.fullName
+                  .split(/\s+/)
+                  .map((w) => w[0] || "")
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase() || "NP"}
               </span>
-            ) : (
-              <Volume2 className="h-4 w-4" />
-            )}
-          </button>
+              <span className="hidden sm:inline truncate max-w-[110px]">
+                {currentUser.fullName.split(" ")[0]}
+              </span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="inline-flex h-8 items-center px-2.5 rounded-[6px] text-[13px] font-medium text-zinc-700 hover:text-zinc-950 hover:bg-zinc-100 transition-colors duration-150"
+              >
+                Sign in
+              </button>
+              <button
+                type="button"
+                onClick={onOpenAuthModal}
+                className="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[13px] font-medium text-white transition-colors duration-150"
+              >
+                Get started
+              </button>
+            </div>
+          )}
 
           <button
             type="button"
-            onClick={onResetDemoState}
-            aria-label="Reset demo data"
-            title="Reset demo data"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowSettings((v) => !v)}
-            aria-label="Settings"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-950 sm:hidden"
-          >
-            <Settings2 className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Menu"
+            onClick={() => setMobileOpen((m) => !m)}
+            aria-label="Toggle navigation menu"
             aria-expanded={mobileOpen}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-700 hover:bg-zinc-100 md:hidden"
+            className="inline-flex md:hidden h-8 w-8 items-center justify-center rounded-[6px] border border-zinc-200 bg-white text-zinc-700"
           >
             {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <nav aria-label="Mobile" className="nexus-fade-in border-t border-zinc-200 bg-white px-5 py-3 md:hidden">
-          <div className="pt-1 pb-3">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileOpen(false);
-                onOpenAuthModal?.();
-              }}
-              className="inline-flex w-full items-center justify-between rounded-lg bg-zinc-50 border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-900"
-            >
-              <span className="flex items-center gap-2 truncate">
-                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                <span className="truncate">{currentUser ? currentUser.fullName : "Sign In / Sign Up"}</span>
+      {/* Single thin dismissible Demo Mode banner (moved out of header controls) */}
+      {isDemoSession && !bannerDismissed && (
+        <div className="border-t border-zinc-200 bg-zinc-50 px-4 sm:px-6 py-1.5">
+          <div className="mx-auto max-w-[1200px] flex items-center justify-between gap-3 text-[12px] text-zinc-700">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 shrink-0" aria-hidden="true" />
+              <span className="truncate">
+                Demo mode — sample numbers are shown and actions reset cleanly whenever needed.
               </span>
-              <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.5 shrink-0">
-                {currentUser ? currentUser.role : "Demo Access"}
-              </span>
-            </button>
-          </div>
-          <button type="button" onClick={() => go("overview")} className="block w-full py-2 text-left text-sm font-medium text-zinc-950">
-            Overview
-          </button>
-          <p className="pt-3 pb-1 text-xs text-zinc-400">Engines</p>
-          {ENGINE_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => go(item.id)}
-              className={`block w-full py-2 text-left text-sm ${activeTab === item.id ? "font-medium text-zinc-950" : "text-zinc-600"}`}
-            >
-              {item.label}
-            </button>
-          ))}
-          <div className="mt-2 border-t border-zinc-100 pt-2">
-            <Link href="/about" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-zinc-600">
-              About
-            </Link>
-            <Link href="/contact" onClick={() => setMobileOpen(false)} className="block py-2 text-sm text-zinc-600">
-              Contact
-            </Link>
-          </div>
-        </nav>
-      )}
-
-      {/* Connection settings */}
-      {showSettings && (
-        <div className="nexus-fade-in border-t border-zinc-200 bg-white">
-          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-4 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <span className="text-zinc-500">Mode</span>
-              <div role="group" aria-label="PayPal mode" className="inline-flex rounded-lg bg-zinc-100 p-0.5">
-                {(["auto", "live", "sandbox", "mirror"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    aria-pressed={preferredMode === m}
-                    onClick={() => onSwitchMode(m)}
-                    className={`rounded-md px-3 py-1 text-xs transition-colors ${
-                      preferredMode === m ? "bg-white font-medium text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-zinc-950"
-                    }`}
-                  >
-                    {m === "auto" ? "Auto" : m === "live" ? "Live" : m === "sandbox" ? "Sandbox" : "Demo"}
-                  </button>
-                ))}
-              </div>
-              <span className="text-xs text-zinc-400">
-                {databaseSource === "supabase_postgres" ? "Supabase" : "Local data"}
-              </span>
-              {sandboxAccounts && (
-                <span className="rounded bg-sky-50 border border-sky-200 px-2 py-0.5 font-mono text-[11px] text-sky-900">
-                  Slot {sandboxAccounts.slot} · Buyer: {sandboxAccounts.buyerEmail} · Merchant:{" "}
-                  {sandboxAccounts.merchantEmail}
-                </span>
-              )}
             </div>
-
-            <form onSubmit={handleCredsSubmit} className="flex flex-wrap items-center gap-2">
-              <label htmlFor="header-sandbox-id" className="visually-hidden">
-                PayPal Sandbox Client ID
-              </label>
-              <input
-                id="header-sandbox-id"
-                type="text"
-                autoComplete="off"
-                value={sandboxClientId}
-                onChange={(e) => setSandboxClientId(e.target.value)}
-                placeholder="Sandbox client ID"
-                className="h-8 w-44 rounded-md border border-zinc-200 bg-white px-2.5 text-xs placeholder:text-zinc-400"
-                required
-              />
-              <label htmlFor="header-sandbox-secret" className="visually-hidden">
-                PayPal Sandbox Client Secret
-              </label>
-              <input
-                id="header-sandbox-secret"
-                type="password"
-                autoComplete="off"
-                value={sandboxClientSecret}
-                onChange={(e) => setSandboxClientSecret(e.target.value)}
-                placeholder="Secret"
-                className="h-8 w-36 rounded-md border border-zinc-200 bg-white px-2.5 text-xs placeholder:text-zinc-400"
-                required
-              />
+            <div className="flex items-center gap-3 shrink-0">
               <button
-                type="submit"
-                disabled={savingCreds}
-                className="h-8 rounded-md bg-zinc-950 px-3 text-xs font-medium text-white transition-colors hover:bg-zinc-800"
+                type="button"
+                onClick={() => {
+                  onResetDemoState();
+                }}
+                className="font-medium text-indigo-600 hover:text-indigo-700 underline underline-offset-2"
               >
-                {savingCreds ? "Connecting…" : "Connect"}
+                Reset demo data
               </button>
-            </form>
+              <button
+                type="button"
+                onClick={() => setBannerDismissed(true)}
+                aria-label="Dismiss demo mode notice"
+                className="p-0.5 text-zinc-600 hover:text-zinc-950 rounded-[6px]"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {voiceTranscript && (
-        <div role="status" aria-live="polite" className="border-t border-zinc-200 bg-white px-5 py-2 text-center text-xs text-zinc-500">
-          “{voiceTranscript}”
+      {/* Mobile Nav Drawer */}
+      {mobileOpen && (
+        <nav aria-label="Mobile" className="border-t border-zinc-200 bg-white px-5 py-3 md:hidden">
+          <div className="flex flex-col space-y-1 text-[14px]">
+            <button
+              type="button"
+              onClick={() => go("overview")}
+              className={`rounded-[6px] px-3 py-2 text-left font-medium ${
+                activeTab === "overview" ? "bg-zinc-100 text-zinc-950" : "text-zinc-700"
+              }`}
+            >
+              Overview
+            </button>
+            <p className="pt-2 pb-1 px-3 text-[12px] font-medium text-zinc-600">Tools</p>
+            {ENGINE_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => go(item.id)}
+                className={`rounded-[6px] px-3 py-2 text-left font-medium ${
+                  activeTab === item.id ? "bg-indigo-50/70 text-zinc-950 border-l-2 border-l-indigo-600" : "text-zinc-700"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+            <div className="pt-2 border-t border-zinc-100 flex flex-col gap-1">
+              <Link href="/about" onClick={() => setMobileOpen(false)} className="rounded-[6px] px-3 py-2 text-zinc-700">
+                About
+              </Link>
+              <Link href="/contact" onClick={() => setMobileOpen(false)} className="rounded-[6px] px-3 py-2 text-zinc-700">
+                Contact
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  onResetDemoState();
+                }}
+                className="rounded-[6px] px-3 py-2 text-left text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4 text-zinc-600" />
+                <span>Reset demo data</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileOpen(false);
+                  onPlayVoiceBriefing();
+                }}
+                className="rounded-[6px] px-3 py-2 text-left text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
+              >
+                <Volume2 className="h-4 w-4 text-zinc-600" />
+                <span>{voiceLoading ? "Preparing audio summary..." : "Play audio summary"}</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+      )}
+
+      {/* Sandbox Credentials Drawer (explicitly opened from Workspace menu) */}
+      {showSandboxKeys && (
+        <div className="border-t border-zinc-200 bg-white">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-4 flex flex-wrap items-end justify-between gap-4">
+            <form onSubmit={handleSaveCredentialsSubmit} className="flex flex-wrap items-end gap-3">
+              <div>
+                <label htmlFor="header-sandbox-id" className="block text-[12px] font-medium text-zinc-700 mb-1">
+                  PayPal client ID
+                </label>
+                <input
+                  id="header-sandbox-id"
+                  type="text"
+                  value={sandboxClientId}
+                  onChange={(e) => setSandboxClientId(e.target.value)}
+                  placeholder="Enter client ID"
+                  className="h-9 w-48 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] placeholder:text-zinc-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="header-sandbox-secret" className="block text-[12px] font-medium text-zinc-700 mb-1">
+                  PayPal secret
+                </label>
+                <input
+                  id="header-sandbox-secret"
+                  type="password"
+                  value={sandboxClientSecret}
+                  onChange={(e) => setSandboxClientSecret(e.target.value)}
+                  placeholder="Enter secret"
+                  className="h-9 w-40 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] placeholder:text-zinc-500"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={savingCreds || !sandboxClientId.trim() || !sandboxClientSecret.trim()}
+                className="h-9 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white disabled:opacity-50"
+              >
+                {savingCreds ? "Connecting..." : "Connect"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSandboxKeys(false)}
+                className="h-9 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[13px] font-medium text-zinc-700"
+              >
+                Cancel
+              </button>
+            </form>
+            {sandboxAccounts?.merchantEmail && (
+              <p className="text-[12px] text-zinc-600">
+                Sandbox account: <span className="font-mono text-zinc-900">{sandboxAccounts.merchantEmail}</span>
+              </p>
+            )}
+          </div>
         </div>
       )}
     </header>

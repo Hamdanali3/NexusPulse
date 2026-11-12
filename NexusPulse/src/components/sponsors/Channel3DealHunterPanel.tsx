@@ -16,6 +16,7 @@ import type {
   PayPalExecutionMode,
 } from "@/lib/paypal/paypal-types";
 import PayPalV6CheckoutWidget from "@/components/paypal/PayPalV6CheckoutWidget";
+import { FormField, StatusDot } from "@/components/ui";
 import { formatUsd } from "@/lib/format";
 
 interface Channel3DealHunterPanelProps {
@@ -55,11 +56,35 @@ export default function Channel3DealHunterPanel({
   const [newCategory, setNewCategory] = useState("");
   const [newRetailPrice, setNewRetailPrice] = useState("");
   const [newTargetPrice, setNewTargetPrice] = useState("");
+  const [mandateErrors, setMandateErrors] = useState<Record<string, string>>({});
   const [creatingMandate, setCreatingMandate] = useState(false);
   const [mandateBanner, setMandateBanner] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  function validateMandateField(field: "title" | "brand" | "category" | "retail" | "target", val: string) {
+    let msg = "";
+    const trimmed = val.trim();
+    if (field === "title" && !trimmed) msg = "Enter an item name.";
+    if (field === "brand" && !trimmed) msg = "Enter a brand.";
+    if (field === "category" && !trimmed) msg = "Enter a category.";
+    if (field === "retail") {
+      const n = Number(val);
+      if (!val || Number.isNaN(n) || n <= 0) msg = "Enter a price above $0.00.";
+    }
+    if (field === "target") {
+      const n = Number(val);
+      const retail = Number(newRetailPrice);
+      if (!val || Number.isNaN(n) || n <= 0) {
+        msg = "Enter a target price above $0.00.";
+      } else if (retail > 0 && n > retail) {
+        msg = "Target price must be at or below list price.";
+      }
+    }
+    setMandateErrors((prev) => ({ ...prev, [field]: msg }));
+    return !msg;
+  }
 
   const displayedDeals = useMemo(() => {
     const raw = filteredDeals ?? initialDeals;
@@ -266,51 +291,62 @@ export default function Channel3DealHunterPanel({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <div className="sm:col-span-2">
-              <label htmlFor="mandate-title-input" className="block text-[11px] font-medium text-zinc-700 mb-1">
-                Product Name / Model
-              </label>
-              <input
+              <FormField
                 id="mandate-title-input"
-                type="text"
-                placeholder="e.g. Samsung 990 PRO 4TB NVMe SSD"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                label="Item name"
+                error={mandateErrors.title}
                 required
-              />
+              >
+                <input
+                  id="mandate-title-input"
+                  type="text"
+                  placeholder="e.g. Samsung 990 PRO 4TB NVMe SSD"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onBlur={(e) => validateMandateField("title", e.target.value)}
+                  aria-invalid={Boolean(mandateErrors.title)}
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
+                  required
+                />
+              </FormField>
             </div>
-            <div>
-              <label htmlFor="mandate-brand-input" className="block text-[11px] font-medium text-zinc-700 mb-1">
-                Brand
-              </label>
+            <FormField id="mandate-brand-input" label="Brand" error={mandateErrors.brand} required>
               <input
                 id="mandate-brand-input"
                 type="text"
                 placeholder="e.g. Samsung"
                 value={newBrand}
                 onChange={(e) => setNewBrand(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                onBlur={(e) => validateMandateField("brand", e.target.value)}
+                aria-invalid={Boolean(mandateErrors.brand)}
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
                 required
               />
-            </div>
-            <div>
-              <label htmlFor="mandate-category-input" className="block text-[11px] font-medium text-zinc-700 mb-1">
-                Category
-              </label>
+            </FormField>
+            <FormField
+              id="mandate-category-input"
+              label="Category"
+              error={mandateErrors.category}
+              required
+            >
               <input
                 id="mandate-category-input"
                 type="text"
                 placeholder="e.g. Storage"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                onBlur={(e) => validateMandateField("category", e.target.value)}
+                aria-invalid={Boolean(mandateErrors.category)}
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none"
                 required
               />
-            </div>
-            <div>
-              <label htmlFor="mandate-retail-input" className="block text-[11px] font-medium text-zinc-700 mb-1">
-                Retail Price ($)
-              </label>
+            </FormField>
+            <FormField
+              id="mandate-retail-input"
+              label="List price (USD)"
+              error={mandateErrors.retail}
+              required
+            >
               <input
                 id="mandate-retail-input"
                 type="number"
@@ -318,19 +354,24 @@ export default function Channel3DealHunterPanel({
                 placeholder="349.99"
                 value={newRetailPrice}
                 onChange={(e) => setNewRetailPrice(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                onBlur={(e) => validateMandateField("retail", e.target.value)}
+                aria-invalid={Boolean(mandateErrors.retail)}
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none"
                 required
               />
-            </div>
+            </FormField>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2">
-              <label htmlFor="mandate-target-input" className="text-xs font-medium text-zinc-700">
-                Max Target Price:
-              </label>
+          <div className="flex flex-wrap items-end justify-between gap-3 pt-2">
+            <FormField
+              id="mandate-target-input"
+              label="Target price (USD)"
+              helperText="We only alert or prepare checkout at or below this price."
+              error={mandateErrors.target}
+              required
+            >
               <div className="flex items-center">
-                <span className="text-xs text-zinc-500 mr-1">$</span>
+                <span className="text-[13px] text-zinc-600 mr-1.5">$</span>
                 <input
                   id="mandate-target-input"
                   type="number"
@@ -338,20 +379,20 @@ export default function Channel3DealHunterPanel({
                   placeholder="265.00"
                   value={newTargetPrice}
                   onChange={(e) => setNewTargetPrice(e.target.value)}
-                  className="w-24 h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-semibold text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                  onBlur={(e) => validateMandateField("target", e.target.value)}
+                  aria-invalid={Boolean(mandateErrors.target)}
+                  className="w-32 h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] font-medium text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none"
                   required
                 />
-                <span className="text-[11px] text-zinc-500 ml-1">USD</span>
               </div>
-            </div>
+            </FormField>
 
             <button
               type="submit"
               disabled={creatingMandate}
-              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3.5 text-xs font-medium text-white transition disabled:opacity-50"
+              className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white transition disabled:opacity-50"
             >
-              <Zap className="h-3.5 w-3.5" />
-              {creatingMandate ? "Scanning Catalog..." : "Deploy Mandate"}
+              {creatingMandate ? "Saving alert..." : "Save price alert"}
             </button>
           </div>
         </form>
@@ -432,14 +473,13 @@ export default function Channel3DealHunterPanel({
                           {formatUsd(deal.channel3_best_price)}
                         </span>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                        <Tag className="h-3 w-3" />
+                      <span className="text-[12px] font-medium text-emerald-700 tabular-nums">
                         Save {formatUsd(deal.savings_amount)} ({deal.savings_percent}%)
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-xs text-zinc-600">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-[12px] text-zinc-600">
                     <div>
                       {deal.merchant_name}
                       {deal.bnpl_eligible &&
@@ -449,17 +489,14 @@ export default function Channel3DealHunterPanel({
                         : ""}
                     </div>
 
-                    {isPurchased ? (
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-emerald-700 whitespace-nowrap">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
-                        Purchased
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-700 whitespace-nowrap">
-                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" aria-hidden="true" />
-                        Target met ({formatUsd(deal.target_mandate_price)})
-                      </span>
-                    )}
+                    <StatusDot
+                      label={
+                        isPurchased
+                          ? "Purchased"
+                          : `Target met (${formatUsd(deal.target_mandate_price)})`
+                      }
+                      tone={isPurchased ? "positive" : "accent"}
+                    />
                   </div>
                 </div>
               );

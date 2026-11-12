@@ -608,62 +608,46 @@ export default function NexusAiChatbot({
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className={`fixed bottom-5 right-5 z-50 inline-flex items-center gap-2.5 rounded-full p-2.5 sm:px-4 sm:py-2.5 shadow-lg transition duration-200 ${
+          className={`fixed bottom-5 right-5 z-40 inline-flex h-11 w-11 items-center justify-center rounded-full shadow-[0_8px_24px_-4px_rgb(9_9_11/0.14),0_2px_6px_-1px_rgb(9_9_11/0.06)] transition-colors duration-150 ${
             isOpen
-              ? "bg-zinc-900 text-white"
+              ? "bg-zinc-900 text-white border border-zinc-800"
               : "bg-zinc-950 text-white hover:bg-zinc-800 border border-zinc-800"
           }`}
-          title="Open NexusPulse AI Assistant"
+          title="Ask assistant"
+          aria-label="Open assistant"
           aria-expanded={isOpen}
           aria-haspopup="dialog"
         >
-          <div className="relative flex items-center justify-center">
-            <div className="h-6 w-6 rounded-full bg-zinc-950 flex items-center justify-center">
-              <Bot className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
-            </div>
-          </div>
-          <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-semibold leading-tight">NexusPulse AI</span>
-            <span className="text-[10px] text-zinc-400 leading-tight flex items-center gap-1 font-mono">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {savedApiKey ? "BYOK Active" : "Online"}
-            </span>
-          </div>
+          {isOpen ? (
+            <X className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Bot className="h-4 w-4" strokeWidth={1.5} />
+          )}
         </button>
       </aside>
 
-      {/* Slide-over / Modal Chatbot Panel */}
+      {/* Slide-over / Modal Assistant Panel */}
       {isOpen && (
         <section
           role="dialog"
-          aria-label="NexusPulse AI Assistant Window"
+          aria-label="Assistant"
           aria-modal="true"
-          className={`fixed z-50 flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-2xl transition duration-200 ${
+          className={`fixed z-50 flex flex-col rounded-[12px] border border-zinc-200 bg-white shadow-[0_8px_24px_-4px_rgb(9_9_11/0.12),0_2px_6px_-1px_rgb(9_9_11/0.06)] transition-all duration-150 ${
             isExpanded
               ? "inset-4 sm:inset-8"
-              : "bottom-20 right-4 sm:right-6 w-[94vw] sm:w-[460px] h-[600px] max-h-[85vh]"
+              : "bottom-20 right-4 sm:right-5 w-[calc(100vw-2rem)] sm:w-[440px] h-[580px] max-h-[80vh]"
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 bg-white rounded-t-2xl">
+          <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 bg-[#fafafa] rounded-t-[12px]">
             <div className="flex items-center gap-2.5">
-              <div className="h-7 w-7 rounded-lg bg-zinc-900 flex items-center justify-center">
-                <Bot className="h-4 w-4 text-white" />
+              <div className="h-7 w-7 rounded-[6px] bg-zinc-950 flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs font-semibold text-zinc-900">
-                    NexusPulse AI
-                  </h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.2 text-[10px] font-medium text-emerald-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Online
-                  </span>
-                </div>
-                <p className="text-[10px] text-zinc-400">
-                  {savedApiKey
-                    ? `BYOK (${maskApiKey(savedApiKey)})`
-                    : "Autonomous Financial Guide"}
+                <h3 className="text-[13px] font-medium text-zinc-950">Assistant</h3>
+                <p className="text-[12px] text-zinc-600">
+                  {savedApiKey ? "Custom key active" : "Questions about your workspace"}
                 </p>
               </div>
             </div>
@@ -839,9 +823,9 @@ export default function NexusAiChatbot({
             </div>
           )}
 
-          {/* Quick Suggestion Pills */}
-          <div className="border-b border-slate-100 bg-white/80 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
-            <span className="text-slate-500 font-semibold uppercase text-[10px] shrink-0 mr-1">
+          {/* Quick Suggestions */}
+          <div className="border-b border-zinc-200 bg-white px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[12px]">
+            <span className="text-zinc-600 font-medium shrink-0 mr-1">
               Ask:
             </span>
             {DEFAULT_SUGGESTIONS.map((sug, i) => (
@@ -850,7 +834,7 @@ export default function NexusAiChatbot({
                 type="button"
                 onClick={() => handleSendMessage(sug)}
                 disabled={isLoading}
-                className="shrink-0 rounded-full border border-slate-200 bg-slate-50 hover:bg-sky-50 hover:border-sky-300 px-2.5 py-0.5 text-slate-700 hover:text-sky-900 transition whitespace-nowrap shadow-2xs"
+                className="shrink-0 rounded-[6px] border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 px-2.5 py-1 text-zinc-700 hover:text-zinc-950 transition whitespace-nowrap"
               >
                 {sug}
               </button>
@@ -938,11 +922,11 @@ export default function NexusAiChatbot({
 
             {isLoading && (
               <div className="flex items-start gap-2">
-                <div className="rounded-2xl rounded-bl-xs bg-slate-50 border border-slate-200 p-3 shadow-xs">
-                  <div className="flex items-center gap-2 text-xs text-slate-600">
-                    <span className="h-2 w-2 rounded-full bg-sky-500 animate-ping" />
-                    <span className="font-semibold text-slate-800">
-                      NexusPulse AI Assistant is analyzing...
+                <div className="rounded-[12px] bg-zinc-50 border border-zinc-200 p-3">
+                  <div className="flex items-center gap-2 text-[13px] text-zinc-700">
+                    <span className="h-2 w-2 rounded-full bg-indigo-600" aria-hidden="true" />
+                    <span className="font-medium text-zinc-900">
+                      Checking workspace details...
                     </span>
                   </div>
                 </div>

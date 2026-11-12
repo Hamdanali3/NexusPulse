@@ -30,8 +30,8 @@ export default function NexusFooter({
   }
 
   return (
-    <footer className="mt-20 border-t border-zinc-200 bg-white">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8 py-10">
+    <footer className="mt-20 border-t border-zinc-200 bg-white pb-20 sm:pb-12">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-10">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-8 border-b border-zinc-100">
           <div>
             <NexusPulseLogo onNavigateHome={() => handleJump("overview")} />
