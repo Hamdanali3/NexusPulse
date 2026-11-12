@@ -19,10 +19,13 @@ import {
   ShoppingBag,
   Sparkles,
   TrendingUp,
+  User,
   UserCheck,
 } from "lucide-react";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
+import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
+import AuthModal from "@/components/auth/AuthModal";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
@@ -132,6 +135,55 @@ export default function NexusPulseHomePage() {
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // Multi-Tenant User Authentication & Evaluator Persona State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(DEMO_EVALUATOR_ACCOUNTS.judge);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("nexuspulse_user_session");
+      if (stored) {
+        const parsed = JSON.parse(stored) as UserProfile;
+        if (parsed && parsed.email) {
+          setCurrentUser(parsed);
+        }
+      }
+    } catch {
+      // Ignore localStorage parse errors
+    }
+  }, []);
+
+  const handleLoginSuccess = useCallback((user: UserProfile) => {
+    setCurrentUser(user);
+    try {
+      window.localStorage.setItem("nexuspulse_user_session", JSON.stringify(user));
+    } catch {
+      // Ignore
+    }
+    addToast(
+      "success",
+      `Authenticated as ${user.fullName}`,
+      `Logged in as ${user.roleTitle} (${user.role}).`
+    );
+  }, [addToast]);
+
+  const handleLogout = useCallback(() => {
+    setCurrentUser(null);
+    try {
+      window.localStorage.removeItem("nexuspulse_user_session");
+    } catch {
+      // Ignore
+    }
+    addToast("info", "Signed Out", "You have signed out. Choose a demo persona or sign in.");
+  }, [addToast]);
+
+  const handleSwitchPersona = useCallback((key: string) => {
+    const demo = DEMO_EVALUATOR_ACCOUNTS[key];
+    if (demo) {
+      handleLoginSuccess(demo);
+    }
+  }, [handleLoginSuccess]);
 
   const fetchState = useCallback(async () => {
     try {
@@ -452,6 +504,8 @@ export default function NexusPulseHomePage() {
         databaseSource={databaseSource}
         voiceLoading={voiceLoading}
         voiceTranscript={voiceTranscript}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setAuthModalOpen(true)}
         onSwitchMode={handleSwitchMode}
         onSaveRuntimeCredentials={handleSaveRuntimeCredentials}
         onPlayVoiceBriefing={handlePlayVoiceBriefing}
@@ -521,6 +575,72 @@ export default function NexusPulseHomePage() {
               <span>Explore Engines</span>
               <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
             </button>
+          </div>
+        </section>
+
+        {/* EVALUATOR DEMO PERSONAS BANNER (1-Click Evaluation for Hackathon Judges) */}
+        <section
+          aria-label="Hackathon Evaluator & Persona Quick Switcher"
+          className="rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50/40 via-white to-purple-50/40 p-4 shadow-2xs w-full"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-indigo-100/60">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                <h2 className="text-xs font-bold text-zinc-950 uppercase tracking-wider">
+                  Evaluator Demo Personas &amp; Role-Based Access
+                </h2>
+              </div>
+              <p className="mt-0.5 text-xs text-zinc-500">
+                Test all 4 platform personas with 1-click authentication or create a custom account with name &amp; email checks.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAuthModalOpen(true)}
+              className="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-lg bg-zinc-950 hover:bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs transition"
+            >
+              <User className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Sign In / Custom Sign Up</span>
+            </button>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {Object.entries(DEMO_EVALUATOR_ACCOUNTS).map(([key, demo]) => {
+              const isSelected = currentUser?.email === demo.email;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleSwitchPersona(key)}
+                  className={`text-left rounded-lg p-2.5 transition flex flex-col justify-between border ${
+                    isSelected
+                      ? "border-indigo-500 bg-white ring-2 ring-indigo-500/20 shadow-xs"
+                      : "border-zinc-200/80 bg-white/80 hover:border-zinc-300 hover:bg-white"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-zinc-900 truncate">
+                        {demo.fullName}
+                      </span>
+                      <span className={`text-[10px] font-mono font-medium rounded px-1.5 py-0.2 border ${demo.badgeColor}`}>
+                        {demo.badgeLabel}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-[11px] text-zinc-500 line-clamp-1">
+                      {demo.roleTitle}
+                    </div>
+                  </div>
+                  <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-zinc-100 text-[10px]">
+                    <span className="text-zinc-400">Bal: ${demo.walletBalanceUsd.toFixed(0)}</span>
+                    <span className={`font-semibold ${isSelected ? "text-indigo-600" : "text-zinc-600"}`}>
+                      {isSelected ? "Active Persona" : "Switch Persona →"}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -1141,6 +1261,15 @@ export default function NexusPulseHomePage() {
       <ToastNotificationContainer
         toasts={toasts}
         onDismiss={dismissToast}
+      />
+
+      {/* MULTI-TENANT AUTH & EVALUATOR DEMO MODAL */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        currentUser={currentUser}
+        onLoginSuccess={handleLoginSuccess}
+        onLogout={handleLogout}
       />
     </div>
   );

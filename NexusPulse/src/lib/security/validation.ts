@@ -121,6 +121,49 @@ export function validateEmail(input: unknown): {
   };
 }
 
+/**
+ * Validates a user's full name.
+ * Requires 2 to 60 characters, letters, spaces, hyphens, periods, and apostrophes.
+ * Rejects numbers, special symbols, and HTML/script injection attempts.
+ */
+export function validateFullName(input: unknown): {
+  valid: boolean;
+  cleaned?: string;
+  error?: string;
+} {
+  if (typeof input !== "string" || !input.trim()) {
+    return {
+      valid: false,
+      error: "Full name is required.",
+    };
+  }
+  const sanitized = sanitizeText(input, 60);
+  if (sanitized.length < 2) {
+    return {
+      valid: false,
+      error: "Full name must be at least 2 characters.",
+    };
+  }
+  if (sanitized.length > 60) {
+    return {
+      valid: false,
+      error: "Full name cannot exceed 60 characters.",
+    };
+  }
+  // Allow letters (including international accents), spaces, hyphens, dots, apostrophes
+  const nameRegex = /^[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF][a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\s.'-]*[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF.]$/;
+  if (!nameRegex.test(sanitized)) {
+    return {
+      valid: false,
+      error: "Please enter a valid real name (letters, spaces, and hyphens only).",
+    };
+  }
+  return {
+    valid: true,
+    cleaned: sanitized,
+  };
+}
+
 export type ContactInquiryType =
   | "general"
   | "hackathon_judging"

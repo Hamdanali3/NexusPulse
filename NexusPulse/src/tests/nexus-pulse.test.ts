@@ -543,4 +543,82 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.ok(mediaJson.mediaUrl);
     assert.equal(mediaJson.mimeType, "image/png");
   });
+
+  it("validates multi-tenant authentication, email/name input validation, and 1-click evaluator demo accounts", async () => {
+    const { validateEmail, validateFullName } = await import("../lib/security/validation");
+    const { DEMO_EVALUATOR_ACCOUNTS } = await import("../lib/auth/auth-types");
+    const { NextRequest } = await import("next/server");
+
+    // 1. Full Name Validation Checks
+    assert.equal(validateFullName("").valid, false, "Empty name should be rejected");
+    assert.equal(validateFullName("A").valid, false, "Single-letter name should be rejected");
+    assert.equal(validateFullName("Alex123").valid, false, "Numbers in name should be rejected");
+    assert.equal(validateFullName("<script>alert()</script>").valid, false, "Script injection in name should be rejected");
+    assert.equal(validateFullName("Alex Rivera").valid, true, "Standard name should be accepted");
+    assert.equal(validateFullName("Elena Rostova-Smith").valid, true, "Hyphenated name should be accepted");
+
+    // 2. Email Validation Checks
+    assert.equal(validateEmail("").valid, false, "Empty email should be rejected");
+    assert.equal(validateEmail("not-an-email").valid, false, "Invalid email format should be rejected");
+    assert.equal(validateEmail("test@").valid, false, "Email without domain should be rejected");
+    assert.equal(validateEmail("alex@example.com").valid, true, "Standard email should be accepted");
+
+    // 3. Evaluator Demo Personas completeness
+    const demoKeys = Object.keys(DEMO_EVALUATOR_ACCOUNTS);
+    assert.ok(demoKeys.includes("judge"));
+    assert.ok(demoKeys.includes("consumer"));
+    assert.ok(demoKeys.includes("oracle"));
+    assert.ok(demoKeys.includes("enterprise"));
+    assert.equal(DEMO_EVALUATOR_ACCOUNTS.judge.role, "ADMIN");
+    assert.equal(DEMO_EVALUATOR_ACCOUNTS.consumer.role, "CONSUMER");
+    assert.equal(DEMO_EVALUATOR_ACCOUNTS.oracle.role, "ORACLE_WORKER");
+    assert.equal(DEMO_EVALUATOR_ACCOUNTS.enterprise.role, "ENTERPRISE_AGENT");
+
+    // 4. API /api/auth/login via demoKey
+    const { POST: loginPost } = await import("../app/api/auth/login/route");
+    const demoReq = new NextRequest("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ demoKey: "judge" }),
+    });
+    const demoRes = await loginPost(demoReq);
+    assert.equal(demoRes.status, 200);
+    const demoJson = await demoRes.json();
+    assert.equal(demoJson.success, true);
+    assert.equal(demoJson.user.role, "ADMIN");
+    assert.equal(demoJson.user.fullName, "Judge Evaluator");
+
+    // 5. API /api/auth/signup with invalid vs valid name and email
+    const { POST: signupPost } = await import("../app/api/auth/signup/route");
+    const badSignupReq = new NextRequest("http://localhost:3000/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ fullName: "X", email: "bad-email", password: "123" }),
+    });
+    const badSignupRes = await signupPost(badSignupReq);
+    assert.equal(badSignupRes.status, 400);
+
+    const goodSignupReq = new NextRequest("http://localhost:3000/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        fullName: "Dr. Evelyn Reed",
+        email: "evelyn.reed@acme-corp.example.com",
+        password: "securePassword123",
+        role: "ENTERPRISE_AGENT",
+      }),
+    });
+    const goodSignupRes = await signupPost(goodSignupReq);
+    assert.equal(goodSignupRes.status, 200);
+    const goodSignupJson = await goodSignupRes.json();
+    assert.equal(goodSignupJson.success, true);
+    assert.equal(goodSignupJson.user.fullName, "Dr. Evelyn Reed");
+    assert.equal(goodSignupJson.user.role, "ENTERPRISE_AGENT");
+
+    // 6. API /api/auth/session
+    const { GET: sessionGet } = await import("../app/api/auth/session/route");
+    const sessionRes = await sessionGet();
+    assert.equal(sessionRes.status, 200);
+    const sessionJson = await sessionRes.json();
+    assert.equal(sessionJson.ok, true);
+    assert.equal(sessionJson.demoAccounts.length, 4);
+    assert.equal(sessionJson.availableRoles.length, 4);
+  });
 });

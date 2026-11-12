@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, RotateCcw, Settings2, Volume2, X } from "lucide-react";
+import { ChevronDown, Menu, RotateCcw, Settings2, Sparkles, User, Volume2, X } from "lucide-react";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
+import type { UserProfile } from "@/lib/auth/auth-types";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
 export type WorkspaceTabId =
@@ -23,6 +24,8 @@ interface NexusHeaderProps {
   databaseSource: string;
   voiceLoading: boolean;
   voiceTranscript: string | null;
+  currentUser?: UserProfile | null;
+  onOpenAuthModal?: () => void;
   onSwitchMode: (mode: "auto" | "live" | "sandbox" | "mirror") => void;
   onSaveRuntimeCredentials: (clientId: string, clientSecret: string) => Promise<void>;
   onPlayVoiceBriefing: () => void;
@@ -52,6 +55,8 @@ export default function NexusHeader({
   databaseSource,
   voiceLoading,
   voiceTranscript,
+  currentUser,
+  onOpenAuthModal,
   onSwitchMode,
   onSaveRuntimeCredentials,
   onPlayVoiceBriefing,
@@ -101,8 +106,50 @@ export default function NexusHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200/70 bg-white/80 backdrop-blur-lg">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3 sm:gap-6">
           <NexusPulseLogo onNavigateHome={() => onSelectTab?.("overview")} />
+
+          {/* TOP LEFT: Sign In / Sign Up & Evaluator Demo Switcher */}
+          <button
+            type="button"
+            onClick={onOpenAuthModal}
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition"
+            title={
+              currentUser
+                ? `Signed in as ${currentUser.fullName} (${currentUser.role})`
+                : "Sign In, Sign Up, or select an Evaluator Demo Persona"
+            }
+          >
+            {currentUser ? (
+              <>
+                <div className="h-5 w-5 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold uppercase shrink-0">
+                  {currentUser.fullName.slice(0, 2)}
+                </div>
+                <span className="font-semibold text-zinc-900 max-w-[85px] sm:max-w-[130px] truncate">
+                  {currentUser.fullName}
+                </span>
+                <span className="rounded bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono text-[9px] px-1 py-0.2 font-medium">
+                  {currentUser.role === "CONSUMER"
+                    ? "Consumer"
+                    : currentUser.role === "ORACLE_WORKER"
+                    ? "Oracle"
+                    : currentUser.role === "ENTERPRISE_AGENT"
+                    ? "Agent"
+                    : "Admin"}
+                </span>
+              </>
+            ) : (
+              <>
+                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                <span className="font-semibold text-zinc-900">Sign In</span>
+                <span className="text-zinc-300">/</span>
+                <span className="font-semibold text-zinc-900 hidden sm:inline">Sign Up</span>
+                <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.2 font-medium">
+                  Demo
+                </span>
+              </>
+            )}
+          </button>
 
           {/* Primary navigation — 4 items */}
           <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
@@ -234,6 +281,24 @@ export default function NexusHeader({
       {/* Mobile menu */}
       {mobileOpen && (
         <nav aria-label="Mobile" className="nexus-fade-in border-t border-zinc-200 bg-white px-5 py-3 md:hidden">
+          <div className="pt-1 pb-3">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+                onOpenAuthModal?.();
+              }}
+              className="inline-flex w-full items-center justify-between rounded-lg bg-zinc-50 border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-900"
+            >
+              <span className="flex items-center gap-2 truncate">
+                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                <span className="truncate">{currentUser ? currentUser.fullName : "Sign In / Sign Up"}</span>
+              </span>
+              <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.5 shrink-0">
+                {currentUser ? currentUser.role : "Demo Access"}
+              </span>
+            </button>
+          </div>
           <button type="button" onClick={() => go("overview")} className="block w-full py-2 text-left text-sm font-medium text-zinc-950">
             Overview
           </button>
