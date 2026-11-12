@@ -116,6 +116,7 @@ function SdkButtonsInner({
   fallbackButtons,
 }: SdkButtonsInnerProps) {
   const { loadingStatus } = usePayPal();
+  const [sdkTimedOut, setSdkTimedOut] = useState(false);
   const eligibilityPayload = useMemo(
     () => ({
       amount: amountValue,
@@ -127,11 +128,24 @@ function SdkButtonsInner({
     payload: eligibilityPayload,
   });
 
-  if (loadingStatus === INSTANCE_LOADING_STATE.REJECTED) {
+  const isSdkReady =
+    loadingStatus === INSTANCE_LOADING_STATE.RESOLVED && !eligibilityLoading;
+
+  useEffect(() => {
+    if (isSdkReady || loadingStatus === INSTANCE_LOADING_STATE.REJECTED) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setSdkTimedOut(true);
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [isSdkReady, loadingStatus]);
+
+  if (loadingStatus === INSTANCE_LOADING_STATE.REJECTED || (!isSdkReady && sdkTimedOut)) {
     return <>{fallbackButtons}</>;
   }
 
-  if (loadingStatus === INSTANCE_LOADING_STATE.PENDING || eligibilityLoading) {
+  if (!isSdkReady) {
     return (
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <div className="h-10 rounded-md bg-zinc-100 animate-pulse" aria-hidden="true" />
