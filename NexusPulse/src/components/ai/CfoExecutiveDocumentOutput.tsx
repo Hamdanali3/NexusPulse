@@ -180,7 +180,7 @@ export default function CfoExecutiveDocumentOutput({
     clone.classList.remove("mt-4");
     clone.style.margin = "0";
 
-    const title = `NexusPulse_Autonomous_CFO_Answer_${response.interactionId}`;
+    const title = `NexusPulse_Spending_Review_${response.interactionId}`;
 
     doc.open();
     doc.write(`
@@ -287,73 +287,68 @@ export default function CfoExecutiveDocumentOutput({
     <div
       id="cfo-executive-report"
       role="region"
-      aria-label="Autonomous CFO Executive Financial Audit Memorandum"
-      className="nexus-fade-in mt-4 rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden text-slate-900"
+      aria-label="Spending review summary"
+      className="mt-4 rounded-[12px] border border-zinc-200 bg-white overflow-hidden text-zinc-900"
     >
-      {/* 1. EXECUTIVE MEMORANDUM LETTERHEAD */}
-      <div className="bg-slate-900 text-white px-5 sm:px-7 py-4.5 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800">
+      {/* 1. HEADER */}
+      <div className="bg-[#fafafa] px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-[6px] border border-zinc-700 bg-zinc-800 flex items-center justify-center">
-            <Bot className="h-4 w-4 text-zinc-100" strokeWidth={1.5} />
+          <div className="h-9 w-9 rounded-[6px] border border-zinc-200 bg-zinc-950 flex items-center justify-center shrink-0">
+            <Bot className="h-4 w-4 text-white" strokeWidth={1.5} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-sky-400">
-                NexusPulse Financial Intelligence
-              </span>
-              <span className="rounded bg-slate-800 border border-slate-700 px-2 py-0.2 font-mono text-[9px] text-slate-300 font-semibold uppercase">
-                {response.paypalMode ? `Mode: ${response.paypalMode}` : "Official Audit"}
-              </span>
-            </div>
-            <h3 className="text-sm sm:text-base font-extrabold tracking-tight text-white">
-              Autonomous CFO Executive Memorandum
+            <span className="text-[12px] font-medium text-zinc-600 block">
+              NexusPulse
+            </span>
+            <h3 className="text-[15px] font-semibold tracking-tight text-zinc-950">
+              Spending review
             </h3>
           </div>
         </div>
 
         {/* Toolbar: Toggle View, Copy, Save as PDF */}
-        <div className="cfo-toolbar flex items-center gap-2 text-xs">
-          <div className="inline-flex rounded-lg bg-slate-800 p-0.5 border border-slate-700">
+        <div className="cfo-toolbar flex items-center gap-2 text-[12px]">
+          <div className="inline-flex rounded-[6px] bg-zinc-100 p-0.5 border border-zinc-200">
             <button
               type="button"
               onClick={() => setViewMode("document")}
-              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1 text-[12px] font-medium transition-colors ${
                 viewMode === "document"
-                  ? "bg-sky-500 text-white shadow-xs"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-zinc-950"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
-              <FileText className="h-3.5 w-3.5" />
-              <span>Document</span>
+              <FileText className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span>Summary</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("raw")}
-              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${
+              className={`inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1 text-[12px] font-medium transition-colors ${
                 viewMode === "raw"
-                  ? "bg-slate-700 text-white shadow-xs"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-white text-zinc-950"
+                  : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
-              <Code2 className="h-3.5 w-3.5" />
-              <span>Raw JSON</span>
+              <Code2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span>JSON</span>
             </button>
           </div>
 
           <button
             type="button"
             onClick={handleCopyMemo}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-200 transition"
-            title="Copy Executive Memorandum to clipboard"
+            className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-white hover:bg-zinc-50 border border-zinc-200 px-3 text-[12px] font-medium text-zinc-700 transition-colors"
+            title="Copy summary to clipboard"
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied</span>
+                <Check className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+                <span className="text-emerald-700">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5 text-slate-400" />
+                <Copy className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
                 <span>Copy</span>
               </>
             )}
@@ -362,73 +357,73 @@ export default function CfoExecutiveDocumentOutput({
           <button
             type="button"
             onClick={handleSaveAsPdf}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 border border-sky-500 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition"
-            title="Save executive answer as PDF (only saves the answer, not the whole page)"
+            className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[12px] font-medium text-white transition-colors"
+            title="Save summary as PDF"
           >
-            <Download className="h-3.5 w-3.5 text-sky-100" />
-            <span>Save as PDF</span>
+            <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
+            <span>Save PDF</span>
           </button>
         </div>
       </div>
 
-      {/* 2. DOCUMENT METADATA STRIP */}
-      <div className="bg-slate-50 border-b border-slate-200 px-5 sm:px-7 py-3 text-xs grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* 2. METADATA STRIP */}
+      <div className="bg-white border-b border-zinc-200 px-5 sm:px-6 py-3 text-[12px] grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold block">
-            Reference ID
+          <span className="text-[12px] text-zinc-600 block">
+            Reference
           </span>
-          <span className="font-mono font-bold text-slate-900 truncate block">
+          <span className="font-mono font-medium text-zinc-950 truncate block mt-0.5">
             {response.interactionId}
           </span>
         </div>
         <div>
-          <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold block">
-            Auditing Model
+          <span className="text-[12px] text-zinc-600 block">
+            Checks run
           </span>
-          <span className="font-semibold text-indigo-700 block">
-            {response.modelUsed}
+          <span className="font-medium text-zinc-950 tabular-nums block mt-0.5">
+            {response.toolExecutions?.length ?? 0}
           </span>
         </div>
         <div>
-          <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold block">
-            Telemetry Latency
+          <span className="text-[12px] text-zinc-600 block">
+            Response time
           </span>
-          <span className="font-mono text-slate-700 block">
+          <span className="font-mono text-zinc-800 tabular-nums block mt-0.5">
             {response.durationMs !== undefined ? `${response.durationMs}ms` : "Instant"}
           </span>
         </div>
         <div>
-          <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold block">
+          <span className="text-[12px] text-zinc-600 block">
             Status
           </span>
-          <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-            Verified Financial Telemetry
+          <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 mt-0.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
+            Complete
           </span>
         </div>
       </div>
 
-      {/* 3. TOOL EXECUTION BADGES (IF ANY EXECUTED) */}
+      {/* 3. CHECKS RUN */}
       {response.toolExecutions && response.toolExecutions.length > 0 && (
-        <div className="bg-emerald-50/60 border-b border-emerald-200/80 px-5 sm:px-7 py-3">
+        <div className="bg-[#fafafa] border-b border-zinc-200 px-5 sm:px-6 py-3">
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-3.5 w-3.5 text-emerald-700" />
-            <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
-              Autonomous Actions Executed in this Turn ({response.toolExecutions.length})
+            <Zap className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+            <span className="text-[13px] font-medium text-zinc-900">
+              Completed checks ({response.toolExecutions.length})
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {response.toolExecutions.map((t, idx) => (
               <div
                 key={idx}
-                className="rounded-lg bg-white border border-emerald-200 p-2.5 text-xs shadow-2xs flex items-start gap-2"
+                className="rounded-[6px] bg-white border border-zinc-200 p-2.5 text-[12px] flex items-start gap-2"
               >
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" strokeWidth={1.5} />
                 <div>
-                  <div className="font-mono font-bold text-emerald-900">
+                  <div className="font-mono font-medium text-zinc-950">
                     {t.toolName}
                   </div>
-                  <div className="text-slate-600 text-[11px] mt-0.5">
+                  <div className="text-zinc-600 mt-0.5">
                     {t.resultSummary}
                   </div>
                 </div>
@@ -439,14 +434,14 @@ export default function CfoExecutiveDocumentOutput({
       )}
 
       {/* 4. MAIN DOCUMENT BODY */}
-      <div className="p-5 sm:p-7 space-y-6">
+      <div className="p-5 sm:p-6 space-y-6">
         {viewMode === "raw" ? (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-              <span>Raw JSON Telemetry Output</span>
+            <div className="flex items-center justify-between text-[12px] text-zinc-600 font-mono">
+              <span>JSON response</span>
               <span>application/json</span>
             </div>
-            <pre className="rounded-xl bg-slate-950 p-4 font-mono text-xs text-sky-300 overflow-x-auto border border-slate-800 leading-relaxed">
+            <pre className="rounded-[8px] bg-zinc-950 p-4 font-mono text-[12px] text-zinc-100 overflow-x-auto border border-zinc-800 leading-relaxed">
               <code>
                 {jsonPayload
                   ? JSON.stringify(jsonPayload, null, 2)
@@ -457,19 +452,19 @@ export default function CfoExecutiveDocumentOutput({
         ) : jsonPayload ? (
           /* Formatted Rendering if Model Output was structured JSON */
           <div className="space-y-5">
-            <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-sky-900 mb-1">
-                Audit Summary &amp; Direct Assessment
+            <div className="rounded-[8px] border border-zinc-200 bg-[#fafafa] p-4">
+              <h4 className="text-[13px] font-medium text-zinc-950 mb-1">
+                Summary
               </h4>
-              <p className="text-sm font-medium text-slate-900">
-                {String(jsonPayload.summary || jsonPayload.message || jsonPayload.overview || "Autonomous audit completed.")}
+              <p className="text-[14px] text-zinc-700">
+                {String(jsonPayload.summary || jsonPayload.message || jsonPayload.overview || "Spending review completed.")}
               </p>
             </div>
 
             {/* Render key-values as a structured financial table */}
-            <div className="rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-              <div className="bg-slate-100 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-800">
-                Extracted Financial &amp; Operational Metrics
+            <div className="rounded-[8px] border border-zinc-200 overflow-hidden">
+              <div className="bg-[#fafafa] px-4 py-2 border-b border-zinc-200 text-[12px] font-medium text-zinc-700">
+                Summary metrics
               </div>
               <table className="w-full text-left text-xs border-collapse">
                 <tbody className="divide-y divide-slate-100">
@@ -554,58 +549,58 @@ export default function CfoExecutiveDocumentOutput({
           </div>
         )}
 
-        {/* 5. ACTIONABLE NEXT STEPS SHORTCUT CLUSTER */}
+        {/* 5. NEXT STEPS */}
         {onNavigate && (
-          <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <span className="font-semibold text-slate-600">
-              Immediate Execution Actions:
+          <div className="pt-3 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-3 text-[13px]">
+            <span className="font-medium text-zinc-700">
+              Next steps:
             </span>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={() => onNavigate("channel3")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 font-bold text-slate-800 shadow-2xs transition"
+                className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <ShoppingBag className="h-3.5 w-3.5 text-sky-600" />
-                <span>Open Deal Hunter</span>
+                <ShoppingBag className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <span>Price watch</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate("bounties")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 font-bold text-slate-800 shadow-2xs transition"
+                className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
-                <span>Claim Bounties</span>
+                <UserCheck className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <span>Verified tasks</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate("bryntum")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 font-bold text-slate-800 shadow-2xs transition"
+                className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <Lock className="h-3.5 w-3.5 text-indigo-600" />
-                <span>Escrow Gantt</span>
+                <Lock className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <span>Milestone escrow</span>
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate("aggrid")}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 font-bold text-slate-800 shadow-2xs transition"
+                className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <Layers className="h-3.5 w-3.5 text-slate-600" />
-                <span>AG Grid Ledger</span>
+                <Layers className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <span>Ledger</span>
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* 6. DOCUMENT SIGN-OFF FOOTER */}
-      <div className="bg-slate-50 border-t border-slate-200 px-5 sm:px-7 py-3 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 font-mono">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-          <span>Cryptographically validated via PayPal Dual-Mode Gateway</span>
+      {/* 6. FOOTER */}
+      <div className="bg-[#fafafa] border-t border-zinc-200 px-5 sm:px-6 py-2.5 text-[12px] text-zinc-600 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+          <span>Synced with account ledger</span>
         </div>
         <div>
-          <span>Document Generated: {new Date().toLocaleString()}</span>
+          <span>Generated {new Date().toLocaleString()}</span>
         </div>
       </div>
     </div>

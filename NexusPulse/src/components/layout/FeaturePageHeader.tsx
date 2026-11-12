@@ -12,24 +12,24 @@ type FeatureMeta = {
 
 export const FEATURE_PAGES: Record<Exclude<WorkspaceTabId, "overview">, FeatureMeta> = {
   channel3: {
-    eyebrow: "Engine 01",
-    title: "Deal Hunter",
-    description: "Automated price monitoring with 1-click PayPal v6 checkout.",
+    eyebrow: "Price watch",
+    title: "Price watch",
+    description: "Track product prices against your target and check out when ready.",
   },
   bounties: {
-    eyebrow: "Engine 02",
-    title: "Human Bounties",
-    description: "Physical verification tasks audited by AI with instant payouts.",
+    eyebrow: "Verified tasks",
+    title: "Verified tasks",
+    description: "Review task checklists, attach field photos, and send payouts after approval.",
   },
   bryntum: {
-    eyebrow: "Engine 03",
-    title: "Smart Escrow",
-    description: "Milestone authorization holds with automated dispute protection.",
+    eyebrow: "Milestone escrow",
+    title: "Milestone escrow",
+    description: "Track milestone dates and release held funds once work is verified.",
   },
   aggrid: {
-    eyebrow: "Engine 04",
-    title: "Ledger & Telemetry",
-    description: "Complete financial event logs, PayPal webhooks, and APIMatic SDK state.",
+    eyebrow: "Ledger",
+    title: "Ledger",
+    description: "Review orders, payouts, invoices, and webhook test events in one place.",
   },
 };
 
@@ -46,33 +46,28 @@ export default function FeaturePageHeader({ tab, onNavigate }: FeaturePageHeader
   const nextMeta = FEATURE_PAGES[nextTab];
 
   return (
-    <div key={tab} className="feature-page-enter pt-2 pb-1">
-      {/* Minimal breadcrumb */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-zinc-400">
+    <div key={tab} className="pt-2 pb-1">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[13px] text-zinc-600">
         <button
           type="button"
           onClick={() => onNavigate("overview")}
-          className="inline-flex items-center gap-1 font-medium text-zinc-500 hover:text-zinc-950 transition-colors"
+          className="inline-flex items-center gap-1 font-medium text-zinc-600 hover:text-zinc-950 transition-colors"
         >
-          <ArrowLeft className="h-3 w-3" />
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
           Overview
         </button>
-        <ChevronRight className="h-3 w-3 text-zinc-300" />
-        <span className="font-medium text-zinc-900">{meta.title}</span>
+        <ChevronRight className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.5} />
+        <span className="font-medium text-zinc-950">{meta.title}</span>
       </nav>
 
-      {/* Header text and next button */}
+      {/* Header text and next link */}
       <div className="mt-3 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono font-medium text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5">
-              {meta.eyebrow}
-            </span>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950">
-              {meta.title}
-            </h1>
-          </div>
-          <p className="mt-1 text-xs sm:text-sm text-zinc-500 max-w-xl">
+          <h1 className="text-[28px] font-semibold tracking-tight text-zinc-950">
+            {meta.title}
+          </h1>
+          <p className="mt-1 text-[14px] text-zinc-600 max-w-xl">
             {meta.description}
           </p>
         </div>
@@ -80,11 +75,11 @@ export default function FeaturePageHeader({ tab, onNavigate }: FeaturePageHeader
         <button
           type="button"
           onClick={() => onNavigate(nextTab)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:text-zinc-950 shadow-2xs transition-colors self-start sm:self-auto"
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[13px] font-medium text-zinc-800 transition-colors self-start sm:self-auto"
         >
-          <span className="text-zinc-400">Next:</span>
+          <span className="text-zinc-600">Next:</span>
           <span>{nextMeta.title}</span>
-          <ArrowRight className="h-3 w-3 text-zinc-400" />
+          <ArrowRight className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
         </button>
       </div>
     </div>

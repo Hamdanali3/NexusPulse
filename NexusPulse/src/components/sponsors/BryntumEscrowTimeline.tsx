@@ -208,7 +208,7 @@ export default function BryntumEscrowTimeline({
       if (res.ok && data.ok && data.milestone) {
         setActionBanner({
           type: "success",
-          text: `Milestone ${milestone.id} Verified & Captured! Gemini 4 Argon audited deliverable. PayPal Authorization ${milestone.paypal_authorization_id} captured (${data.milestone.paypal_capture_id}) & Dispute Shield Tracking ${data.milestone.tracking_number} attached.`,
+          text: `Milestone ${milestone.id} verified and captured (${data.milestone.paypal_capture_id}). Tracking reference ${data.milestone.tracking_number} attached.`,
         });
         setLocalMilestones((prev) =>
           prev.map((m) => (m.id === milestone.id ? data.milestone : m))
@@ -299,7 +299,7 @@ export default function BryntumEscrowTimeline({
         );
         setActionBanner({
           type: "success",
-          text: `Escrow Authorization Locked! Order ${milestone.paypal_order_id} authorized (${data.milestone.paypal_authorization_id}) in ${activeMode.toUpperCase()} mode.`,
+          text: `Escrow authorization ready for ${milestone.paypal_order_id} (${data.milestone.paypal_authorization_id}).`,
         });
         onStateUpdated();
       } else {
@@ -330,8 +330,8 @@ export default function BryntumEscrowTimeline({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "CREATE_LIVE_SUBSCRIPTION",
-          planName: "NexusPulse Compute GPU Plan (Sandbox)",
-          merchantName: "Slot 013 Cloud Merchant",
+          planName: "Compute GPU Plan",
+          merchantName: "Cloud Compute Provider",
           amountValue: "79.00",
           marketBenchmarkValue: "149.00",
         }),

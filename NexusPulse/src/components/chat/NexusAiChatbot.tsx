@@ -41,27 +41,26 @@ interface NexusAiChatbotProps {
 const BYOK_STORAGE_KEY = "nexuspulse_user_groq_api_key";
 
 const DEFAULT_SUGGESTIONS = [
-  "What is NexusPulse and how do the 3 engines work?",
-  "What is my current wallet balance & total savings?",
-  "How does Engine 1 find deals on Channel3?",
-  "How do I claim a Proof-of-Human bounty in Engine 2?",
-  "Explain Engine 3 Smart Escrow & Dispute Shield",
-  "List all PayPal REST APIs and SDKs integrated",
+  "How does NexusPulse work?",
+  "What is my current balance and savings?",
+  "How do price watches and target alerts work?",
+  "How do verified tasks and payouts work?",
+  "How does milestone escrow protect payments?",
+  "Where can I inspect my transaction ledger?",
 ];
 
 function createWelcomeMessage(): Message {
   return {
     id: "welcome",
     role: "assistant",
-    content: `Hello! I am the **NexusPulse AI Assistant**, your intelligent guide for the **NexusPulse Autonomous Financial Clearinghouse**.
+    content: `I can help you review subscriptions, tracked prices, verified tasks, and escrow holds in your workspace.
 
-I have real-time visibility into your workspace telemetry and can help you:
-- **Monitor & Execute Deals**: Explore **Engine 1 (Channel3 Deal Hunter)** and create custom price mandates ([Open Engine 1](/?tab=channel3#engine-channel3)).
-- **Claim Oracle Bounties**: Submit verification evidence in **Engine 2 (Proof-of-Human Bounties)** for instant PayPal Payouts ([Open Engine 2](/?tab=bounties#engine-bounties)).
-- **Manage Smart Escrow**: Audit **PayPal Orders v2 \`AUTHORIZE\`** holds and subscriptions on the **Bryntum Gantt Timeline** ([Open Engine 3](/?tab=bryntum#engine-bryntum)).
-- **Inspect Financial Telemetry**: Search transactions, invoices, and webhooks in the **AG Grid Command Center** ([Open AG Grid Ledger](/?tab=aggrid#aggrid-heading)).
+- **Monitor prices**: Check tracked hardware items and create price targets ([Open Price watch](/?tab=channel3#engine-channel3)).
+- **Review verified tasks**: Submit inspection proof and send payouts ([Open Verified tasks](/?tab=bounties#engine-bounties)).
+- **Manage milestone escrow**: Review held authorizations and delivery tracking ([Open Milestone escrow](/?tab=bryntum#engine-bryntum)).
+- **Inspect ledger**: Filter transactions, invoices, and webhook test events ([Open Ledger](/?tab=aggrid#aggrid-heading)).
 
-How can I assist you today?`,
+Ask a question below or pick a prompt to get started.`,
     keySource: "platform_default",
     timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   };
@@ -343,11 +342,11 @@ export default function NexusAiChatbot({
 
       const targetTab = match[1] as WorkspaceTabId;
       const labelMap: Record<string, string> = {
-        channel3: "Open Engine 1: Deal Hunter",
-        bounties: "Open Engine 2: Human Bounties",
-        bryntum: "Open Engine 3: Escrow Gantt",
-        aggrid: "Open AG Grid Telemetry",
-        overview: "View Clearinghouse Overview",
+        channel3: "Open Price watch",
+        bounties: "Open Verified tasks",
+        bryntum: "Open Milestone escrow",
+        aggrid: "Open Ledger",
+        overview: "Overview",
       };
 
       parts.push(
@@ -700,37 +699,37 @@ export default function NexusAiChatbot({
             </div>
           </div>
 
-          {/* Bring Your Own Groq API Key (BYOK) Configuration Panel */}
+          {/* Personal API Key Settings Panel */}
           {showKeySettings && (
-            <div className="border-b border-slate-200 bg-slate-50/95 p-4 space-y-3 animate-cascade-1">
+            <div className="border-b border-zinc-200 bg-[#fafafa] p-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-sky-600" />
-                    <h4 className="text-xs font-extrabold text-slate-950">
-                      Connect Your Own Groq API Key (BYOK)
+                    <ShieldCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                    <h4 className="text-[13px] font-semibold text-zinc-950">
+                      Custom API key
                     </h4>
                   </div>
-                  <p className="mt-0.5 text-[11px] text-slate-600 leading-relaxed">
-                    Optionally connect your personal Groq API key to run assistant queries through your own account. If left empty, NexusPulse automatically uses its default platform AI configuration.
+                  <p className="mt-0.5 text-[12px] text-zinc-600 leading-relaxed">
+                    Optionally enter a personal API key to route chat queries through your own quota. Leave blank to use the default configuration.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowKeySettings(false)}
-                  className="rounded-md p-1 text-slate-400 hover:text-slate-700"
-                  title="Close API Key Settings"
+                  className="rounded-[6px] p-1 text-zinc-500 hover:text-zinc-900"
+                  title="Close API key settings"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </button>
               </div>
 
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px]">
-                <span className="font-semibold text-slate-700">Connection Status:</span>
+              <div className="flex items-center justify-between rounded-[6px] border border-zinc-200 bg-white px-3 py-1.5 text-[12px]">
+                <span className="font-medium text-zinc-700">Status:</span>
                 {savedApiKey ? (
-                  <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Personal API Key Active ({maskApiKey(savedApiKey)})
+                  <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
+                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    Personal key active ({maskApiKey(savedApiKey)})
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 font-medium text-zinc-700">
@@ -743,9 +742,9 @@ export default function NexusAiChatbot({
               <form onSubmit={handleSaveAndValidateKey} className="space-y-2">
                 <label
                   htmlFor="byok-groq-key-input"
-                  className="block text-[11px] font-bold text-slate-800"
+                  className="block text-[12px] font-medium text-zinc-700"
                 >
-                  Personal Groq API Key
+                  API key
                 </label>
                 <div className="relative flex items-center">
                   <input
@@ -753,21 +752,21 @@ export default function NexusAiChatbot({
                     type={showKeyText ? "text" : "password"}
                     value={keyInput}
                     onChange={(e) => setKeyInput(e.target.value)}
-                    placeholder="gsk_••••••••••••••••••••••••••••••••••••••••"
+                    placeholder="Enter personal API key"
                     autoComplete="off"
                     spellCheck={false}
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-9 font-mono text-xs text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none"
+                    className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-3 pr-9 font-mono text-[12px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKeyText((prev) => !prev)}
-                    title={showKeyText ? "Hide API Key" : "Show API Key"}
-                    className="absolute right-2.5 text-slate-400 hover:text-slate-700"
+                    title={showKeyText ? "Hide key" : "Show key"}
+                    className="absolute right-2.5 text-zinc-500 hover:text-zinc-800"
                   >
                     {showKeyText ? (
-                      <EyeOff className="h-3.5 w-3.5" />
+                      <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} />
                     ) : (
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
                     )}
                   </button>
                 </div>
@@ -776,15 +775,15 @@ export default function NexusAiChatbot({
                   <button
                     type="submit"
                     disabled={validatingKey || !keyInput.trim()}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 disabled:bg-slate-300 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-300 px-3 text-[12px] font-medium text-white transition-colors"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
                     <span>
                       {validatingKey
-                        ? "Validating Key..."
+                        ? "Validating..."
                         : savedApiKey
-                        ? "Update & Verify Key"
-                        : "Save & Verify Key"}
+                        ? "Update key"
+                        : "Save key"}
                     </span>
                   </button>
 
@@ -792,10 +791,10 @@ export default function NexusAiChatbot({
                     <button
                       type="button"
                       onClick={handleRemoveApiKey}
-                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 text-xs font-bold text-rose-800 transition"
+                      className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-red-200 bg-white hover:bg-red-50 px-3 text-[12px] font-medium text-red-700 transition-colors"
                     >
-                      <Trash2 className="h-3 w-3" />
-                      <span>Remove Key</span>
+                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                      <span>Remove</span>
                     </button>
                   )}
                 </div>
@@ -804,21 +803,21 @@ export default function NexusAiChatbot({
               {keyStatusMessage && (
                 <div
                   role="status"
-                  className={`flex items-start gap-2 rounded-lg border p-2.5 text-[11px] leading-relaxed ${
+                  className={`flex items-start gap-2 rounded-[6px] border p-2.5 text-[12px] leading-relaxed ${
                     keyStatusMessage.type === "success"
                       ? "border-emerald-200 bg-emerald-50 text-emerald-900"
                       : keyStatusMessage.type === "error"
-                      ? "border-rose-200 bg-rose-50 text-rose-900"
-                      : "border-sky-200 bg-sky-50 text-sky-900"
+                      ? "border-red-200 bg-red-50 text-red-800"
+                      : "border-zinc-200 bg-white text-zinc-800"
                   }`}
                 >
-                  <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" strokeWidth={1.5} />
                   <span>{keyStatusMessage.text}</span>
                 </div>
               )}
 
-              <p className="text-[10px] text-slate-500 leading-normal">
-                <strong>Account &amp; Rate Limit Notice:</strong> Using a personal API key routes requests through your own Groq account and is subject to your account&apos;s applicable usage limits, pricing, and rate policies. Your key is stored locally in your browser and transmitted securely over HTTPS headers.
+              <p className="text-[11px] text-zinc-600 leading-normal">
+                Stored only in your browser session storage and sent only on assistant requests.
               </p>
             </div>
           )}
@@ -942,7 +941,7 @@ export default function NexusAiChatbot({
               e.preventDefault();
               handleSendMessage();
             }}
-            className="border-t border-slate-100 p-3 bg-white rounded-b-2xl"
+            className="border-t border-zinc-200 p-3 bg-white rounded-b-[12px]"
           >
             <div className="relative flex items-center">
               <input
@@ -951,26 +950,26 @@ export default function NexusAiChatbot({
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={isLoading}
-                placeholder="Ask anything about NexusPulse, deals, bounties, escrow, or APIs..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3.5 pr-11 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-sky-500 shadow-xs focus:outline-none"
+                placeholder="Ask about subscriptions, prices, tasks, or escrow..."
+                className="w-full h-10 rounded-[6px] border border-zinc-200 bg-[#fafafa] pl-3.5 pr-11 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:bg-white focus:border-indigo-600"
               />
               <button
                 type="submit"
                 disabled={isLoading || !inputValue.trim()}
                 aria-label="Send message"
-                className="absolute right-1.5 rounded-lg bg-slate-950 hover:bg-slate-800 disabled:bg-slate-300 p-1.5 text-white transition disabled:cursor-not-allowed shadow-xs"
+                className="absolute right-1.5 rounded-[4px] bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-300 p-1.5 text-white transition-colors disabled:cursor-not-allowed"
               >
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             </div>
-            <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-500 px-1">
-              <span>Press Enter to send • Click links to jump to sections</span>
+            <div className="mt-1.5 flex items-center justify-between text-[12px] text-zinc-600 px-1">
+              <span>Press Enter to send</span>
               <button
                 type="button"
                 onClick={() => setShowKeySettings((prev) => !prev)}
-                className="font-mono text-sky-700 hover:underline"
+                className="font-medium text-indigo-600 hover:underline"
               >
-                {savedApiKey ? "BYOK: Personal Key" : "BYOK: Configure Key"}
+                {savedApiKey ? "Custom key active" : "Custom key"}
               </button>
             </div>
           </form>

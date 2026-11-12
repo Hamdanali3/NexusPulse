@@ -92,7 +92,7 @@ export default function NexusPulseHomePage() {
 
   // Gemini Interactions API Console state (with multi-turn previousInteractionId continuity)
   const [agentPrompt, setAgentPrompt] = useState(
-    "Perform a full Autonomous CFO & AGI Clearinghouse sweep: identify my highest-ROI PayPal subscription optimization, best Channel3 deal mandate, highest hourly Proof-of-Human Oracle bounty, and next A2A Smart Escrow milestone ready for capture."
+    "Check my subscriptions for savings, review tracked prices, list open verified tasks, and highlight escrow holds ready to release."
   );
   const [agentMode, setAgentMode] = useState<"deep_cfo_audit" | "fast_agent">(
     "deep_cfo_audit"
@@ -165,8 +165,8 @@ export default function NexusPulseHomePage() {
     }
     addToast(
       "success",
-      `Project Unlocked: ${user.fullName}`,
-      `Logged in as ${user.roleTitle} (${user.role}). Full clearinghouse access granted!`
+      `Signed in as ${user.fullName}`,
+      `Active role: ${user.roleTitle}. Workspace ready.`
     );
   }, [addToast]);
 
@@ -178,7 +178,7 @@ export default function NexusPulseHomePage() {
       // Ignore
     }
     setActiveTab("overview");
-    addToast("info", "Signed Out", "You have signed out. Project access is now gated. Please sign in or choose a demo persona to access the engines.");
+    addToast("info", "Signed out", "You have signed out. Sign in or pick a sample account to open workspace tools.");
   }, [addToast]);
 
   const fetchState = useCallback(async () => {
@@ -223,10 +223,10 @@ export default function NexusPulseHomePage() {
         if (data.accounts) setSandboxAccounts(data.accounts);
         addToast(
           data.telemetry.connected ? "success" : "info",
-          "PayPal Sandbox Synced",
+          "Account telemetry synced",
           data.telemetry.connected
-            ? `Synced Slot ${data.accounts?.slot ?? "013"} (${data.telemetry.liveInvoicesCount} live invoices, ${data.telemetry.disputesCount} disputes, ${data.telemetry.catalogPlansCount} billing plans).`
-            : "Running in offline Mirror fallback mode."
+            ? `Synced ${data.telemetry.liveInvoicesCount} invoices, ${data.telemetry.disputesCount} disputes, and ${data.telemetry.catalogPlansCount} billing plans.`
+            : "Using local sample workspace data."
         );
       } else {
         addToast("error", "Sync Failed", data.error || "Could not sync PayPal Sandbox telemetry.");
@@ -251,15 +251,15 @@ export default function NexusPulseHomePage() {
           if (data.state) setAppState(data.state);
           addToast(
             "success",
-            `PayPal Invoice ${data.invoice.invoice_number} Sent`,
-            `Dispatched $${data.invoice.amount.value} USD via Invoicing v2 (${String(data.mode).toUpperCase()}).`
+            `Invoice ${data.invoice.invoice_number} sent`,
+            `Sent $${data.invoice.amount.value} USD invoice.`
           );
           return { viewUrl: data.viewUrl as string | undefined, invoiceId: data.invoice.id as string };
         }
-        addToast("error", "Invoice Failed", data.error || "Failed to send PayPal Invoice.");
+        addToast("error", "Invoice failed", data.error || "Could not send invoice.");
         return null;
       } catch {
-        addToast("error", "Invoice Error", "Network error issuing PayPal Invoice.");
+        addToast("error", "Invoice error", "Network error sending invoice.");
         return null;
       }
     },
@@ -349,11 +349,11 @@ export default function NexusPulseHomePage() {
             if (capRes.ok && captured) {
               addToast(
                 "success",
-                "PayPal Sandbox Payment Captured",
-                `Order ${token} captured (${captured.capture_id ?? "SETTLED"}) into Merchant Slot 013.`
+                "Payment captured",
+                `Order ${token} captured (${captured.capture_id ?? "Settled"}).`
               );
             } else {
-              addToast("error", "Capture Error", capData.error || `Order ${token} could not be captured.`);
+              addToast("error", "Capture error", capData.error || `Order ${token} could not be captured.`);
             }
           }
         } catch {
@@ -393,8 +393,8 @@ export default function NexusPulseHomePage() {
       setAuthModalOpen(true);
       addToast(
         "info",
-        "Sign In Required",
-        "Please sign in or select an Evaluator Demo Persona to access the engines."
+        "Sign in required",
+        "Sign in or choose a sample account to continue."
       );
       return;
     }
@@ -428,12 +428,12 @@ export default function NexusPulseHomePage() {
         setActiveMode(data.activeMode ?? "mirror");
         addToast(
           "info",
-          "Gateway Mode Updated",
-          `PayPal gateway mode switched to ${nextPref.toUpperCase()} (${data.activeMode ?? nextPref}).`
+          "Workspace mode updated",
+          `Switched to ${nextPref === "mirror" ? "demo" : nextPref} mode.`
         );
       }
     } catch {
-      addToast("error", "Gateway Update Failed", "Failed to switch PayPal execution mode.");
+      addToast("error", "Mode update failed", "Could not switch workspace mode.");
     }
   }
 
@@ -458,18 +458,18 @@ export default function NexusPulseHomePage() {
         setPreferredMode("sandbox");
         addToast(
           "success",
-          "PayPal Sandbox Connected",
-          "Runtime credentials validated and hot-swapped to Live PayPal Sandbox."
+          "PayPal sandbox connected",
+          "Credentials verified for this session."
         );
       } else {
         addToast(
           "error",
-          "Credentials Error",
+          "Credentials error",
           data.error || "Failed to validate PayPal sandbox credentials."
         );
       }
     } catch {
-      addToast("error", "Connection Error", "Network error saving sandbox credentials.");
+      addToast("error", "Connection error", "Network error saving sandbox credentials.");
     }
   }
 
@@ -482,8 +482,8 @@ export default function NexusPulseHomePage() {
       setAuthModalOpen(true);
       addToast(
         "info",
-        "Sign In Required",
-        "Please sign in or select an Evaluator Demo Persona to run the Autonomous CFO."
+        "Sign in required",
+        "Sign in or choose a sample account to run a spending review."
       );
       return;
     }
@@ -518,21 +518,21 @@ export default function NexusPulseHomePage() {
         }
         addToast(
           "success",
-          "AI CFO Sweep Completed",
-          `Gemini executed ${data.toolExecutions?.length ?? 0} tool audits in ${data.durationMs ? `${data.durationMs}ms` : "real-time"}.`
+          "Spending review complete",
+          `Completed ${data.toolExecutions?.length ?? 0} checks${data.durationMs ? ` in ${data.durationMs}ms` : ""}.`
         );
       } else {
         addToast(
           "error",
-          "AI CFO Sweep Failed",
-          data.error || "Gemini could not complete the autonomous audit."
+          "Spending review failed",
+          data.error || "Could not complete the spending review."
         );
       }
     } catch (err) {
       addToast(
         "error",
-        "AI Sweep Error",
-        `Network error during AI audit: ${err instanceof Error ? err.message : "Unknown error"}`
+        "Review error",
+        `Network error during spending review: ${err instanceof Error ? err.message : "Unknown error"}`
       );
     } finally {
       setAgentRunning(false);
@@ -548,7 +548,7 @@ export default function NexusPulseHomePage() {
       const data = await res.json();
       if (res.ok && data.transcript) {
         setVoiceTranscript(data.transcript);
-        addToast("success", "Voice CFO Briefing", "Synthesizing executive audio briefing from Gemini.");
+        addToast("success", "Audio summary ready", "Playing spoken workspace summary.");
         if (data.audioBase64) {
           const audio = new Audio(
             `data:${data.mimeType || "audio/wav"};base64,${data.audioBase64}`
@@ -633,12 +633,12 @@ export default function NexusPulseHomePage() {
         setTurnCount(0);
         addToast(
           "info",
-          "Demo State Reset",
-          "All mock orders, bounties, and escrow milestones restored to clean baseline."
+          "Sample data reset",
+          "Restored sample prices, tasks, and escrow holds."
         );
       }
     } catch {
-      addToast("error", "Reset Error", "Failed to reset demo state.");
+      addToast("error", "Reset error", "Could not reset sample data.");
     }
   }
 
@@ -947,19 +947,19 @@ export default function NexusPulseHomePage() {
                     {[
                       {
                         label: "Check subscriptions",
-                        prompt: "Optimize my unused PayPal subscription and downgrade idle GPU plan to save money",
+                        prompt: "Review unused PayPal subscriptions and recommend lower-cost plans",
                       },
                       {
                         label: "Review price watch",
-                        prompt: "Buy the NVIDIA Jetson Orin Nano deal on Channel3 via PayPal Order v2",
+                        prompt: "Check active hardware price targets and recommended deals",
                       },
                       {
                         label: "List open tasks",
-                        prompt: "Rank open Proof-of-Human Oracle bounties by PayPal Payout reward",
+                        prompt: "Rank open verified tasks by PayPal payout amount",
                       },
                       {
                         label: "Inspect escrow holds",
-                        prompt: "Audit escrow milestones and delivery verification status",
+                        prompt: "Review escrow milestones and delivery verification status",
                       },
                     ].map((chip) => (
                       <button
@@ -985,7 +985,7 @@ export default function NexusPulseHomePage() {
 
             {/* 3. Three Capabilities in a Plain 3-Column List (no nested card boxes) */}
             <section
-              id="autonomous-engines-hub"
+              id="capabilities-hub"
               aria-labelledby="capabilities-heading"
               className="space-y-6"
             >
@@ -1137,9 +1137,8 @@ export default function NexusPulseHomePage() {
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                   <span className="text-zinc-600">Built with</span>
                   <span className="font-medium text-zinc-700">PayPal</span>
-                  <span className="font-medium text-zinc-700">Google Gemini</span>
-                  <span className="font-medium text-zinc-700">Supabase</span>
                   <span className="font-medium text-zinc-700">AG Grid</span>
+                  <span className="font-medium text-zinc-700">TypeScript</span>
                 </div>
                 <Link
                   href="/about"

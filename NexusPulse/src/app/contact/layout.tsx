@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact & Judge Support Desk | NexusPulse",
+  title: "Contact — NexusPulse",
   description:
-    "Direct communications channel for PayPal AI Hackathon judges, developers integrating APIMatic & PayPal SDKs, and enterprise partners deploying NexusPulse A2A Smart Escrow.",
+    "Contact the NexusPulse team for product questions, sandbox evaluation guidance, or integration support.",
 };
 
 export default function ContactLayout({

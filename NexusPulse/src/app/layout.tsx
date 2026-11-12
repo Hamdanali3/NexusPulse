@@ -6,10 +6,9 @@ const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", dis
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title:
-    "NexusPulse | Connecting AI Agents, Human Oracles & Smart Payments on PayPal",
+  title: "NexusPulse — Smarter spending, verified payouts, and escrow",
   description:
-    "PayPal AI Hackathon Flagship: Autonomous AI CFO (Channel3 + PayPal JS SDK v6 + Subscriptions v1), Proof-of-Human Oracle Micro-Bounties (PayPal Payouts v1), and Zero-Dispute A2A Smart Escrow (PayPal Orders v2 AUTHORIZE + Bryntum + AG Grid + APIMatic + Google Gemini Interactions API + Supabase).",
+    "Track prices, spot unused subscriptions, pay for verified tasks, and hold milestone funds until work is approved.",
 };
 
 export default function RootLayout({

@@ -201,40 +201,40 @@ export default function AuthModal({
             <div className="inline-flex items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[12px] font-medium text-zinc-700">
               <span>Account access</span>
             </div>
-            <h2 id="auth-modal-title" className="mt-2 text-lg font-bold text-zinc-950 tracking-tight">
-              {currentUser ? "User Profile & Persona Switcher" : "Sign In to NexusPulse"}
+            <h2 id="auth-modal-title" className="mt-2 text-[18px] font-semibold text-zinc-950 tracking-tight">
+              {currentUser ? "Switch account or profile" : "Sign in to NexusPulse"}
             </h2>
-            <p className="mt-0.5 text-xs text-zinc-500">
-              Select an Evaluator Demo Persona or authenticate with your credentials.
+            <p className="mt-0.5 text-[13px] text-zinc-600">
+              Choose a sample account or sign in with your email address.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition"
+            className="rounded-[6px] p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>
 
         {/* Current User Banner (if logged in) */}
         {currentUser && (
-          <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50/70 p-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold uppercase shrink-0">
+          <div className="mt-4 rounded-[8px] border border-zinc-200 bg-[#fafafa] p-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[12px] font-semibold uppercase shrink-0">
                 {currentUser.fullName.slice(0, 2)}
               </div>
-              <div className="truncate">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-zinc-900 truncate">
+                  <span className="text-[13px] font-medium text-zinc-950 truncate">
                     {currentUser.fullName}
                   </span>
-                  <span className="rounded bg-zinc-200/80 px-1.5 py-0.2 font-mono text-[10px] text-zinc-700 font-medium">
-                    {currentUser.role}
+                  <span className="text-[12px] text-zinc-600 shrink-0">
+                    {currentUser.roleTitle}
                   </span>
                 </div>
-                <div className="text-[11px] text-zinc-400 truncate">{currentUser.email}</div>
+                <div className="text-[12px] text-zinc-600 truncate">{currentUser.email}</div>
               </div>
             </div>
             <button
@@ -243,62 +243,62 @@ export default function AuthModal({
                 onLogout();
                 onClose();
               }}
-              className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 bg-white hover:bg-rose-50 hover:text-rose-600 px-2.5 py-1 text-xs font-medium text-zinc-600 transition"
+              className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-zinc-200 bg-white hover:bg-red-50 hover:text-red-700 px-2.5 text-[12px] font-medium text-zinc-700 transition-colors shrink-0"
             >
-              <LogOut className="h-3 w-3" />
-              <span>Sign Out</span>
+              <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <span>Sign out</span>
             </button>
           </div>
         )}
 
         {/* Tabs */}
-        <div role="tablist" className="mt-4 flex rounded-lg bg-zinc-100 p-0.5">
+        <div role="tablist" className="mt-4 flex rounded-[6px] border border-zinc-200 bg-zinc-100 p-0.5">
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === "demos"}
             onClick={() => setActiveTab("demos")}
-            className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+            className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
               activeTab === "demos"
-                ? "bg-white text-zinc-950 shadow-2xs"
-                : "text-zinc-500 hover:text-zinc-950"
+                ? "bg-white text-zinc-950"
+                : "text-zinc-600 hover:text-zinc-950"
             }`}
           >
-            Demo Accounts (1-Click)
+            Sample accounts
           </button>
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === "signin"}
             onClick={() => setActiveTab("signin")}
-            className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+            className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
               activeTab === "signin"
-                ? "bg-white text-zinc-950 shadow-2xs"
-                : "text-zinc-500 hover:text-zinc-950"
+                ? "bg-white text-zinc-950"
+                : "text-zinc-600 hover:text-zinc-950"
             }`}
           >
-            Sign In
+            Sign in
           </button>
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === "signup"}
             onClick={() => setActiveTab("signup")}
-            className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+            className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
               activeTab === "signup"
-                ? "bg-white text-zinc-950 shadow-2xs"
-                : "text-zinc-500 hover:text-zinc-950"
+                ? "bg-white text-zinc-950"
+                : "text-zinc-600 hover:text-zinc-950"
             }`}
           >
-            Sign Up
+            Sign up
           </button>
         </div>
 
-        {/* TAB 1: DEMO ACCOUNTS FOR EVALUATORS */}
+        {/* TAB 1: SAMPLE ACCOUNTS */}
         {activeTab === "demos" && (
           <div className="mt-4 space-y-2.5">
-            <p className="text-[11px] text-zinc-500">
-              Designed for hackathon judges and evaluators to test all 4 platform personas instantly with zero typing:
+            <p className="text-[12px] text-zinc-600">
+              Select a sample role to preview each workflow immediately:
             </p>
 
             <div className="space-y-2">
@@ -310,49 +310,47 @@ export default function AuthModal({
                     type="button"
                     disabled={signInLoading}
                     onClick={() => handleDemoLogin(key)}
-                    className={`w-full text-left rounded-xl border p-3 transition flex items-start justify-between gap-3 ${
+                    className={`w-full text-left rounded-[8px] border p-3 transition-colors flex items-start justify-between gap-3 ${
                       isCurrent
-                        ? "border-indigo-400 bg-indigo-50/30 ring-1 ring-indigo-400/20"
-                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/60"
+                        ? "border-indigo-600 bg-indigo-50/40"
+                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-[#fafafa]"
                     }`}
                   >
-                    <div className="flex items-start gap-2.5">
-                      <div className="h-8 w-8 rounded-lg bg-zinc-950 text-white flex items-center justify-center text-xs font-bold uppercase shrink-0 mt-0.5">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <div className="h-8 w-8 rounded-[6px] bg-zinc-950 text-white flex items-center justify-center shrink-0 mt-0.5">
                         {key === "judge" ? (
-                          <ShieldCheck className="h-4 w-4 text-purple-400" />
+                          <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />
                         ) : key === "consumer" ? (
-                          <ShoppingBag className="h-4 w-4 text-emerald-400" />
+                          <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
                         ) : key === "oracle" ? (
-                          <UserCheck className="h-4 w-4 text-indigo-400" />
+                          <UserCheck className="h-4 w-4" strokeWidth={1.5} />
                         ) : (
-                          <Bot className="h-4 w-4 text-blue-400" />
+                          <Bot className="h-4 w-4" strokeWidth={1.5} />
                         )}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-zinc-900">{demo.fullName}</span>
-                          <span
-                            className={`rounded border px-1.5 py-0.2 font-mono text-[10px] font-medium ${demo.badgeColor}`}
-                          >
+                          <span className="text-[13px] font-medium text-zinc-950">{demo.fullName}</span>
+                          <span className="text-[12px] text-zinc-600">
                             {demo.badgeLabel}
                           </span>
                           {isCurrent && (
-                            <span className="text-[10px] font-semibold text-indigo-600">
+                            <span className="text-[12px] font-medium text-indigo-600">
                               (Active)
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-zinc-400">{demo.email}</div>
-                        <p className="mt-1 text-[11px] text-zinc-600 leading-snug line-clamp-2">
+                        <div className="text-[12px] text-zinc-600">{demo.email}</div>
+                        <p className="mt-1 text-[12px] text-zinc-600 leading-snug line-clamp-2">
                           {demo.description}
                         </p>
                       </div>
                     </div>
 
                     <div className="shrink-0 pt-1">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-semibold text-zinc-700">
+                      <span className="inline-flex items-center gap-1 rounded-[6px] border border-zinc-200 bg-[#fafafa] px-2 py-1 text-[12px] font-medium text-zinc-700">
                         <span>Select</span>
-                        <ArrowRight className="h-3 w-3" />
+                        <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
                       </span>
                     </div>
                   </button>
@@ -373,11 +371,11 @@ export default function AuthModal({
             )}
 
             <div>
-              <label htmlFor="signin-email" className="block text-xs font-semibold text-zinc-700">
-                Email Address
+              <label htmlFor="signin-email" className="block text-[13px] font-medium text-zinc-700">
+                Email
               </label>
               <div className="relative mt-1">
-                <Mail className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                 <input
                   id="signin-email"
                   type="email"
@@ -386,17 +384,17 @@ export default function AuthModal({
                   value={signInEmail}
                   onChange={(e) => setSignInEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="signin-password" className="block text-xs font-semibold text-zinc-700">
+              <label htmlFor="signin-password" className="block text-[13px] font-medium text-zinc-700">
                 Password
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                 <input
                   id="signin-password"
                   type="password"
@@ -405,7 +403,7 @@ export default function AuthModal({
                   value={signInPassword}
                   onChange={(e) => setSignInPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
                 />
               </div>
             </div>
@@ -413,9 +411,9 @@ export default function AuthModal({
             <button
               type="submit"
               disabled={signInLoading}
-              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 py-2 text-xs font-semibold text-white shadow-2xs transition"
+              className="mt-2 w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-[13px] font-medium text-white transition-colors"
             >
-              {signInLoading ? "Authenticating…" : "Sign In"}
+              {signInLoading ? "Signing in..." : "Sign in"}
             </button>
           </form>
         )}
@@ -439,13 +437,13 @@ export default function AuthModal({
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="signup-name" className="block text-xs font-semibold text-zinc-700">
-                  Full Name
+                <label htmlFor="signup-name" className="block text-[13px] font-medium text-zinc-700">
+                  Full name
                 </label>
-                {nameError && <span className="text-[10px] text-rose-500">{nameError}</span>}
+                {nameError && <span className="text-[12px] text-red-700">{nameError}</span>}
               </div>
               <div className="relative mt-1">
-                <User className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                <User className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                 <input
                   id="signup-name"
                   type="text"
@@ -453,11 +451,11 @@ export default function AuthModal({
                   autoComplete="name"
                   value={signUpName}
                   onChange={(e) => setSignUpName(e.target.value)}
-                  placeholder="e.g. Alex Rivera"
-                  className={`w-full rounded-lg border py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:outline-none focus:ring-1 ${
+                  placeholder="Alex Rivera"
+                  className={`w-full h-9 rounded-[6px] border pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 ${
                     nameError
-                      ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500"
-                      : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                      ? "border-red-500 focus:border-red-600"
+                      : "border-zinc-200 focus:border-indigo-600"
                   }`}
                 />
               </div>
@@ -465,13 +463,13 @@ export default function AuthModal({
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="signup-email" className="block text-xs font-semibold text-zinc-700">
-                  Email Address
+                <label htmlFor="signup-email" className="block text-[13px] font-medium text-zinc-700">
+                  Email
                 </label>
-                {emailError && <span className="text-[10px] text-rose-500">{emailError}</span>}
+                {emailError && <span className="text-[12px] text-red-700">{emailError}</span>}
               </div>
               <div className="relative mt-1">
-                <Mail className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                 <input
                   id="signup-email"
                   type="email"
@@ -480,21 +478,21 @@ export default function AuthModal({
                   value={signUpEmail}
                   onChange={(e) => setSignUpEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className={`w-full rounded-lg border py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:outline-none focus:ring-1 ${
+                  className={`w-full h-9 rounded-[6px] border pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 ${
                     emailError
-                      ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500"
-                      : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                      ? "border-red-500 focus:border-red-600"
+                      : "border-zinc-200 focus:border-indigo-600"
                   }`}
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="signup-password" className="block text-xs font-semibold text-zinc-700">
+              <label htmlFor="signup-password" className="block text-[13px] font-medium text-zinc-700">
                 Password
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
                 <input
                   id="signup-password"
                   type="password"
@@ -503,34 +501,34 @@ export default function AuthModal({
                   value={signUpPassword}
                   onChange={(e) => setSignUpPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="signup-role" className="block text-xs font-semibold text-zinc-700">
-                Primary Account Persona
+              <label htmlFor="signup-role" className="block text-[13px] font-medium text-zinc-700">
+                Role
               </label>
               <select
                 id="signup-role"
                 value={signUpRole}
                 onChange={(e) => setSignUpRole(e.target.value as UserRole)}
-                className="mt-1 w-full rounded-lg border border-zinc-200 bg-white py-1.5 px-2.5 text-xs text-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="mt-1 w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 focus:border-indigo-600"
               >
-                <option value="CONSUMER">Autonomous Shopper (Engine 1 Deals &amp; Subscriptions)</option>
-                <option value="ORACLE_WORKER">Proof-of-Human Contributor (Engine 2 Micro-Bounties)</option>
-                <option value="ENTERPRISE_AGENT">Enterprise Requester (Engine 3 Smart Escrow)</option>
-                <option value="ADMIN">Platform Auditor &amp; Hackathon Judge (Full Telemetry)</option>
+                <option value="CONSUMER">Buyer (Price watch &amp; subscriptions)</option>
+                <option value="ORACLE_WORKER">Contributor (Verified tasks &amp; payouts)</option>
+                <option value="ENTERPRISE_AGENT">Team lead (Milestone escrow)</option>
+                <option value="ADMIN">Reviewer (Full workspace access)</option>
               </select>
             </div>
 
             <button
               type="submit"
               disabled={signUpLoading || Boolean(nameError) || Boolean(emailError)}
-              className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 py-2 text-xs font-semibold text-white shadow-2xs transition disabled:opacity-50"
+              className="mt-3 w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-[13px] font-medium text-white transition-colors disabled:opacity-50"
             >
-              {signUpLoading ? "Creating Account…" : "Create Account & Sign In"}
+              {signUpLoading ? "Creating account..." : "Create account"}
             </button>
           </form>
         )}

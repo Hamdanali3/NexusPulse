@@ -32,51 +32,51 @@ interface StepData {
 const SIMULATION_STEPS: StepData[] = [
   {
     step: 1,
-    badge: "01. Task Origination",
+    badge: "Step 1 · Hold created",
     badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    title: "Autonomous Agent Detects Physical Anomaly",
-    actor: "Sentinel-AI Agent #402",
-    actorRole: "Autonomous Infrastructure Agent",
-    action: "Detects thermal spike in Equinix DC4 server rack. Requires human verification before rebooting mission-critical cluster.",
-    payload: "Bounty Created: $35.00 USD | PayPal Escrow Lock: AUTH-HOLD-883192",
+    title: "Buyer posts an inspection task",
+    actor: "Operations team #402",
+    actorRole: "Requester",
+    action: "Needs photo confirmation of a server rack cooling fan at Equinix DC4 before scheduling maintenance.",
+    payload: "Task reward: $35.00 USD | Hold ID: AUTH-HOLD-883192",
     latency: "12ms",
-    tech: "PayPal Orders v2 AUTHORIZE",
+    tech: "Authorized hold",
   },
   {
     step: 2,
-    badge: "02. Physical Proof",
+    badge: "Step 2 · Evidence uploaded",
     badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
-    title: "Human Oracle Uploads Ground-Truth Evidence",
+    title: "Contributor uploads inspection proof",
     actor: "Elena Rostova",
-    actorRole: "Verified Level-3 Data Center Technician",
-    action: "Arrives at Rack B-14, inspects cooling intake fan, snaps high-res photo showing fan #3 rotor obstruction, and uploads with geo-stamp.",
-    payload: "Evidence: IMG_20261112_DC4_RACKB14.jpg (SHA256: e8f1...39c2)",
-    latency: "45s total human turnaround",
-    tech: "Proof-of-Human Mobile Oracle",
+    actorRole: "Verified Technician",
+    action: "Inspects Rack B-14 on site, takes a photo of the obstructed fan rotor, and attaches timestamped metadata.",
+    payload: "Attachment: IMG_20261112_DC4_RACKB14.jpg (SHA256: e8f1...39c2)",
+    latency: "45s turnaround",
+    tech: "Field evidence",
   },
   {
     step: 3,
-    badge: "03. AI Vision Audit",
-    badgeColor: "bg-purple-50 text-purple-700 border-purple-200",
-    title: "Gemini Multimodal Audits Against Rubric",
-    actor: "Google Gemini 1.5 Pro / Flash",
-    actorRole: "Autonomous Evidence Auditor",
-    action: "Verifies rack serial tag, cooling impeller defect, and confirms GPS metadata matches Equinix Dallas coordinates. Zero hallucination.",
-    payload: "Verification Confidence: 98.6% PASS | Rubric Score: 5/5",
-    latency: "1,140ms",
-    tech: "Gemini Multimodal Vision API",
+    badge: "Step 3 · Review check",
+    badgeColor: "bg-zinc-100 text-zinc-700 border-zinc-200",
+    title: "Submission checked against criteria",
+    actor: "Automated verification",
+    actorRole: "Evidence Check",
+    action: "Confirms rack serial number, visible defect, and facility coordinates match the task checklist.",
+    payload: "Confidence: 98.6% | Rubric Score: 5/5",
+    latency: "1.1s",
+    tech: "Automated verification",
   },
   {
     step: 4,
-    badge: "04. Instant Settlement",
+    badge: "Step 4 · Payout sent",
     badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    title: "PayPal Disburses Instant Payout to Human",
-    actor: "NexusPulse Clearinghouse",
-    actorRole: "PayPal Smart Settlement Gateway",
-    action: "Releases $35.00 directly to Elena's PayPal account with zero delay. Dispatches tracking confirmation and updates global ledger.",
-    payload: "Payout ID: 9Y882310TX771 | Status: SUCCESS | Fee: $0.25 (Sponsored)",
+    title: "PayPal sends payout to contributor",
+    actor: "NexusPulse",
+    actorRole: "Payout Processing",
+    action: "Releases $35.00 to the contributor PayPal account and writes a receipt to the transaction ledger.",
+    payload: "Payout ID: 9Y882310TX771 | Status: Sent",
     latency: "1.4s",
-    tech: "PayPal Payouts API v1",
+    tech: "PayPal Payouts",
   },
 ];
 
@@ -155,12 +155,12 @@ export default function InteractiveFlowSimulator({
           </div>
           <h2
             id="flow-simulator-heading"
-            className="mt-2 text-lg sm:text-xl font-bold tracking-tight text-zinc-950"
+            className="mt-2 text-[20px] font-semibold tracking-tight text-zinc-950"
           >
-            How It Works: The 4-Phase AI-to-Human Clearing Loop
+            How task payouts work
           </h2>
-          <p className="mt-1 text-xs text-zinc-500 max-w-xl">
-            See how an autonomous AI agent hires a verified human for real-world verification, audits the proof via Gemini Vision, and settles instantly through PayPal.
+          <p className="mt-1 text-[13px] text-zinc-600 max-w-xl">
+            Walk through how an inspection request holds funds, verifies uploaded proof, and settles via PayPal.
           </p>
         </div>
 
@@ -168,17 +168,17 @@ export default function InteractiveFlowSimulator({
           <button
             type="button"
             onClick={handlePlayToggle}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition"
+            className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white transition-colors"
           >
             {isPlaying ? (
               <>
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
                 <span>Simulating...</span>
               </>
             ) : (
               <>
-                <Play className="h-3.5 w-3.5 text-indigo-400 fill-indigo-400" />
-                <span>{activeStep === 4 ? "Replay Flow" : "Run Live Simulation"}</span>
+                <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <span>{activeStep === 4 ? "Replay walkthrough" : "Run sample flow"}</span>
               </>
             )}
           </button>
@@ -266,18 +266,18 @@ export default function InteractiveFlowSimulator({
         </div>
 
         {/* Narrative & Context */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="rounded-lg bg-white p-3 border border-zinc-200/70 shadow-2xs">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-              Primary Actor
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-[13px]">
+          <div className="rounded-[8px] bg-white p-3 border border-zinc-200">
+            <span className="text-[12px] font-medium text-zinc-600">
+              Actor
             </span>
-            <div className="mt-1 font-bold text-zinc-900">{current.actor}</div>
-            <div className="text-[11px] text-zinc-500 mt-0.5">{current.actorRole}</div>
+            <div className="mt-1 font-medium text-zinc-950">{current.actor}</div>
+            <div className="text-[12px] text-zinc-600 mt-0.5">{current.actorRole}</div>
           </div>
 
-          <div className="md:col-span-2 rounded-lg bg-white p-3 border border-zinc-200/70 shadow-2xs">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-              Autonomous Operation &amp; Ground Truth
+          <div className="md:col-span-2 rounded-[8px] bg-white p-3 border border-zinc-200">
+            <span className="text-[12px] font-medium text-zinc-600">
+              Action
             </span>
             <p className="mt-1 text-zinc-700 leading-relaxed">
               {current.action}
@@ -285,64 +285,61 @@ export default function InteractiveFlowSimulator({
           </div>
         </div>
 
-        {/* Cryptographic / Financial Payload */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-zinc-900 px-3.5 py-2.5 text-xs text-zinc-200 font-mono">
+        {/* Payload */}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-[6px] bg-zinc-900 px-3.5 py-2.5 text-[12px] text-zinc-200 font-mono">
           <div className="truncate">
-            <span className="text-emerald-400 font-bold">$ </span>
             <span className="text-zinc-300">{current.payload}</span>
           </div>
-          <span className="text-[11px] text-zinc-500 shrink-0">
-            Validated by PayPal Gateway
+          <span className="text-[12px] text-zinc-400 shrink-0">
+            Sample simulation
           </span>
         </div>
       </div>
 
       {/* Simulated PayPal Payout Receipt (Appears at Step 4) */}
       {showReceipt && (
-        <div className="nexus-fade-in rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 sm:p-5 text-xs space-y-3">
+        <div className="rounded-[12px] border border-emerald-200 bg-emerald-50/40 p-4 sm:p-5 text-[13px] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
-                ✓
-              </div>
-              <span className="font-bold text-emerald-950 text-sm">
-                PayPal Payouts v1 Settlement Completed
+              <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
+              <span className="font-semibold text-zinc-950 text-[14px]">
+                Sample payout receipt
               </span>
             </div>
-            <span className="rounded bg-emerald-100/80 border border-emerald-300 text-emerald-800 text-[10px] font-mono px-2 py-0.5 font-bold">
+            <span className="text-[12px] font-mono text-zinc-700">
               TX-PAYOUT-883192
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-lg border border-emerald-200/60">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-[8px] border border-zinc-200">
             <div>
-              <div className="text-[10px] text-zinc-400 uppercase font-semibold">Net Disbursed</div>
-              <div className="font-bold text-zinc-950 text-sm text-emerald-700">$35.00 USD</div>
+              <div className="text-[12px] text-zinc-600">Amount sent</div>
+              <div className="font-semibold text-emerald-700 tabular-nums">$35.00 USD</div>
             </div>
             <div>
-              <div className="text-[10px] text-zinc-400 uppercase font-semibold">Recipient</div>
-              <div className="font-medium text-zinc-800 truncate">elena.rostova@personal.example.com</div>
+              <div className="text-[12px] text-zinc-600">Recipient</div>
+              <div className="font-medium text-zinc-900 truncate">elena.rostova@example.com</div>
             </div>
             <div>
-              <div className="text-[10px] text-zinc-400 uppercase font-semibold">Verification Rubric</div>
-              <div className="font-medium text-zinc-800">Gemini Vision 98.6% Pass</div>
+              <div className="text-[12px] text-zinc-600">Check result</div>
+              <div className="font-medium text-zinc-900">98.6% confidence</div>
             </div>
             <div>
-              <div className="text-[10px] text-zinc-400 uppercase font-semibold">Execution Time</div>
-              <div className="font-medium text-zinc-800">1.4 seconds (Instant)</div>
+              <div className="text-[12px] text-zinc-600">Time elapsed</div>
+              <div className="font-medium text-zinc-900 tabular-nums">1.4s</div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-emerald-900 pt-1">
-            <span>Proof of human verification securely archived to Supabase PostgreSQL &amp; AG Grid financial ledger.</span>
+          <div className="flex items-center justify-between text-[12px] text-zinc-700 pt-1">
+            <span>Receipt recorded to the ledger.</span>
             {onExploreEngines && (
               <button
                 type="button"
                 onClick={onExploreEngines}
-                className="font-semibold underline hover:text-emerald-950 inline-flex items-center gap-1 shrink-0"
+                className="font-medium text-indigo-600 hover:underline inline-flex items-center gap-1 shrink-0"
               >
-                <span>View in Bounties Engine</span>
-                <ArrowRight className="h-3 w-3" />
+                <span>Open verified tasks</span>
+                <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
             )}
           </div>

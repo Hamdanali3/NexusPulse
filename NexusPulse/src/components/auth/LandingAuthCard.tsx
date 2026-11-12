@@ -164,72 +164,72 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
   }
 
   return (
-    <div id="landing-auth-gateway" className="w-full max-w-xl mx-auto rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-md shadow-zinc-950/5 text-left">
-      <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+    <div id="landing-auth-gateway" className="w-full max-w-xl mx-auto rounded-[12px] border border-zinc-200 bg-white p-5 sm:p-6 text-left">
+      <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
-          <span className="text-xs font-bold text-zinc-950 uppercase tracking-wider">
-            Sign In to Unlock Project Access
+          <span className="h-2 w-2 rounded-full bg-indigo-600" aria-hidden="true" />
+          <span className="text-[13px] font-medium text-zinc-950">
+            Sign in to NexusPulse
           </span>
         </div>
-        <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-2 py-0.5 font-medium">
-          Instant Evaluator Access
+        <span className="text-[12px] text-zinc-600">
+          Demo access
         </span>
       </div>
 
-      <p className="mt-2 text-xs text-zinc-500 leading-relaxed">
-        Sign in, create a custom account with name &amp; email checks, or select a pre-configured Evaluator Demo Persona to access the 3 engines, Autonomous CFO, and PayPal clearinghouse.
+      <p className="mt-2 text-[13px] text-zinc-600 leading-relaxed">
+        Sign in, create an account, or pick a sample profile to explore price watch, verified tasks, and milestone escrow.
       </p>
 
       {/* Tabs */}
-      <div role="tablist" className="mt-4 flex rounded-lg bg-zinc-100 p-0.5">
+      <div role="tablist" className="mt-4 flex rounded-[6px] border border-zinc-200 bg-zinc-100 p-0.5">
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "demos"}
           onClick={() => setActiveTab("demos")}
-          className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+          className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
             activeTab === "demos"
-              ? "bg-white text-zinc-950 shadow-2xs"
-              : "text-zinc-500 hover:text-zinc-950"
+              ? "bg-white text-zinc-950"
+              : "text-zinc-600 hover:text-zinc-950"
           }`}
         >
-          Evaluator Demos (1-Click)
+          Sample accounts
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "signin"}
           onClick={() => setActiveTab("signin")}
-          className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+          className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
             activeTab === "signin"
-              ? "bg-white text-zinc-950 shadow-2xs"
-              : "text-zinc-500 hover:text-zinc-950"
+              ? "bg-white text-zinc-950"
+              : "text-zinc-600 hover:text-zinc-950"
           }`}
         >
-          Sign In
+          Sign in
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "signup"}
           onClick={() => setActiveTab("signup")}
-          className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition ${
+          className={`flex-1 rounded-[4px] py-1.5 text-[12px] font-medium transition-colors ${
             activeTab === "signup"
-              ? "bg-white text-zinc-950 shadow-2xs"
-              : "text-zinc-500 hover:text-zinc-950"
+              ? "bg-white text-zinc-950"
+              : "text-zinc-600 hover:text-zinc-950"
           }`}
         >
-          Sign Up
+          Sign up
         </button>
       </div>
 
-      {/* TAB 1: 1-CLICK DEMO ACCOUNTS */}
+      {/* TAB 1: SAMPLE ACCOUNTS */}
       {activeTab === "demos" && (
         <div className="mt-4 space-y-2">
           {signInError && (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 flex items-start gap-2 text-xs text-rose-700">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-[13px] text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={1.5} />
               <span>{signInError}</span>
             </div>
           )}
@@ -241,27 +241,27 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 type="button"
                 disabled={signInLoading}
                 onClick={() => handleDemoSelect(key)}
-                className="text-left rounded-xl border border-zinc-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/20 p-3 transition flex flex-col justify-between group"
+                className="text-left rounded-[8px] border border-zinc-200 bg-white hover:border-indigo-600 hover:bg-zinc-50 p-3 transition-colors flex flex-col justify-between group"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-bold text-zinc-900 group-hover:text-indigo-600 transition truncate">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-medium text-zinc-950 group-hover:text-indigo-600 transition-colors">
                       {demo.fullName}
                     </span>
-                    <span className={`text-[9px] font-mono font-medium rounded px-1.5 py-0.2 border shrink-0 ${demo.badgeColor}`}>
+                    <span className="text-[12px] text-zinc-600 shrink-0">
                       {demo.badgeLabel}
                     </span>
                   </div>
-                  <div className="mt-1 text-[11px] text-zinc-500 line-clamp-1">
+                  <div className="mt-0.5 text-[12px] text-zinc-600 line-clamp-2">
                     {demo.roleTitle}
                   </div>
                 </div>
 
-                <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-zinc-100 text-[10px]">
-                  <span className="text-zinc-600 font-mono tabular-nums">{formatUsd(demo.walletBalanceUsd)}</span>
-                  <span className="font-semibold text-indigo-600 flex items-center gap-0.5">
-                    <span>Unlock</span>
-                    <ArrowRight className="h-2.5 w-2.5" />
+                <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-zinc-200 text-[12px]">
+                  <span className="text-zinc-700 tabular-nums font-medium">{formatUsd(demo.walletBalanceUsd)}</span>
+                  <span className="font-medium text-indigo-600 flex items-center gap-0.5">
+                    <span>Use account</span>
+                    <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
                   </span>
                 </div>
               </button>
@@ -281,11 +281,11 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
           )}
 
           <div>
-            <label htmlFor="landing-signin-email" className="block text-xs font-semibold text-zinc-700">
-              Email Address
+            <label htmlFor="landing-signin-email" className="block text-[13px] font-medium text-zinc-700">
+              Email
             </label>
             <div className="relative mt-1">
-              <Mail className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+              <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
               <input
                 id="landing-signin-email"
                 type="email"
@@ -294,17 +294,17 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 value={signInEmail}
                 onChange={(e) => setSignInEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="landing-signin-password" className="block text-xs font-semibold text-zinc-700">
+            <label htmlFor="landing-signin-password" className="block text-[13px] font-medium text-zinc-700">
               Password
             </label>
             <div className="relative mt-1">
-              <Lock className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+              <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
               <input
                 id="landing-signin-password"
                 type="password"
@@ -313,7 +313,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 value={signInPassword}
                 onChange={(e) => setSignInPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
               />
             </div>
           </div>
@@ -321,9 +321,9 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
           <button
             type="submit"
             disabled={signInLoading}
-            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 py-2 text-xs font-semibold text-white shadow-2xs transition"
+            className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-[13px] font-medium text-white transition-colors"
           >
-            {signInLoading ? "Unlocking…" : "Sign In & Unlock Platform"}
+            {signInLoading ? "Signing in..." : "Sign in"}
           </button>
         </form>
       )}
@@ -347,13 +347,13 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="landing-signup-name" className="block text-xs font-semibold text-zinc-700">
-                Full Name
+              <label htmlFor="landing-signup-name" className="block text-[13px] font-medium text-zinc-700">
+                Full name
               </label>
-              {nameError && <span className="text-[10px] text-rose-500">{nameError}</span>}
+              {nameError && <span className="text-[12px] text-red-700">{nameError}</span>}
             </div>
             <div className="relative mt-1">
-              <User className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+              <User className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
               <input
                 id="landing-signup-name"
                 type="text"
@@ -361,11 +361,11 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 autoComplete="name"
                 value={signUpName}
                 onChange={(e) => setSignUpName(e.target.value)}
-                placeholder="e.g. Alex Rivera"
-                className={`w-full rounded-lg border py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:outline-none focus:ring-1 ${
+                placeholder="Alex Rivera"
+                className={`w-full h-9 rounded-[6px] border pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 ${
                   nameError
-                    ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500"
-                    : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                    ? "border-red-500 focus:border-red-600"
+                    : "border-zinc-200 focus:border-indigo-600"
                 }`}
               />
             </div>
@@ -373,13 +373,13 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="landing-signup-email" className="block text-xs font-semibold text-zinc-700">
-                Email Address
+              <label htmlFor="landing-signup-email" className="block text-[13px] font-medium text-zinc-700">
+                Email
               </label>
-              {emailError && <span className="text-[10px] text-rose-500">{emailError}</span>}
+              {emailError && <span className="text-[12px] text-red-700">{emailError}</span>}
             </div>
             <div className="relative mt-1">
-              <Mail className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+              <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
               <input
                 id="landing-signup-email"
                 type="email"
@@ -388,21 +388,21 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 value={signUpEmail}
                 onChange={(e) => setSignUpEmail(e.target.value)}
                 placeholder="name@example.com"
-                className={`w-full rounded-lg border py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:outline-none focus:ring-1 ${
+                className={`w-full h-9 rounded-[6px] border pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 ${
                   emailError
-                    ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500"
-                    : "border-zinc-200 focus:border-indigo-500 focus:ring-indigo-500"
+                    ? "border-red-500 focus:border-red-600"
+                    : "border-zinc-200 focus:border-indigo-600"
                 }`}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="landing-signup-password" className="block text-xs font-semibold text-zinc-700">
+            <label htmlFor="landing-signup-password" className="block text-[13px] font-medium text-zinc-700">
               Password
             </label>
             <div className="relative mt-1">
-              <Lock className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+              <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
               <input
                 id="landing-signup-password"
                 type="password"
@@ -411,34 +411,34 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 value={signUpPassword}
                 onChange={(e) => setSignUpPassword(e.target.value)}
                 placeholder="At least 6 characters"
-                className="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-3 text-xs placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full h-9 rounded-[6px] border border-zinc-200 bg-white pl-8 pr-3 text-[13px] text-zinc-950 placeholder:text-zinc-500 focus:border-indigo-600"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="landing-signup-role" className="block text-xs font-semibold text-zinc-700">
-              Select Your Role / Persona
+            <label htmlFor="landing-signup-role" className="block text-[13px] font-medium text-zinc-700">
+              Role
             </label>
             <select
               id="landing-signup-role"
               value={signUpRole}
               onChange={(e) => setSignUpRole(e.target.value as UserRole)}
-              className="mt-1 w-full rounded-lg border border-zinc-200 bg-white py-1.5 px-2.5 text-xs text-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="mt-1 w-full h-9 rounded-[6px] border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-900 focus:border-indigo-600"
             >
-              <option value="CONSUMER">Consumer / Shopper (Engine 1 Deals &amp; Subscriptions)</option>
-              <option value="ORACLE_WORKER">Proof-of-Human Contributor (Engine 2 Micro-Bounties)</option>
-              <option value="ENTERPRISE_AGENT">Enterprise Agent (Engine 3 Smart Escrow)</option>
-              <option value="ADMIN">Platform Auditor &amp; Hackathon Judge (Full Telemetry)</option>
+              <option value="CONSUMER">Buyer (Price watch &amp; subscriptions)</option>
+              <option value="ORACLE_WORKER">Contributor (Verified tasks &amp; payouts)</option>
+              <option value="ENTERPRISE_AGENT">Team lead (Milestone escrow)</option>
+              <option value="ADMIN">Reviewer (Full workspace access)</option>
             </select>
           </div>
 
           <button
             type="submit"
             disabled={signUpLoading || Boolean(nameError) || Boolean(emailError)}
-            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-950 hover:bg-zinc-800 py-2 text-xs font-semibold text-white shadow-2xs transition disabled:opacity-50"
+            className="w-full h-9 inline-flex items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-[13px] font-medium text-white transition-colors disabled:opacity-50"
           >
-            {signUpLoading ? "Creating Account…" : "Create Account & Unlock Access"}
+            {signUpLoading ? "Creating account..." : "Create account"}
           </button>
         </form>
       )}

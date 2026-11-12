@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About NexusPulse | Frontier Research, Autonomous Engines & Architecture",
+  title: "About — NexusPulse",
   description:
-    "Explore the architectural blueprint, frontier AI literature foundations, and 7-sponsor technology stack behind NexusPulse — built for the PayPal AI Hackathon 2026.",
+    "How NexusPulse handles price monitoring, subscription reviews, task verification, and milestone escrow.",
 };
 
 export default function AboutLayout({

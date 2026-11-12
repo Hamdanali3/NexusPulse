@@ -181,19 +181,19 @@ export default function ProofOfHumanBountyBoard({
         if (audit.passed) {
           setStatusBanner({
             type: "success",
-            text: `Bounty #${selectedBounty.id} Verified & Settled! Gemini 3.8 Flash scored ${audit.score}/100. Instant PayPal Payout Batch #${payoutBatchId} dispatched $${selectedBounty.reward.value} USD to ${trimmedEmail}.`,
+            text: `Task ${selectedBounty.id} verified (score ${audit.score}/100). Sent $${selectedBounty.reward.value} USD to ${trimmedEmail} in payout batch ${payoutBatchId}.`,
           });
           onStateUpdated();
         } else {
           setStatusBanner({
             type: "error",
-            text: `Verification Rejected: Score ${audit.score}/100 is below the verification threshold. Reason: ${audit.reasoning}`,
+            text: `Verification declined: score ${audit.score}/100 did not meet criteria. ${audit.reasoning}`,
           });
         }
       } else {
         setStatusBanner({
           type: "error",
-          text: data.error || "Bounty verification failed. Please check evidence text and recipient account format.",
+          text: data.error || "Could not verify task evidence. Check the submission details and recipient address.",
         });
       }
     } catch (err) {
