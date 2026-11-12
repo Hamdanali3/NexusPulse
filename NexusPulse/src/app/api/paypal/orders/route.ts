@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       {
         orderId: updatedOrder.id,
         order: updatedOrder,
+        capturedOrder: updatedOrder,
         state,
       },
       { headers: VARY_HEADERS }

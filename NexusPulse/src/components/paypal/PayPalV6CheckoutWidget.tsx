@@ -97,13 +97,14 @@ export default function PayPalV6CheckoutWidget({
         }),
       });
       const data = await res.json();
-      if (!res.ok || !data.capturedOrder) {
+      const captured = data.capturedOrder ?? data.order;
+      if (!res.ok || !captured) {
         setErrorMessage(data.error ?? "Payment capture failed");
         return;
       }
-      setCompletedOrder(data.capturedOrder);
+      setCompletedOrder(captured);
       setModalOpen(false);
-      onSuccess(data.capturedOrder, data.state);
+      onSuccess(captured, data.state);
     } catch {
       setErrorMessage("Network error during PayPal capture");
     } finally {
@@ -265,6 +266,16 @@ export default function PayPalV6CheckoutWidget({
                   <span className="font-mono font-medium uppercase text-indigo-600">{activeMode}</span>
                 </div>
               </div>
+
+              {errorMessage && (
+                <div
+                  role="alert"
+                  className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800"
+                >
+                  <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
 
               <button
                 type="button"
