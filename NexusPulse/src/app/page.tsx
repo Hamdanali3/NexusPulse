@@ -36,6 +36,9 @@ import AgGridFinancialCommandCenter from "@/components/sponsors/AgGridFinancialC
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
 import FeaturePageHeader from "@/components/layout/FeaturePageHeader";
 import CfoExecutiveDocumentOutput from "@/components/ai/CfoExecutiveDocumentOutput";
+import InteractiveFlowSimulator from "@/components/home/InteractiveFlowSimulator";
+import ProblemSolutionComparison from "@/components/home/ProblemSolutionComparison";
+import PersonaQuickSwitchBanner from "@/components/home/PersonaQuickSwitchBanner";
 import ToastNotificationContainer, {
   type ToastMessage,
   type ToastType,
@@ -572,11 +575,21 @@ export default function NexusPulseHomePage() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
             <button
               type="button"
-              onClick={() => handleRunAgentInteraction()}
-              disabled={agentRunning}
+              onClick={() => {
+                const el = document.getElementById("flow-simulator-heading");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
               className="inline-flex items-center gap-2 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-colors"
             >
               <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+              <span>Simulate Autonomous Flow</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRunAgentInteraction()}
+              disabled={agentRunning}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-800 shadow-2xs transition-colors"
+            >
               <span>{agentRunning ? "Running CFO Sweep..." : "Run AI CFO Sweep"}</span>
             </button>
             <button
@@ -591,11 +604,23 @@ export default function NexusPulseHomePage() {
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-800 shadow-2xs transition-colors"
             >
-              <span>Explore Engines</span>
+              <span>Explore 3 Engines</span>
               <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
             </button>
           </div>
         </section>
+
+        {/* 1-CLICK INTERACTIVE EVALUATOR PERSONAS */}
+        <PersonaQuickSwitchBanner
+          currentUser={currentUser}
+          onSelectPersona={async (key) => handleSwitchPersona(key)}
+          onOpenAuthModal={() => setAuthModalOpen(true)}
+        />
+
+        {/* INTERACTIVE PROTOCOL WALKTHROUGH SIMULATOR */}
+        <InteractiveFlowSimulator
+          onExploreEngines={() => navigateTo("bounties")}
+        />
 
         {/* MINIMAL FINANCIAL TELEMETRY STRIP */}
         <section
@@ -866,8 +891,9 @@ export default function NexusPulseHomePage() {
           )}
         </div>
 
-        {/* OVERVIEW TAB: 3-ENGINE HUB */}
+        {/* OVERVIEW TAB: 3-ENGINE HUB & PROBLEM-SOLUTION MATRIX */}
         {activeTab === "overview" && (
+          <>
           <section
             id="autonomous-engines-hub"
             aria-label="NexusPulse 3-Engine Clearinghouse Hub"
@@ -933,7 +959,10 @@ export default function NexusPulseHomePage() {
 
                 <button
                   type="button"
-                  onClick={() => navigateTo("channel3")}
+                  onClick={() => {
+                    if (!currentUser) setAuthModalOpen(true);
+                    else navigateTo("channel3");
+                  }}
                   className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>{currentUser ? "Open Deal Hunter" : "Sign In to Access Deal Hunter"}</span>
@@ -989,7 +1018,10 @@ export default function NexusPulseHomePage() {
 
                 <button
                   type="button"
-                  onClick={() => navigateTo("bounties")}
+                  onClick={() => {
+                    if (!currentUser) setAuthModalOpen(true);
+                    else navigateTo("bounties");
+                  }}
                   className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>{currentUser ? "Explore Bounties" : "Sign In to Claim Bounties"}</span>
@@ -1045,7 +1077,10 @@ export default function NexusPulseHomePage() {
 
                 <button
                   type="button"
-                  onClick={() => navigateTo("bryntum")}
+                  onClick={() => {
+                    if (!currentUser) setAuthModalOpen(true);
+                    else navigateTo("bryntum");
+                  }}
                   className="mt-5 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 py-2 text-xs font-semibold text-zinc-800 transition-colors shadow-2xs"
                 >
                   <span>{currentUser ? "View Escrow Gantt" : "Sign In to View Escrow Gantt"}</span>
@@ -1054,6 +1089,10 @@ export default function NexusPulseHomePage() {
               </div>
             </div>
           </section>
+
+          {/* PROBLEM & SOLUTION COMPARISON MATRIX */}
+          <ProblemSolutionComparison onSelectEngine={navigateTo} />
+          </>
         )}
 
         {/* DEDICATED ENGINE 1 TAB */}
