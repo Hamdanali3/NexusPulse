@@ -76,11 +76,11 @@ export default function PersonaQuickSwitchBanner({
         </div>
 
         {currentUser && (
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-zinc-400 text-[11px]">Active Persona:</span>
-            <span className="font-semibold text-zinc-900">{currentUser.fullName}</span>
-            <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] font-mono text-zinc-600 font-medium">
-              {currentUser.role}
+          <div className="flex items-center gap-1.5 text-[12px]">
+            <span className="text-zinc-600">Active:</span>
+            <span className="font-medium text-zinc-950">{currentUser.fullName}</span>
+            <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] font-mono text-zinc-700 font-medium">
+              {currentUser.roleTitle}
             </span>
           </div>
         )}
@@ -133,9 +133,9 @@ export default function PersonaQuickSwitchBanner({
                 </p>
               </div>
 
-              <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between text-[10px] text-zinc-400 font-medium">
+              <div className="mt-3 pt-2 border-t border-zinc-200 flex items-center justify-between text-[12px] text-zinc-600 font-medium">
                 <span>{p.recommendedFor}</span>
-                <ArrowRight className="h-3 w-3 text-zinc-400 group-hover:text-zinc-900" />
+                <ArrowRight className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
               </div>
             </button>
           );

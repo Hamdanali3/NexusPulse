@@ -912,7 +912,7 @@ export default function NexusAiChatbot({
                     )}
                   </div>
 
-                  <span className="mt-1 text-[9px] text-slate-400 px-1 font-mono">
+                  <span className="mt-1 text-[11px] text-zinc-600 px-1 font-mono">
                     {m.timestamp}
                   </span>
                 </div>

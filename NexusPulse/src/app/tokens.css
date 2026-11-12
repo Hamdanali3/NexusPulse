@@ -154,23 +154,17 @@ svg.lucide {
 }
 
 .np-skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--np-bg-subtle) 0%,
-    var(--np-border) 50%,
-    var(--np-bg-subtle) 100%
-  );
-  background-size: 200% 100%;
+  background-color: var(--np-bg-subtle);
   animation: npSkeletonPulse 1.4s var(--np-ease-out) infinite;
   border-radius: var(--np-radius-control);
 }
 
 @keyframes npSkeletonPulse {
-  0% {
-    background-position: 200% 0;
+  0%, 100% {
+    opacity: 1;
   }
-  100% {
-    background-position: -200% 0;
+  50% {
+    opacity: 0.55;
   }
 }
 

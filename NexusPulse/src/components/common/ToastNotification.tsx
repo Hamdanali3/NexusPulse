@@ -90,27 +90,27 @@ function ToastItem({
   return (
     <div
       role={isError ? "alert" : "status"}
-      className={`pointer-events-auto rounded-xl border ${borderColor} ${bgColor} p-3.5 shadow-lg backdrop-blur-md transition-all duration-250 ${
-        exiting ? "opacity-0 translate-y-2 scale-95" : "opacity-100 translate-y-0 scale-100 animate-slide-up"
+      className={`pointer-events-auto rounded-[12px] border ${borderColor} ${bgColor} p-3.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)] transition-all duration-200 ${
+        exiting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0 animate-slide-up"
       }`}
     >
       <div className="flex items-start gap-3">
         <div className="shrink-0 mt-0.5">
-          {isSuccess && <CheckCircle2 className={`h-4 w-4 ${iconColor}`} />}
-          {isError && <AlertCircle className={`h-4 w-4 ${iconColor}`} />}
-          {!isSuccess && !isError && <Info className={`h-4 w-4 ${iconColor}`} />}
+          {isSuccess && <CheckCircle2 className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
+          {isError && <AlertCircle className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
+          {!isSuccess && !isError && <Info className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h4 className={`text-xs font-bold ${textColor} truncate`}>
+            <h4 className={`text-[13px] font-medium ${textColor} truncate`}>
               {toast.title}
             </h4>
-            <span className="text-[10px] font-mono text-slate-500 shrink-0">
+            <span className="text-[11px] font-mono text-zinc-600 shrink-0">
               Just now
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-slate-700 leading-relaxed break-words">
+          <p className="mt-0.5 text-[12px] text-zinc-700 leading-relaxed break-words">
             {toast.message}
           </p>
         </div>
@@ -118,7 +118,7 @@ function ToastItem({
         <button
           type="button"
           onClick={handleManualDismiss}
-          className="shrink-0 p-1 text-slate-400 hover:text-slate-700 rounded transition"
+          className="shrink-0 p-1 text-zinc-600 hover:text-zinc-950 rounded-[6px] transition-colors"
           aria-label="Dismiss notification"
         >
           <X className="h-3.5 w-3.5" />

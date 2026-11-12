@@ -224,7 +224,7 @@ export default function InteractiveFlowSimulator({
               <div className="mt-1 font-semibold text-xs text-zinc-900 truncate">
                 {s.title.split(" ")[0]} {s.title.split(" ")[1]}
               </div>
-              <div className="text-[10px] text-zinc-400 truncate mt-0.5">
+              <div className="text-[12px] text-zinc-600 truncate mt-0.5">
                 {s.tech}
               </div>
             </button>

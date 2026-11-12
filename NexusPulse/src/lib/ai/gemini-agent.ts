@@ -649,19 +649,7 @@ Respond with a JSON object containing {"passed": boolean, "score": number (0-100
             },
           ],
           response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: "bounty_verification",
-              schema: {
-                type: "object",
-                properties: {
-                  passed: { type: "boolean" },
-                  score: { type: "number" },
-                  reasoning: { type: "string" },
-                },
-                required: ["passed", "score", "reasoning"],
-              },
-            },
+            type: "object",
           } as never,
         }),
         4500
