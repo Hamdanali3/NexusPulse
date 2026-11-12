@@ -186,3 +186,50 @@ export function sanitizeDisplayEmail(email: string | null | undefined): string {
   }
   return email;
 }
+
+/**
+ * Normalizes legacy seeded or persisted database copy so technical model names,
+ * API endpoint paths, and hype phrasing never surface directly in the product UI.
+ */
+export function sanitizeSeedCopy(text: string | null | undefined): string {
+  if (!text) return "";
+  return text
+    .replace(/Autonomous Agent Subscriptions Auditor Engine/gi, "Subscriptions review tool")
+    .replace(/High-Speed Multimodal Proof-of-Human Oracle Gateway/gi, "Field verification workflow")
+    .replace(/Proof-of-Human Oracle Bounty\s*#?[A-Z0-9-]+:\s*/gi, "")
+    .replace(/Proof-of-Human Bounty\s*#?[A-Z0-9-]+:\s*/gi, "")
+    .replace(/Proof-of-Human Oracle Bounty/gi, "Verified task")
+    .replace(/Proof-of-Human Oracle\s*/gi, "Field check ")
+    .replace(/Channel3 Autonomous Deal Arbitrage:\s*/gi, "")
+    .replace(/Channel3 Price-Drop Deal Arbitrage:\s*/gi, "")
+    .replace(/Channel3 Price-Drop Deal Arbitrage/gi, "Price watch order")
+    .replace(/Channel3 Deal Arbitrage/gi, "Price watch order")
+    .replace(/Channel3 API shows/gi, "Price tracking shows")
+    .replace(/A2A Smart Escrow/gi, "Milestone escrow")
+    .replace(/PayPal Orders v2 AUTHORIZE Lock/gi, "Escrow hold")
+    .replace(/PayPal Orders v2 Auth/gi, "Escrow authorization")
+    .replace(/PayPal Invoicing v2 \+ Escrow Capture/gi, "Invoice and escrow capture")
+    .replace(/PayPal Checkout API v2/gi, "PayPal checkout")
+    .replace(/PayPal Payouts (?:API )?v1/gi, "PayPal payout")
+    .replace(/Subscriptions API v1/gi, "Subscription billing")
+    .replace(/PayPal v6 checkout/gi, "PayPal checkout")
+    .replace(
+      /Gemini CFO recommends auto-revising via (?:POST )?\/v1\/billing\/subscriptions\/[^\s.,;]+ to/gi,
+      "Recommended downgrade from billing settings to"
+    )
+    .replace(/\s*(?:via\s+)?(?:POST\s+)?\/v[0-9]+\/billing\/subscriptions\/[^\s.,;]+/gi, " from billing settings")
+    .replace(/\s*(?:via\s+)?(?:POST\s+)?\/v[0-9]+\/[^\s.,;]+/gi, "")
+    .replace(/Gemini\s+[0-9.]+\s+(?:Flash|Pro|Argon)\s+verified\b/gi, "Automated review verified")
+    .replace(/Verified by Gemini\s+[0-9.]+\s+(?:Flash|Pro|Argon)/gi, "Verified automatically")
+    .replace(/Gemini\s+[0-9.]+\s+(?:Flash|Pro|Argon)/gi, "Automated review")
+    .replace(/Gemini\s+recommends/gi, "Recommended:")
+    .replace(/Autonomously executed via/gi, "Completed via")
+    .replace(/Autonomous Agent\s+/gi, "")
+    .replace(/Autonomous Systems/gi, "Systems")
+    .replace(/Autonomous Counsel/gi, "Legal Counsel")
+    .replace(/autonomous procurement agents/gi, "buyer and vendor systems")
+    .replace(/Multimodal verification/gi, "photo verification")
+    .replace(/PayPal Best Practices Checklist/gi, "completion requirements")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}

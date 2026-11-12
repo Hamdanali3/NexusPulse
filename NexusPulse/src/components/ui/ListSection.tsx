@@ -55,7 +55,7 @@ export function ListRow({
             }
           : undefined
       }
-      className={`px-4 py-3 flex items-center justify-between gap-4 transition-colors duration-150 ${
+      className={`px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4 transition-colors duration-150 ${
         onSelect ? "cursor-pointer" : ""
       } ${rowStyle} ${className}`}
     >
@@ -64,7 +64,7 @@ export function ListRow({
         {subtitle && <div className="mt-0.5 text-[12px] text-zinc-600 leading-relaxed">{subtitle}</div>}
       </div>
       {(amount || action) && (
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center justify-end gap-3 shrink-0 self-end sm:self-center">
           {amount && <div className="text-right tabular-nums text-[14px] font-semibold text-zinc-950">{amount}</div>}
           {action}
         </div>

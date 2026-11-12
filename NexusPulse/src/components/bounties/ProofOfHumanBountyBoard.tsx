@@ -15,7 +15,7 @@ import type {
   PayPalPayoutRecord,
   ProofOfHumanBounty,
 } from "@/lib/paypal/paypal-types";
-import { formatSignedUsd, formatUsd, sanitizeDisplayEmail } from "@/lib/format";
+import { formatSignedUsd, formatUsd, sanitizeDisplayEmail, sanitizeSeedCopy } from "@/lib/format";
 import { Button, ListRow, ListSection, StatusDot } from "@/components/ui";
 
 interface ProofOfHumanBountyBoardProps {
@@ -207,7 +207,7 @@ export default function ProofOfHumanBountyBoard({
   }
 
   return (
-    <section aria-labelledby="engine-2-heading" className="space-y-8">
+    <section aria-label="Verified tasks" className="space-y-8">
       {/* Explicit Success or Failure Message Banner */}
       {statusBanner && (
         <div
@@ -238,15 +238,10 @@ export default function ProofOfHumanBountyBoard({
       )}
 
       <div className="space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
-          <div>
-            <h2 id="engine-2-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
-              Verified tasks
-            </h2>
-            <p className="mt-1 text-[14px] text-zinc-600">
-              Submit quick field checks and release payouts once verification passes.
-            </p>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200">
+          <span className="text-[13px] text-zinc-600">
+            Select a task to review verification criteria and submit proof.
+          </span>
 
           {/* Segmented Filter */}
           <div role="group" aria-label="Filter tasks" className="flex items-center gap-1 text-[13px] bg-zinc-100 p-1 rounded-[6px]">
@@ -299,7 +294,7 @@ export default function ProofOfHumanBountyBoard({
                     key={bounty.id}
                     selected={isSelected}
                     onSelect={() => handleSelectBounty(bounty)}
-                    title={<span title={bounty.title}>{bounty.title}</span>}
+                    title={<span title={sanitizeSeedCopy(bounty.title)}>{sanitizeSeedCopy(bounty.title)}</span>}
                     subtitle={
                       <span>
                         ~{bounty.estimated_seconds}s est. · {bounty.location_scope}
@@ -336,7 +331,7 @@ export default function ProofOfHumanBountyBoard({
                       Task details
                     </span>
                     <h3 className="mt-0.5 text-[15px] font-semibold text-zinc-950">
-                      {selectedBounty.title}
+                      {sanitizeSeedCopy(selectedBounty.title)}
                     </h3>
                     <p className="mt-1 text-[13px] text-zinc-600 leading-relaxed">
                       {selectedBounty.prompt_instructions}
@@ -362,7 +357,7 @@ export default function ProofOfHumanBountyBoard({
                           className="flex items-start gap-2 text-[13px] text-zinc-600"
                         >
                           <ShieldCheck className="h-4 w-4 text-zinc-700 shrink-0 mt-0.5" strokeWidth={1.5} />
-                          <span>{criterion}</span>
+                          <span>{sanitizeSeedCopy(criterion)}</span>
                         </li>
                       )
                     )}
@@ -495,7 +490,7 @@ export default function ProofOfHumanBountyBoard({
                           </span>
                         </div>
                         <p className={`text-[13px] leading-relaxed ${passed ? "text-zinc-700" : "text-red-800"}`}>
-                          {result.reasoning}
+                          {sanitizeSeedCopy(result.reasoning)}
                         </p>
                         {passed && (lastResult?.payout_batch_id || selectedBounty.payout_batch_id) && (
                           <div className="pt-2 border-t border-emerald-200/70 flex items-center justify-between text-[12px] text-emerald-900">
@@ -554,8 +549,8 @@ export default function ProofOfHumanBountyBoard({
                     <td className="px-3 text-zinc-700 whitespace-nowrap">
                       {safeEmail}
                     </td>
-                    <td title={p.note} className="px-3 text-zinc-600 max-w-md">
-                      <span className="line-clamp-2">{p.note}</span>
+                    <td title={sanitizeSeedCopy(p.note)} className="px-3 text-zinc-600 max-w-md">
+                      <span className="line-clamp-2">{sanitizeSeedCopy(p.note)}</span>
                     </td>
                     <td className="px-3 whitespace-nowrap">
                       <StatusDot
@@ -587,16 +582,16 @@ export default function ProofOfHumanBountyBoard({
                     {formatSignedUsd(p.amount.value)}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-2 text-[12px] text-zinc-600">
-                  <span>{safeEmail}</span>
+                <div className="flex flex-col items-start gap-1 text-[12px] text-zinc-600">
+                  <span className="break-all">{safeEmail}</span>
                   <StatusDot
                     label={isPaidStatus ? "Paid" : p.batch_status}
                     tone={isPaidStatus ? "positive" : "neutral"}
                     className="text-[12px]"
                   />
                 </div>
-                <p title={p.note} className="text-[12px] text-zinc-600 line-clamp-2">
-                  {p.note}
+                <p title={sanitizeSeedCopy(p.note)} className="text-[12px] text-zinc-600 line-clamp-2">
+                  {sanitizeSeedCopy(p.note)}
                 </p>
               </div>
             );

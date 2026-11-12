@@ -15,7 +15,7 @@ import type {
   PayPalLiveTelemetry,
   PayPalSandboxAccountConfig,
 } from "@/lib/paypal/paypal-types";
-import { formatSignedUsd, formatUsd } from "@/lib/format";
+import { formatSignedUsd, formatUsd, sanitizeSeedCopy } from "@/lib/format";
 import { type UserProfile } from "@/lib/auth/auth-types";
 import AuthModal from "@/components/auth/AuthModal";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
@@ -1025,8 +1025,8 @@ export default function NexusPulseHomePage() {
                     <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
                       {appState.channel3Deals.slice(0, 2).map((deal) => (
                         <li key={deal.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
-                          <span title={deal.title} className="text-zinc-900 line-clamp-2 min-w-0">
-                            {deal.title}
+                          <span title={sanitizeSeedCopy(deal.title)} className="text-zinc-900 line-clamp-2 min-w-0">
+                            {sanitizeSeedCopy(deal.title)}
                           </span>
                           <span className="tabular-nums font-medium text-emerald-700 shrink-0">
                             {formatUsd(deal.channel3_best_price)}
@@ -1064,8 +1064,8 @@ export default function NexusPulseHomePage() {
                     <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
                       {appState.bounties.slice(0, 2).map((b) => (
                         <li key={b.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
-                          <span title={b.title} className="text-zinc-900 line-clamp-2 min-w-0">
-                            {b.title}
+                          <span title={sanitizeSeedCopy(b.title)} className="text-zinc-900 line-clamp-2 min-w-0">
+                            {sanitizeSeedCopy(b.title)}
                           </span>
                           <span className="tabular-nums font-medium text-zinc-950 shrink-0">
                             {formatSignedUsd(b.reward.value)}
@@ -1103,8 +1103,8 @@ export default function NexusPulseHomePage() {
                     <ul className="divide-y divide-zinc-200 border-t border-zinc-200 pt-1">
                       {appState.escrowMilestones.slice(0, 2).map((m) => (
                         <li key={m.id} className="py-2.5 flex items-baseline justify-between gap-3 text-[13px]">
-                          <span title={m.project_name} className="text-zinc-900 line-clamp-2 min-w-0">
-                            {m.project_name}
+                          <span title={sanitizeSeedCopy(m.project_name)} className="text-zinc-900 line-clamp-2 min-w-0">
+                            {sanitizeSeedCopy(m.project_name)}
                           </span>
                           <span className="tabular-nums font-medium text-zinc-950 shrink-0">
                             {formatUsd(m.amount.value)}

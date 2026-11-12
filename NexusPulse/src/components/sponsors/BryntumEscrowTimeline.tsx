@@ -24,6 +24,7 @@ import {
   formatUsd,
   formatUsdPerMonth,
   humanizeEscrowStatus,
+  sanitizeSeedCopy,
 } from "@/lib/format";
 import { Button, ConfirmDialog, FormField, ListSection, StatusDot } from "@/components/ui";
 
@@ -381,14 +382,14 @@ export default function BryntumEscrowTimeline({
       if (res.ok && data.ok) {
         setActionBanner({
           type: "success",
-          text: `${action === "CANCEL_UNUSED" ? "Cancelled" : "Downgraded"} ${sub.merchant_name} (${sub.plan_name}). Saving ${formatUsdPerMonth(data.monthlySaved ?? 0)} (${formatUsd(data.annualSaved ?? 0)}/yr).`,
+          text: `${action === "CANCEL_UNUSED" ? "Cancelled" : "Downgraded"} ${sub.merchant_name} (${sanitizeSeedCopy(sub.plan_name)}). Saving ${formatUsdPerMonth(data.monthlySaved ?? 0)} (${formatUsd(data.annualSaved ?? 0)}/yr).`,
         });
         setConfirmSubAction(null);
         onStateUpdated();
       } else {
         setActionBanner({
           type: "error",
-          text: data.error || `Subscription optimization failed for ${sub.plan_name}.`,
+          text: data.error || `Subscription optimization failed for ${sanitizeSeedCopy(sub.plan_name)}.`,
         });
       }
     } catch (err) {
@@ -402,7 +403,7 @@ export default function BryntumEscrowTimeline({
   }
 
   return (
-    <section aria-labelledby="engine-3-heading" className="space-y-6">
+    <section aria-label="Milestone escrow and subscriptions" className="space-y-6">
       {/* Explicit Success or Failure Message Banner */}
       {actionBanner && (
         <div
@@ -438,15 +439,10 @@ export default function BryntumEscrowTimeline({
 
       {/* MILESTONE ESCROW TIMELINE */}
       <div className="space-y-5">
-        <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
-          <div>
-            <h2 id="engine-3-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
-              Milestone escrow
-            </h2>
-            <p className="mt-1 text-[14px] text-zinc-600">
-              Inspect scheduled milestones, update dates, and verify completed deliverables before release.
-            </p>
-          </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200">
+          <span className="text-[13px] text-zinc-600">
+            Select a milestone row to update completion progress, adjust dates, or verify deliverables.
+          </span>
 
           <Button
             type="button"
@@ -625,9 +621,54 @@ export default function BryntumEscrowTimeline({
           </form>
         )}
 
-        {/* Escrow Milestone Timeline Grid */}
-        <div className="overflow-x-auto">
-          <div className="min-w-[800px] rounded-[12px] border border-zinc-200 bg-white overflow-hidden relative">
+        {/* Mobile Stacked Milestone Cards (< md): zero horizontal overflow at 375px */}
+        <div className="md:hidden divide-y divide-zinc-200 rounded-[12px] border border-zinc-200 bg-white overflow-hidden">
+          {filteredMilestones.map((m) => {
+            const isSelected = selectedMilestone?.id === m.id;
+            const statusLabel =
+              m.status === "AI_VERIFIED_CAPTURED"
+                ? "Captured"
+                : m.approve_url && !m.paypal_authorization_id
+                  ? "Awaiting approval"
+                  : m.progress_percent > 0
+                    ? "In progress"
+                    : "Scheduled";
+            const statusTone =
+              m.status === "AI_VERIFIED_CAPTURED"
+                ? "positive"
+                : m.progress_percent > 0 && !(m.approve_url && !m.paypal_authorization_id)
+                  ? "accent"
+                  : "neutral";
+
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setSelectedMilestoneId(m.id)}
+                className={`w-full text-left px-4 py-3.5 space-y-1.5 transition-colors ${
+                  isSelected ? "bg-indigo-50/40 border-l-2 border-l-indigo-600" : "hover:bg-zinc-50/70"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 font-medium text-[14px] text-zinc-950 line-clamp-2">
+                    {sanitizeSeedCopy(m.project_name)}
+                  </div>
+                  <div className="shrink-0 tabular-nums text-[14px] font-semibold text-zinc-950">
+                    {formatUsd(m.amount.value)}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[12px] text-zinc-600">
+                  <span>{formatDateRange(m.start_date, m.end_date)} · {m.progress_percent}%</span>
+                  <StatusDot label={statusLabel} tone={statusTone} className="text-[12px]" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Escrow Milestone Timeline Grid (>= md, fluid fit across 768px and 1440px) */}
+        <div className="hidden md:block overflow-x-auto">
+          <div className="w-full rounded-[12px] border border-zinc-200 bg-white overflow-hidden relative">
             {/* Timeline Date Scale Header */}
             <div className="grid grid-cols-12 border-b border-zinc-200 bg-[#fafafa] text-[12px] font-medium text-zinc-600">
               <div className="col-span-4 px-3.5 py-2.5 border-r border-zinc-200 flex items-center justify-between">
@@ -694,10 +735,10 @@ export default function BryntumEscrowTimeline({
                           {idx + 1}
                         </span>
                         <span
-                          title={m.project_name}
+                          title={sanitizeSeedCopy(m.project_name)}
                           className="font-medium text-zinc-950 line-clamp-2 leading-snug"
                         >
-                          {m.project_name}
+                          {sanitizeSeedCopy(m.project_name)}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center gap-1.5 text-[12px] text-zinc-600">
@@ -742,7 +783,7 @@ export default function BryntumEscrowTimeline({
                       {/* Interactive Gantt Bar: single clean label + single color per status */}
                       <div
                         style={{ left: pos.left, width: pos.width }}
-                        title={`${m.project_name} · ${formatDateRange(m.start_date, m.end_date)} · ${statusLabel} (${m.progress_percent}%)`}
+                        title={`${sanitizeSeedCopy(m.project_name)} · ${formatDateRange(m.start_date, m.end_date)} · ${statusLabel} (${m.progress_percent}%)`}
                         onMouseEnter={(e) => {
                           const rect = e.currentTarget.getBoundingClientRect();
                           setHoveredMilestone({
@@ -756,7 +797,7 @@ export default function BryntumEscrowTimeline({
                           isSelected ? "ring-2 ring-indigo-600/35" : ""
                         }`}
                       >
-                        <span className="truncate">{m.project_name}</span>
+                        <span className="truncate">{sanitizeSeedCopy(m.project_name)}</span>
                       </div>
                     </div>
                   </div>
@@ -786,7 +827,7 @@ export default function BryntumEscrowTimeline({
                   </span>
                 </div>
                 <div className="font-medium text-white line-clamp-2">
-                  {hoveredMilestone.milestone.project_name}
+                  {sanitizeSeedCopy(hoveredMilestone.milestone.project_name)}
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-zinc-300 tabular-nums">
                   <span>{formatUsd(hoveredMilestone.milestone.amount.value)}</span>
@@ -806,7 +847,7 @@ export default function BryntumEscrowTimeline({
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h3 className="text-[16px] font-semibold text-zinc-950">
-                    {selectedMilestone.project_name}
+                    {sanitizeSeedCopy(selectedMilestone.project_name)}
                   </h3>
                   <StatusDot
                     label={
@@ -828,7 +869,7 @@ export default function BryntumEscrowTimeline({
                   />
                 </div>
                 <p className="text-[13px] text-zinc-600">
-                  {selectedMilestone.deliverable_requirement}
+                  {sanitizeSeedCopy(selectedMilestone.deliverable_requirement)}
                 </p>
               </div>
 
@@ -1051,7 +1092,8 @@ export default function BryntumEscrowTimeline({
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
                   <span>
-                    <strong className="font-semibold">Released:</strong> {selectedMilestone.ai_audit_notes}
+                    <strong className="font-semibold">Released:</strong>{" "}
+                    {sanitizeSeedCopy(selectedMilestone.ai_audit_notes)}
                   </span>
                 </div>
                 {selectedMilestone.tracking_number && (
@@ -1104,11 +1146,11 @@ export default function BryntumEscrowTimeline({
         <ListSection>
           {subscriptions.map((sub) => (
             <div key={sub.id} className="px-5 py-4 space-y-3 hover:bg-zinc-50/60 transition-colors">
-              <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                 <div className="min-w-0 flex-1 space-y-0.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <h4 className="text-[15px] font-semibold text-zinc-950">
-                      {sub.plan_name}
+                      {sanitizeSeedCopy(sub.plan_name)}
                     </h4>
                     <StatusDot
                       label={sub.status === "ACTIVE" ? "Active" : "Cancelled"}
@@ -1116,12 +1158,13 @@ export default function BryntumEscrowTimeline({
                       className="text-[12px]"
                     />
                   </div>
-                  <p className="text-[13px] text-zinc-600">
-                    {sub.merchant_name} · <span className="font-mono text-[12px] text-zinc-700">{sub.id}</span> · {sub.ai_rationale}
+                  <p className="text-[13px] text-zinc-600 leading-relaxed">
+                    {sub.merchant_name} · <span className="font-mono text-[12px] text-zinc-700">{sub.id}</span> ·{" "}
+                    {sanitizeSeedCopy(sub.ai_rationale)}
                   </p>
                 </div>
 
-                <div className="text-right shrink-0 tabular-nums">
+                <div className="text-left sm:text-right sm:shrink-0 tabular-nums">
                   <div className="text-[15px] font-semibold text-zinc-950">
                     {formatUsdPerMonth(sub.billing_amount.value)}
                   </div>
@@ -1179,7 +1222,7 @@ export default function BryntumEscrowTimeline({
               <p>
                 Plan:{" "}
                 <span className="font-medium text-zinc-900">
-                  {confirmSubAction.sub.plan_name}
+                  {sanitizeSeedCopy(confirmSubAction.sub.plan_name)}
                 </span>{" "}
                 (<code className="font-mono text-[12px]">{confirmSubAction.sub.id}</code>)
               </p>

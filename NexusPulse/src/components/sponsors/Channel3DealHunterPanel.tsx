@@ -13,7 +13,7 @@ import type {
 } from "@/lib/paypal/paypal-types";
 import PayPalV6CheckoutWidget from "@/components/paypal/PayPalV6CheckoutWidget";
 import { Button, FormField, ListRow, ListSection, StatusDot } from "@/components/ui";
-import { formatUsd } from "@/lib/format";
+import { formatUsd, sanitizeSeedCopy } from "@/lib/format";
 
 interface Channel3DealHunterPanelProps {
   deals: Channel3ProductDeal[];
@@ -168,7 +168,7 @@ export default function Channel3DealHunterPanel({
 
   return (
     <section
-      aria-labelledby="engine-1-heading"
+      aria-label="Price watch"
       className="space-y-6"
     >
       {mandateBanner && (
@@ -199,15 +199,10 @@ export default function Channel3DealHunterPanel({
         </div>
       )}
 
-      <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b border-zinc-200">
-        <div>
-          <h2 id="engine-1-heading" className="text-[24px] font-semibold tracking-tight text-zinc-950">
-            Price watch
-          </h2>
-          <p className="mt-1 text-[14px] text-zinc-600">
-            Track product prices against your target and check out when the price drops.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200">
+        <span className="text-[13px] text-zinc-600">
+          {displayedDeals.length} active price alerts · Updated price feed
+        </span>
 
         {/* Search Filter Form + New Price Alert Button */}
         <div className="flex flex-wrap items-center gap-2">
@@ -380,11 +375,6 @@ export default function Channel3DealHunterPanel({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Dense Hairline Price Watch List */}
         <div className="lg:col-span-7 space-y-2.5">
-          <div className="flex items-center justify-between text-[13px] text-zinc-600 px-0.5">
-            <span>{displayedDeals.length} active price alerts</span>
-            <span className="text-[12px] text-zinc-600">Updated price feed</span>
-          </div>
-
           {displayedDeals.length === 0 ? (
             <div className="rounded-[12px] border border-zinc-200 bg-white p-8 text-center text-[13px] text-zinc-600">
               No products found matching &quot;{searchQuery}&quot;.
@@ -411,7 +401,7 @@ export default function Channel3DealHunterPanel({
                     key={deal.id}
                     selected={isSelected}
                     onSelect={() => setActiveCheckoutDealId(deal.id)}
-                    title={<span title={deal.title}>{deal.title}</span>}
+                    title={<span title={sanitizeSeedCopy(deal.title)}>{sanitizeSeedCopy(deal.title)}</span>}
                     subtitle={
                       <span>
                         <span className="font-mono text-zinc-700">{deal.sku}</span>
@@ -460,10 +450,10 @@ export default function Channel3DealHunterPanel({
                   Order summary
                 </span>
                 <h3
-                  title={activeDeal.title}
+                  title={sanitizeSeedCopy(activeDeal.title)}
                   className="mt-1 text-[15px] font-semibold text-zinc-950 line-clamp-2"
                 >
-                  {activeDeal.title}
+                  {sanitizeSeedCopy(activeDeal.title)}
                 </h3>
                 <div className="mt-2 flex items-baseline justify-between">
                   <span className="text-[13px] text-zinc-600">

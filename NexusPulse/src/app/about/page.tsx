@@ -523,7 +523,24 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-[12px] border border-zinc-200 bg-white">
+          {/* Mobile stacked comparison cards (< md): prevents table horizontal overflow at 375px */}
+          <div className="md:hidden divide-y divide-zinc-200 rounded-[12px] border border-zinc-200 bg-white overflow-hidden">
+            {COMPARISON_ROWS.map((row) => (
+              <div key={row.dimension} className="p-4 space-y-2.5 text-[13px]">
+                <div className="font-semibold text-zinc-950">{row.dimension}</div>
+                <div className="space-y-1">
+                  <div className="text-[12px] font-medium text-zinc-500">Manual process</div>
+                  <p className="text-zinc-600 leading-relaxed">{row.manual}</p>
+                </div>
+                <div className="space-y-1 pt-1 border-t border-zinc-100">
+                  <div className="text-[12px] font-medium text-zinc-700">With NexusPulse</div>
+                  <p className="text-zinc-900 leading-relaxed">{row.nexuspulse}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto rounded-[12px] border border-zinc-200 bg-white">
             <table className="w-full text-left text-[13px] border-collapse">
               <thead className="bg-[#fafafa] border-b border-zinc-200 text-[12px] text-zinc-600">
                 <tr>

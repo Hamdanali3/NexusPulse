@@ -241,3 +241,10 @@ button:disabled {
     box-shadow: none !important;
   }
 }
+
+/* Remove AG Grid default 150px empty bottom space when using autoHeight on concise datasets */
+.ag-layout-auto-height .ag-center-cols-viewport,
+.ag-layout-auto-height .ag-center-cols-container,
+.ag-layout-auto-height .ag-body-viewport {
+  min-height: 0 !important;
+}

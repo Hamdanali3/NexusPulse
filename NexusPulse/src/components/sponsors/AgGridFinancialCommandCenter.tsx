@@ -21,6 +21,7 @@ import {
   humanizeEngine,
   humanizeTransactionStatus,
   sanitizeDisplayEmail,
+  sanitizeSeedCopy,
 } from "@/lib/format";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -123,18 +124,48 @@ export default function AgGridFinancialCommandCenter({
     );
   }
 
+  const sanitizedTransactions = useMemo(
+    () =>
+      state.transactions.map((t) => ({
+        ...t,
+        event_label: sanitizeSeedCopy(t.event_label),
+        counterparty: sanitizeSeedCopy(t.counterparty),
+      })),
+    [state.transactions]
+  );
+
   const filteredTransactions = useMemo(() => {
-    if (engineFilter === "ALL") return state.transactions;
-    return state.transactions.filter((t) => t.engine === engineFilter);
-  }, [state.transactions, engineFilter]);
+    if (engineFilter === "ALL") return sanitizedTransactions;
+    return sanitizedTransactions.filter((t) => t.engine === engineFilter);
+  }, [sanitizedTransactions, engineFilter]);
+
+  const sanitizedOrders = useMemo(
+    () =>
+      state.orders.map((o) => ({
+        ...o,
+        description: sanitizeSeedCopy(o.description),
+      })),
+    [state.orders]
+  );
 
   const sanitizedPayouts = useMemo(
     () =>
       state.payouts.map((p) => ({
         ...p,
         receiver: sanitizeDisplayEmail(p.receiver),
+        note: sanitizeSeedCopy(p.note),
       })),
     [state.payouts]
+  );
+
+  const sanitizedInvoices = useMemo(
+    () =>
+      state.invoices.map((inv) => ({
+        ...inv,
+        recipient_name: sanitizeSeedCopy(inv.recipient_name),
+        item_name: sanitizeSeedCopy(inv.item_name),
+      })),
+    [state.invoices]
   );
 
   const transactionCols = useMemo<ColDef<PayPalLedgerTransaction>[]>(
@@ -196,6 +227,7 @@ export default function AgGridFinancialCommandCenter({
         headerName: "Method",
         width: 165,
         hide: !visibleExtraCols.includes("funding_source"),
+        valueFormatter: (p) => sanitizeSeedCopy(p.value),
         tooltipField: "funding_source",
       },
       {
@@ -586,9 +618,9 @@ export default function AgGridFinancialCommandCenter({
           {(
             [
               { id: "transactions", label: `Transactions (${filteredTransactions.length})` },
-              { id: "orders", label: `Orders (${state.orders.length})` },
+              { id: "orders", label: `Orders (${sanitizedOrders.length})` },
               { id: "payouts", label: `Payouts (${sanitizedPayouts.length})` },
-              { id: "invoices", label: `Invoices (${state.invoices.length})` },
+              { id: "invoices", label: `Invoices (${sanitizedInvoices.length})` },
             ] as const
           ).map((t) => (
             <button
@@ -689,8 +721,8 @@ export default function AgGridFinancialCommandCenter({
         </div>
       </div>
 
-      {/* AG Grid Canvas (desktop/tablet) + AutoHeight so no empty bottom space */}
-      <div className="hidden md:block w-full overflow-hidden rounded-[12px] border border-zinc-200">
+      {/* AG Grid Canvas (desktop >=1024px) + AutoHeight so no empty bottom space */}
+      <div className="hidden lg:block w-full overflow-hidden rounded-[12px] border border-zinc-200">
         {activeTab === "transactions" && (
           <AgGridReact<PayPalLedgerTransaction>
             theme={lightGridTheme}
@@ -708,11 +740,11 @@ export default function AgGridFinancialCommandCenter({
         {activeTab === "orders" && (
           <AgGridReact<PayPalOrderRecord>
             theme={lightGridTheme}
-            rowData={state.orders}
+            rowData={sanitizedOrders}
             columnDefs={orderCols}
             quickFilterText={quickFilterText}
             domLayout="autoHeight"
-            pagination={state.orders.length > 10}
+            pagination={sanitizedOrders.length > 10}
             paginationPageSize={10}
             enableBrowserTooltips={true}
             defaultColDef={defaultColDef}
@@ -734,11 +766,11 @@ export default function AgGridFinancialCommandCenter({
         {activeTab === "invoices" && (
           <AgGridReact<PayPalInvoiceRecord>
             theme={lightGridTheme}
-            rowData={state.invoices}
+            rowData={sanitizedInvoices}
             columnDefs={invoiceCols}
             quickFilterText={quickFilterText}
             domLayout="autoHeight"
-            pagination={state.invoices.length > 10}
+            pagination={sanitizedInvoices.length > 10}
             paginationPageSize={10}
             enableBrowserTooltips={true}
             defaultColDef={defaultColDef}
@@ -746,8 +778,8 @@ export default function AgGridFinancialCommandCenter({
         )}
       </div>
 
-      {/* Mobile Stacked Rows (< md): zero horizontal clipping at 375px */}
-      <div className="md:hidden divide-y divide-zinc-200 rounded-lg border border-zinc-200 bg-white">
+      {/* Stacked Rows (< lg): zero horizontal clipping on 375px and 768px */}
+      <div className="lg:hidden divide-y divide-zinc-200 rounded-lg border border-zinc-200 bg-white">
         {activeTab === "transactions" &&
           filteredTransactions
             .filter(
@@ -782,7 +814,7 @@ export default function AgGridFinancialCommandCenter({
             ))}
 
         {activeTab === "orders" &&
-          state.orders.slice(0, 15).map((o) => (
+          sanitizedOrders.slice(0, 15).map((o) => (
             <div key={o.id} className="p-3.5 space-y-1.5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -814,10 +846,10 @@ export default function AgGridFinancialCommandCenter({
           ))}
 
         {activeTab === "invoices" &&
-          (state.invoices.length === 0 ? (
+          (sanitizedInvoices.length === 0 ? (
             <div className="p-6 text-center text-xs text-zinc-600">No invoices yet.</div>
           ) : (
-            state.invoices.map((inv) => (
+            sanitizedInvoices.map((inv) => (
               <div key={inv.id} className="p-3.5 space-y-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="text-xs font-medium text-zinc-900">{inv.item_name}</div>
