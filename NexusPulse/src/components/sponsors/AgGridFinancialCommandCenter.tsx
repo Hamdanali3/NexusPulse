@@ -32,10 +32,16 @@ const lightGridTheme = themeQuartz.withParams({
   headerTextColor: "#52525b",
   oddRowBackgroundColor: "#ffffff",
   rowHoverColor: "#f4f4f5",
+  selectedRowBackgroundColor: "#eef2ff",
   borderColor: "#e4e4e7",
   accentColor: "#4f46e5",
+  fontFamily: "var(--np-font-sans), ui-sans-serif, system-ui, sans-serif",
   fontSize: 13,
   headerFontSize: 12,
+  headerFontWeight: 500,
+  wrapperBorderRadius: 12,
+  borderRadius: 6,
+  cellHorizontalPadding: 14,
   rowHeight: 44,
   headerHeight: 38,
 });
@@ -416,7 +422,7 @@ export default function AgGridFinancialCommandCenter({
   return (
     <section
       aria-labelledby="aggrid-heading"
-      className="rounded-xl border border-zinc-200 bg-white p-6 space-y-5"
+      className="rounded-[12px] border border-zinc-200 bg-white p-6 space-y-5"
     >
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-4">
@@ -655,9 +661,9 @@ export default function AgGridFinancialCommandCenter({
             {showColumnsMenu && (
               <div
                 role="menu"
-                className="absolute right-0 mt-1.5 z-30 w-48 rounded-lg border border-zinc-200 bg-white p-2 shadow-md space-y-1"
+                className="absolute right-0 mt-1.5 z-30 w-48 rounded-[12px] border border-zinc-200 bg-white p-2 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)] space-y-1"
               >
-                <div className="px-2 py-1 text-[11px] font-medium text-zinc-500">
+                <div className="px-2 py-1 text-[12px] font-medium text-zinc-600">
                   Additional columns
                 </div>
                 {SECONDARY_TX_COLUMNS.map((col) => {
@@ -665,7 +671,7 @@ export default function AgGridFinancialCommandCenter({
                   return (
                     <label
                       key={col.key}
-                      className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-zinc-800 hover:bg-zinc-50 cursor-pointer"
+                      className="flex items-center gap-2 rounded-[6px] px-2 py-1.5 text-[13px] text-zinc-800 hover:bg-zinc-50 cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -684,7 +690,7 @@ export default function AgGridFinancialCommandCenter({
       </div>
 
       {/* AG Grid Canvas (desktop/tablet) + AutoHeight so no empty bottom space */}
-      <div className="hidden md:block w-full overflow-hidden rounded-lg border border-zinc-200">
+      <div className="hidden md:block w-full overflow-hidden rounded-[12px] border border-zinc-200">
         {activeTab === "transactions" && (
           <AgGridReact<PayPalLedgerTransaction>
             theme={lightGridTheme}

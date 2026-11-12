@@ -359,7 +359,7 @@ export default function PayPalV6CheckoutWidget({
         disabled={loading}
         onClick={() => initiateCheckoutDialog("paypal")}
         aria-label="Pay with PayPal"
-        className="flex h-10 w-full items-center justify-center rounded-md bg-[#FFC439] hover:bg-[#f2b82e] px-3 transition disabled:opacity-50"
+        className="flex h-10 w-full items-center justify-center rounded-[6px] bg-[#FFC439] hover:bg-[#f2b82e] px-3 transition-colors duration-150 disabled:opacity-50"
       >
         <PayPalWordmarkSvg />
       </button>
@@ -370,7 +370,7 @@ export default function PayPalV6CheckoutWidget({
           disabled={loading}
           onClick={() => initiateCheckoutDialog("paylater")}
           aria-label="Pay Later in 4 payments"
-          className="flex h-10 w-full items-center justify-center rounded-md bg-[#0070BA] hover:bg-[#005ea6] px-3 text-xs font-semibold text-white transition disabled:opacity-50"
+          className="flex h-10 w-full items-center justify-center rounded-[6px] bg-[#0070BA] hover:bg-[#005ea6] px-3 text-[13px] font-medium text-white transition-colors duration-150 disabled:opacity-50"
         >
           <span>Pay Later</span>
         </button>
@@ -381,7 +381,7 @@ export default function PayPalV6CheckoutWidget({
         disabled={loading}
         onClick={() => initiateCheckoutDialog("venmo")}
         aria-label="Pay with Venmo"
-        className="flex h-10 w-full items-center justify-center rounded-md bg-[#008CFF] hover:bg-[#0074d4] px-3 transition disabled:opacity-50"
+        className="flex h-10 w-full items-center justify-center rounded-[6px] bg-[#008CFF] hover:bg-[#0074d4] px-3 transition-colors duration-150 disabled:opacity-50"
       >
         <VenmoWordmarkSvg />
       </button>
@@ -476,14 +476,14 @@ export default function PayPalV6CheckoutWidget({
         ref={dialogRef}
         aria-labelledby="paypal-v6-dialog-title"
         onClose={() => setModalOpen(false)}
-        className="m-auto w-full max-w-md rounded-xl border border-zinc-200 bg-white p-0 shadow-lg backdrop:bg-zinc-950/40"
+        className="m-auto w-full max-w-md rounded-[12px] border border-zinc-200 bg-white p-0 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.12),0_2px_6px_-1px_rgb(9_9_11/0.06)] backdrop:bg-zinc-950/35"
       >
         {createdOrder && (
-          <div className="overflow-hidden rounded-xl bg-white">
+          <div className="overflow-hidden rounded-[12px] bg-white">
             <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-950 px-5 py-3.5 text-white">
               <div className="flex items-center gap-2">
                 <Lock className="h-4 w-4 text-zinc-300" />
-                <h3 id="paypal-v6-dialog-title" className="text-sm font-semibold">
+                <h3 id="paypal-v6-dialog-title" className="text-[14px] font-semibold">
                   Confirm PayPal payment
                 </h3>
               </div>
@@ -491,14 +491,14 @@ export default function PayPalV6CheckoutWidget({
                 type="button"
                 aria-label="Close checkout dialog"
                 onClick={() => setModalOpen(false)}
-                className="rounded-md p-1 text-zinc-300 hover:text-white transition"
+                className="rounded-[6px] p-1 text-zinc-300 hover:text-white transition"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-4 p-5 text-xs text-zinc-800">
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 space-y-2">
+            <div className="space-y-4 p-5 text-[13px] text-zinc-800">
+              <div className="rounded-[6px] border border-zinc-200 bg-zinc-50 p-3.5 space-y-2">
                 <div className="flex items-center justify-between text-xs text-zinc-600">
                   <span>Order reference</span>
                   <code className="font-mono font-medium text-zinc-900">{createdOrder.id}</code>

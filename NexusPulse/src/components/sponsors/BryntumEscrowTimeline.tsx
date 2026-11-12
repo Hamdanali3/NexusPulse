@@ -636,32 +636,32 @@ export default function BryntumEscrowTimeline({
           </form>
         )}
 
-        {/* Interactive Bryntum Timeline Grid Header */}
+        {/* Escrow Milestone Timeline Grid */}
         <div className="overflow-x-auto">
-          <div className="min-w-[800px] rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-2xs relative">
+          <div className="min-w-[800px] rounded-[12px] border border-zinc-200 bg-white overflow-hidden relative">
             {/* Timeline Date Scale Header */}
-            <div className="grid grid-cols-12 border-b border-zinc-100 bg-zinc-50/80 text-[11px] font-medium text-zinc-600">
-              <div className="col-span-4 px-3.5 py-2 border-r border-zinc-100 flex items-center justify-between">
-                <span>Task / Authorization</span>
-                <span className="text-[10px] text-zinc-400">Click to inspect</span>
+            <div className="grid grid-cols-12 border-b border-zinc-200 bg-[#fafafa] text-[12px] font-medium text-zinc-600">
+              <div className="col-span-4 px-3.5 py-2.5 border-r border-zinc-200 flex items-center justify-between">
+                <span>Milestone</span>
+                <span className="text-[12px] text-zinc-600">Select to inspect</span>
               </div>
-              <div className="col-span-2 px-3 py-2 border-r border-zinc-100 text-right">
-                Escrow Hold
+              <div className="col-span-2 px-3 py-2.5 border-r border-zinc-200 text-right">
+                Amount
               </div>
               <div className="col-span-6 grid grid-cols-6 text-center text-zinc-600">
-                <div className="py-2 border-r border-zinc-100">Nov 1 – 5</div>
-                <div className="py-2 border-r border-zinc-100">Nov 6 – 10</div>
-                <div className="py-2 border-r border-zinc-100 bg-indigo-50/50 font-medium text-indigo-900">
+                <div className="py-2.5 border-r border-zinc-200">Nov 1 – 5</div>
+                <div className="py-2.5 border-r border-zinc-200">Nov 6 – 10</div>
+                <div className="py-2.5 border-r border-zinc-200 bg-indigo-50/50 font-medium text-indigo-700">
                   Nov 11 – 15
                 </div>
-                <div className="py-2 border-r border-zinc-100">Nov 16 – 20</div>
-                <div className="py-2 border-r border-zinc-100">Nov 21 – 25</div>
-                <div className="py-2">Nov 26 – 30</div>
+                <div className="py-2.5 border-r border-zinc-200">Nov 16 – 20</div>
+                <div className="py-2.5 border-r border-zinc-200">Nov 21 – 25</div>
+                <div className="py-2.5">Nov 26 – 30</div>
               </div>
             </div>
 
             {/* Milestone Gantt Rows */}
-            <div className="divide-y divide-zinc-100">
+            <div className="divide-y divide-zinc-200">
               {filteredMilestones.map((m, idx) => {
                 const pos = getBarPosition(m.start_date, m.end_date);
                 const isSelected = selectedMilestone?.id === m.id;
@@ -693,26 +693,26 @@ export default function BryntumEscrowTimeline({
                         setDeliverableInput(m.deliverable_proof ?? "");
                       }
                     }}
-                    className={`grid grid-cols-12 items-center text-xs transition cursor-pointer ${
+                    className={`grid grid-cols-12 items-center text-[13px] transition-colors duration-150 cursor-pointer border-l-2 ${
                       isSelected
-                        ? "bg-indigo-50/30 ring-1 ring-inset ring-indigo-500/20"
-                        : "hover:bg-zinc-50/60"
+                        ? "bg-indigo-50/50 border-l-indigo-600"
+                        : "border-l-transparent hover:bg-zinc-50"
                     }`}
                   >
-                    <div className="col-span-4 px-3.5 py-3 border-r border-zinc-100">
+                    <div className="col-span-4 px-3.5 py-3 border-r border-zinc-200">
                       <div className="flex items-start gap-2">
-                        <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded bg-zinc-100 text-[10px] font-mono font-medium text-zinc-700">
+                        <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] bg-zinc-100 text-[11px] font-mono font-medium text-zinc-700">
                           {idx + 1}
                         </span>
                         <span
                           title={m.project_name}
-                          className="font-medium text-zinc-900 line-clamp-2 leading-snug"
+                          className="font-medium text-zinc-950 line-clamp-2 leading-snug"
                         >
                           {m.project_name}
                         </span>
                       </div>
-                      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">
-                        <span className="font-mono text-zinc-600">
+                      <div className="mt-1 flex items-center gap-1.5 text-[12px] text-zinc-600">
+                        <span className="font-mono text-zinc-700">
                           {m.id}
                         </span>
                         <span>·</span>
@@ -720,18 +720,18 @@ export default function BryntumEscrowTimeline({
                       </div>
                     </div>
 
-                    <div className="col-span-2 px-3 py-3 border-r border-zinc-100 text-right tabular-nums">
-                      <div className="font-semibold text-zinc-900">
+                    <div className="col-span-2 px-3 py-3 border-r border-zinc-200 text-right tabular-nums">
+                      <div className="font-semibold text-zinc-950">
                         {formatUsd(m.amount.value)}
                       </div>
                       <span className="inline-flex items-center justify-end gap-1.5 mt-0.5 text-[12px] font-medium text-zinc-700">
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
                             isCaptured
-                              ? "bg-emerald-600"
+                              ? "bg-emerald-700"
                               : isInProgress
                                 ? "bg-indigo-600"
-                                : "bg-zinc-400"
+                                : "bg-zinc-500"
                           }`}
                           aria-hidden="true"
                         />
@@ -742,11 +742,11 @@ export default function BryntumEscrowTimeline({
                     {/* Interactive Gantt Bar Canvas */}
                     <div className="col-span-6 relative h-12 px-2 flex items-center">
                       <div className="absolute inset-0 grid grid-cols-6 pointer-events-none">
-                        <div className="border-r border-zinc-100" />
-                        <div className="border-r border-zinc-100" />
-                        <div className="border-r border-zinc-100 bg-indigo-50/20" />
-                        <div className="border-r border-zinc-100" />
-                        <div className="border-r border-zinc-100" />
+                        <div className="border-r border-zinc-200" />
+                        <div className="border-r border-zinc-200" />
+                        <div className="border-r border-zinc-200 bg-indigo-50/25" />
+                        <div className="border-r border-zinc-200" />
+                        <div className="border-r border-zinc-200" />
                         <div />
                       </div>
 
@@ -763,7 +763,7 @@ export default function BryntumEscrowTimeline({
                           });
                         }}
                         onMouseLeave={() => setHoveredMilestone(null)}
-                        className={`relative z-10 h-6 rounded-md px-2.5 flex items-center text-[11px] font-medium transition ${barClass} ${
+                        className={`relative z-10 h-7 rounded-[6px] px-2.5 flex items-center text-[12px] font-medium transition-colors duration-150 ${barClass} ${
                           isSelected ? "ring-2 ring-indigo-600/35" : ""
                         }`}
                       >
@@ -779,7 +779,7 @@ export default function BryntumEscrowTimeline({
             {hoveredMilestone && (
               <div
                 role="tooltip"
-                className="pointer-events-none fixed z-50 rounded-lg border border-zinc-800 bg-zinc-950 text-white p-2.5 shadow-xl text-xs space-y-1 max-w-xs"
+                className="pointer-events-none fixed z-50 rounded-[6px] border border-zinc-800 bg-zinc-950 text-white p-2.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.14),0_2px_6px_-1px_rgb(9_9_11/0.06)] text-[12px] space-y-1 max-w-xs"
                 style={{
                   top: Math.max(10, hoveredMilestone.y),
                   left: Math.max(10, hoveredMilestone.x),
