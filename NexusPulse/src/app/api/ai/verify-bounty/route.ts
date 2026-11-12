@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyHumanBountySubmissionWithGemini } from "@/lib/ai/gemini-agent";
+import { getSandboxAccountsConfig } from "@/lib/paypal/paypal-client";
 import { getMirrorState } from "@/lib/paypal/paypal-sandbox-mirror";
 import { syncMetaToSupabase } from "@/lib/db/supabase-client";
 import {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     const rawRecipient =
-      sanitizeText(body.recipientEmail, 128) || "sb-buyer-nexus@personal.example.com";
+      sanitizeText(body.recipientEmail, 128) || getSandboxAccountsConfig().buyerEmail;
     const recipientCheck = validateRecipientAccount(rawRecipient);
     if (!recipientCheck.valid || !recipientCheck.cleaned) {
       return NextResponse.json(

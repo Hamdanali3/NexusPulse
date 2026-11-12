@@ -3,6 +3,7 @@ import {
   gatewayCaptureOrAuthorizeOrder,
   gatewayCreateOrder,
 } from "@/lib/paypal/paypal-gateway";
+import { PayPalIntegrationError } from "@/lib/paypal/paypal-client";
 import { getMirrorState } from "@/lib/paypal/paypal-sandbox-mirror";
 import { syncMetaToSupabase } from "@/lib/db/supabase-client";
 import type { PayPalOrderRecord } from "@/lib/paypal/paypal-types";
@@ -34,7 +35,11 @@ export async function POST(req: NextRequest) {
       escrowMilestoneId?: string;
       trackingNumber?: string;
       carrier?: string;
+      returnUrl?: string;
+      cancelUrl?: string;
     };
+
+    const origin = req.nextUrl.origin;
 
     if (body.operation === "CREATE") {
       const amountCheck = validateUsdAmount(body.amountValue ?? "189.00", { min: 0.5, max: 50000 });
@@ -48,6 +53,12 @@ export async function POST(req: NextRequest) {
       const description =
         sanitizeText(body.description, 200) || "NexusPulse Autonomous PayPal Order";
 
+      const dealParam = body.channel3DealId
+        ? `&dealId=${encodeURIComponent(sanitizeText(body.channel3DealId, 64))}`
+        : "";
+      const defaultReturn = `${origin}/?paypal_return=approved&paypalAction=${body.intent === "AUTHORIZE" ? "authorize" : "capture"}${dealParam}`;
+      const defaultCancel = `${origin}/?paypal_return=cancelled`;
+
       const order = await gatewayCreateOrder({
         amountValue: amountCheck.formatted,
         currencyCode: sanitizeText(body.currencyCode, 3).toUpperCase() || "USD",
@@ -55,12 +66,16 @@ export async function POST(req: NextRequest) {
         description,
         category: body.category ?? "CHANNEL3_DEAL",
         fundingSource: body.fundingSource ?? "paypal",
+        returnUrl: body.returnUrl || defaultReturn,
+        cancelUrl: body.cancelUrl || defaultCancel,
       });
 
       // PayPal JS SDK v6 requires { orderId: "..." } shape
       return NextResponse.json(
         {
           orderId: order.id,
+          approveUrl: order.approve_url,
+          requiresBuyerApproval: order.requires_buyer_approval ?? false,
           order,
           state: getMirrorState(),
         },
@@ -99,6 +114,17 @@ export async function POST(req: NextRequest) {
       { headers: VARY_HEADERS }
     );
   } catch (err) {
+    if (err instanceof PayPalIntegrationError) {
+      return NextResponse.json(
+        {
+          error: err.message,
+          code: err.errorCode,
+          debugId: err.debugId,
+          requiresBuyerApproval: err.errorCode === "ORDER_NOT_APPROVED",
+        },
+        { status: err.statusCode, headers: VARY_HEADERS }
+      );
+    }
     const message = err instanceof Error ? err.message : "Order operation failed";
     return NextResponse.json({ error: message }, { status: 500, headers: VARY_HEADERS });
   }

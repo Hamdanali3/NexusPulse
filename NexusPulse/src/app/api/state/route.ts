@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateBrowserClientToken, hasLiveSandboxCredentials } from "@/lib/paypal/paypal-client";
-import { resolveActivePayPalMode, setRuntimePayPalCredentials } from "@/lib/paypal/paypal-gateway";
+import {
+  getBrowserClientTokenSafe,
+  getPublicPayPalClientId,
+  getSandboxAccountsConfig,
+  hasLiveSandboxCredentials,
+} from "@/lib/paypal/paypal-client";
+import { getPayPalGatewayStatus, resolveActivePayPalMode, setRuntimePayPalCredentials } from "@/lib/paypal/paypal-gateway";
 import { getMirrorState, hydrateMirrorState, resetMirrorState } from "@/lib/paypal/paypal-sandbox-mirror";
 import { isSupabaseConfigured, loadStateFromSupabase, syncMetaToSupabase } from "@/lib/db/supabase-client";
 import { isAllowedFetchSite, sanitizeText } from "@/lib/security/validation";
@@ -21,7 +26,9 @@ export async function GET() {
   const state = supabaseState ? hydrateMirrorState(supabaseState) : getMirrorState();
   const activeMode = resolveActivePayPalMode();
   const hasLive = hasLiveSandboxCredentials();
-  const clientToken = await generateBrowserClientToken().catch(() => "mirror_client_token");
+  const sandboxAccounts = getSandboxAccountsConfig();
+  const publicPayPalClientId = getPublicPayPalClientId();
+  const { clientToken, isLive: clientTokenIsLive } = await getBrowserClientTokenSafe();
 
   return NextResponse.json(
     {
@@ -30,7 +37,12 @@ export async function GET() {
       hasLiveCredentials: hasLive,
       preferredMode: state.preferredMode,
       paypalClientId: maskClientId(process.env.PAYPAL_CLIENT_ID),
+      publicPayPalClientId,
+      sandboxAccounts,
+      sdkV6Url: "https://www.sandbox.paypal.com/web-sdk/v6/core",
       clientToken,
+      clientTokenIsLive,
+      gateway: getPayPalGatewayStatus(),
       geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
       supabaseConfigured: isSupabaseConfigured(),
       database: isSupabaseConfigured() ? "supabase_postgres" : "in_memory_mirror",
@@ -85,11 +97,18 @@ export async function POST(req: NextRequest) {
 
     const currentState = getMirrorState();
     syncMetaToSupabase(currentState).catch(() => {});
+    const { clientToken, isLive: clientTokenIsLive } = await getBrowserClientTokenSafe();
 
     return NextResponse.json(
       {
         ok: true,
         ...updated,
+        publicPayPalClientId: getPublicPayPalClientId(),
+        sandboxAccounts: getSandboxAccountsConfig(),
+        sdkV6Url: "https://www.sandbox.paypal.com/web-sdk/v6/core",
+        clientToken,
+        clientTokenIsLive,
+        gateway: getPayPalGatewayStatus(),
         supabaseConfigured: isSupabaseConfigured(),
         database: isSupabaseConfigured() ? "supabase_postgres" : "in_memory_mirror",
         state: currentState,

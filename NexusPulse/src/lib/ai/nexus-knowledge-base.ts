@@ -177,7 +177,7 @@ export const NEXUS_KNOWLEDGE_CORPUS: KnowledgeDocument[] = [
 - Quick-Fill Presets: Includes 1-click presets for Hackathon Judge Review, Developer / APIMatic SDK Integration, and Security / Webhooks Disclosure.
 - Form Validation: Strict RFC email checking, full name bounds, urgency level, category selection, character counters, XSS sanitization, and spam honeypot.
 - Ticket Tracking: Every submission receives a cryptographic reference ticket (e.g. NEXUS-REQ-XXXX) with instant copy functionality.
-- Direct Channels: Direct links to GitHub repository, PayPal sandbox test credentials (sb-buyer-nexus@personal.example.com / sb-merchant-nexus@business.example.com), and security disclosure.
+- Direct Channels: Direct links to GitHub repository, Slot 013 PayPal sandbox test accounts (Buyer: sb-ifqau51324237@personal.example.com / Merchant: sb-mokyu51324247@business.example.com), and security disclosure.
 - Link: [Open Contact Page](/contact)`,
   },
   {
@@ -332,7 +332,7 @@ Preloaded Channel3 Deals:
 Location: [Engine 2: Human Bounties](/?tab=bounties#engine-bounties)
 How It Works:
 1. Select an Open Bounty: Browse micro-bounties posted by enterprise AI agents (e.g., SupplyChain-Sentinel-v4, ColdChain-Audit-Bot, SecOps-Agent-Prime).
-2. Submit Field Evidence: Enter your verification report/telemetry and your recipient PayPal email (e.g. \`sb-buyer-nexus@personal.example.com\`).
+2. Submit Field Evidence: Enter your verification report/telemetry and your recipient PayPal email (e.g. \`sb-ifqau51324237@personal.example.com\`).
 3. Automated AI Verification: Clicking "Verify & Trigger Instant PayPal Payout" sends the submission to \`POST /api/ai/verify-bounty\`. The auditor scores deliverable fidelity from 0–100 against the required verification criteria.
 4. Instant PayPal Settlement: Passing submissions (score >= 70) immediately trigger \`POST /v1/payments/payouts\` with a unique \`PayPal-Request-Id\` idempotency header.
 Default Bounties:
@@ -1410,14 +1410,14 @@ You can test live webhook events (\`PAYMENT.CAPTURE.COMPLETED\`, \`PAYMENT.PAYOU
   }
 
   if (/\b(dual-mode|dual\s+mode|sandbox\s+mirror|mirror\s+mode|sms\s+barrier|hot-swap|live\s+sandbox)\b/i.test(q)) {
-    return `### Dual-Mode PayPal Gateway (Sandbox Mirror + Live PayPal Sandbox)
+    return `### Credential-First Live PayPal Sandbox + Mirror Offline Fallback
 
-NexusPulse features a **Dual-Mode Gateway** (\`src/lib/paypal/paypal-gateway.ts\`) designed for zero-blocker evaluation worldwide:
+NexusPulse features a **Credential-First PayPal Gateway** (\`src/lib/paypal/paypal-gateway.ts\`) powered by **Hackathon Slot 013** Sandbox credentials with an offline Mirror fallback:
 
-1. **Deterministic Sandbox Mirror Mode (Default)**:
-   Preloaded with spec-compliant PayPal Orders v2, Payouts v1, Subscriptions v1, Invoices v2, Trackers v2, and Webhook state so judges and developers can test every workflow immediately without regional SMS verification barriers.
-2. **Live PayPal Sandbox Mode**:
-   Click the **PayPal Mirror / Live Sandbox** button in the top navigation bar (or set \`PAYPAL_CLIENT_ID\` and \`PAYPAL_CLIENT_SECRET\` in \`.env.local\`) to hot-swap at runtime to \`https://api-m.sandbox.paypal.com\` using \`@paypal/paypal-server-sdk v2.5.0\`.`;
+1. **Live PayPal Sandbox Mode (Default when \`.env.local\` has Slot 013 credentials)**:
+   Connects directly to \`https://api-m.sandbox.paypal.com\` using \`@paypal/paypal-server-sdk v2.5.0\` + PayPal JS SDK v6 (\`web-sdk/v6/core\`), settling orders from Buyer (\`sb-ifqau51324237@personal.example.com\`) to Merchant (\`sb-mokyu51324247@business.example.com\`) with real approve URLs, authorizations, payouts, live invoices, subscriptions, and dispute/webhook telemetry.
+2. **Deterministic Sandbox Mirror Mode (Offline Fallback / Test Mode)**:
+   Available via the **PayPal Sandbox / Mirror** drawer in the top navigation bar whenever running without network/credentials or in offline unit tests.`;
   }
 
   if (/\b(voice\s+cfo|voice\s+briefing|audio\s+briefing|tts|text-to-speech|cfo\s+sweep|gemini\s+console|reset\s+demo)\b/i.test(q)) {

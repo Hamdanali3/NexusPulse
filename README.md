@@ -84,16 +84,16 @@ npm run dev
 ```
 Open **`http://localhost:3000`** in your browser.
 
-### Step 2: Dual-Mode PayPal Gateway (Zero-Blocker Verification)
-NexusPulse includes a **Dual-Mode PayPal Gateway** designed so judges and global developers can verify every flow with zero setup friction:
-1. **Deterministic PayPal Sandbox Mirror Mode (Default Out-of-the-Box)**:
-   - Works immediately without requiring SMS-verified credentials, producing **100% schema-identical PayPal REST v1/v2 payloads**, HATEOAS links, `PayPal-Request-Id` idempotency keys, OAuth2 token flows, and Webhook signature verifications.
-2. **Live PayPal Sandbox Mode (`api-m.sandbox.paypal.com`)**:
-   - Either add `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` to `NexusPulse/.env.local` **or** click the **"Sandbox Keys"** button in the top navigation bar at `http://localhost:3000` and paste your Sandbox credentials to hot-swap into Live PayPal Sandbox API calls at runtime.
+### Step 2: Credential-First PayPal Sandbox Gateway (Slot 013 + Mirror Offline Fallback)
+NexusPulse runs **Credential-First Live Sandbox Mode** when `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` are configured in `NexusPulse/.env.local`, with an automatic **Deterministic Mirror Fallback** for offline evaluation:
+1. **Live PayPal Sandbox Mode (`api-m.sandbox.paypal.com`)**:
+   - Powered by PayPal x Voice AI Hackathon **Slot 013** Sandbox credentials (`NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `@paypal/paypal-server-sdk@2.5.0`, PayPal JS SDK v6 `web-sdk/v6/core`), settling orders, authorizations, payouts, live invoices, catalog plans/subscriptions, and webhook/dispute telemetry.
+2. **Deterministic PayPal Sandbox Mirror Mode (Offline / Unit Tests)**:
+   - Toggleable via the **"PayPal Sandbox / Mirror"** drawer in the top navigation bar whenever evaluating offline or without `.env.local` credentials.
 
-### Sandbox Test Accounts (For Judge Testing)
-- **Sandbox Personal Buyer Account**: `sb-buyer-nexus@personal.example.com` (Password: `NexusBuyer!2026`)
-- **Sandbox Business Merchant Account**: `sb-merchant-nexus@business.example.com` (Password: `NexusMerchant!2026`)
+### Sandbox Test Accounts (Slot 013 — Judge & Buyer Testing)
+- **Sandbox Personal Buyer Account (`AEME4VE2LQ8D8`)**: `sb-ifqau51324237@personal.example.com` (Password stored locally in `NexusPulse/.env.local` / Hackathon Slot 013 sheet)
+- **Sandbox Business Merchant Account (`6NGH9RSQMDEUJ`)**: `sb-mokyu51324247@business.example.com` (Password stored locally in `NexusPulse/.env.local` / Hackathon Slot 013 sheet)
 
 ### Step 3: Run Automated Tests & Production Build
 ```bash

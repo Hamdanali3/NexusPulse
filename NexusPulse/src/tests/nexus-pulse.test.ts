@@ -211,7 +211,7 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.equal(validateUsdAmount("-10").valid, false);
     assert.equal(validateUsdAmount("999999").valid, false);
     assert.equal(
-      validateRecipientAccount("sb-buyer-nexus@personal.example.com").valid,
+      validateRecipientAccount("sb-ifqau51324237@personal.example.com").valid,
       true
     );
     assert.equal(validateRecipientAccount("@nexus_user").valid, true);
@@ -620,5 +620,79 @@ describe("NexusPulse — Connecting AI Agents, Human Oracles & Smart Payments on
     assert.equal(sessionJson.ok, true);
     assert.equal(sessionJson.demoAccounts.length, 4);
     assert.equal(sessionJson.availableRoles.length, 4);
+  });
+
+  it("exposes Slot 013 sandbox configuration, gateway status, and approveUrl extraction helpers", async () => {
+    const { getSandboxAccountsConfig, extractApproveUrl } = await import(
+      "../lib/paypal/paypal-client"
+    );
+    const { getPayPalGatewayStatus } = await import("../lib/paypal/paypal-gateway");
+
+    const accounts = getSandboxAccountsConfig();
+    assert.equal(accounts.slot, "013");
+    assert.equal(accounts.buyerEmail, "sb-ifqau51324237@personal.example.com");
+    assert.equal(accounts.buyerAccountId, "AEME4VE2LQ8D8");
+    assert.equal(accounts.merchantEmail, "sb-mokyu51324247@business.example.com");
+    assert.equal(accounts.merchantAccountId, "6NGH9RSQMDEUJ");
+
+    const approveUrl = extractApproveUrl([
+      { rel: "self", href: "https://api-m.sandbox.paypal.com/v2/checkout/orders/ABC" },
+      { rel: "payer-action", href: "https://www.sandbox.paypal.com/checkoutnow?token=ABC" },
+    ]);
+    assert.equal(approveUrl, "https://www.sandbox.paypal.com/checkoutnow?token=ABC");
+
+    const fallbackApproveUrl = extractApproveUrl([
+      { rel: "approve", href: "https://www.sandbox.paypal.com/checkoutnow?token=XYZ" },
+    ]);
+    assert.equal(fallbackApproveUrl, "https://www.sandbox.paypal.com/checkoutnow?token=XYZ");
+
+    const gwStatus = getPayPalGatewayStatus();
+    assert.equal(gwStatus.sandboxSlot, "013");
+    assert.ok(["mirror", "sandbox", "live"].includes(gwStatus.activeMode));
+  });
+
+  it("handles client-token, live-sync, and invoicing API routes safely cleanly in mirror fallback", async () => {
+    const { NextRequest } = await import("next/server");
+    const { GET: clientTokenGet } = await import("../app/api/paypal/client-token/route");
+    const { GET: syncGet, POST: syncPost } = await import("../app/api/paypal/sync/route");
+    const { POST: invoicesPost } = await import("../app/api/paypal/invoices/route");
+
+    const tokenRes = await clientTokenGet();
+    assert.equal(tokenRes.status, 200);
+    const tokenJson = await tokenRes.json();
+    assert.equal(tokenJson.ok, true);
+    assert.equal(tokenJson.sandboxSlot, "013");
+    assert.equal(tokenJson.sdkV6Url, "https://www.sandbox.paypal.com/web-sdk/v6/core");
+
+    const syncRes = await syncGet();
+    assert.equal(syncRes.status, 200);
+    const syncJson = await syncRes.json();
+    assert.equal(syncJson.ok, true);
+    assert.equal(syncJson.accounts.slot, "013");
+
+    const crossSiteSync = await syncPost(
+      new NextRequest("http://localhost:3000/api/paypal/sync", {
+        method: "POST",
+        headers: { "sec-fetch-site": "cross-site" },
+      })
+    );
+    assert.equal(crossSiteSync.status, 403);
+
+    const invRes = await invoicesPost(
+      new NextRequest("http://localhost:3000/api/paypal/invoices", {
+        method: "POST",
+        headers: { "sec-fetch-site": "same-origin" },
+        body: JSON.stringify({
+          amountValue: "49.50",
+          itemName: "Slot 013 Test Invoice",
+          recipientEmail: "sb-ifqau51324237@personal.example.com",
+        }),
+      })
+    );
+    assert.equal(invRes.status, 200);
+    const invJson = await invRes.json();
+    assert.equal(invJson.ok, true);
+    assert.equal(invJson.invoice.amount.value, "49.50");
+    assert.equal(invJson.invoice.recipient_email, "sb-ifqau51324237@personal.example.com");
   });
 });

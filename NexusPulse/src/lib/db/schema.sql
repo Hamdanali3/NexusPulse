@@ -264,14 +264,14 @@ CREATE TABLE IF NOT EXISTS escrow_contracts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Default Seed: Sovereign Demo User
+-- Default Seed: Slot 013 Sandbox Demo User
 INSERT INTO users (id, email, full_name, role, paypal_email)
 VALUES (
     '00000000-0000-0000-0000-000000000001',
-    'sb-buyer-nexus@personal.example.com',
+    'sb-ifqau51324237@personal.example.com',
     'Nexus Demo User',
     'CONSUMER',
-    'sb-buyer-nexus@personal.example.com'
+    'sb-ifqau51324237@personal.example.com'
 ) ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO user_wallets (user_id, balance_usd, auto_spend_limit_usd)

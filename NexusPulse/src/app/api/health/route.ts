@@ -1,17 +1,27 @@
 import { NextResponse } from "next/server";
-import { hasLiveSandboxCredentials } from "@/lib/paypal/paypal-client";
+import {
+  getPublicPayPalClientId,
+  getSandboxAccountsConfig,
+  hasLiveSandboxCredentials,
+  isPayPalLiveEnvironment,
+} from "@/lib/paypal/paypal-client";
 import { resolveActivePayPalMode } from "@/lib/paypal/paypal-gateway";
 
 export async function GET() {
+  const sandboxAccounts = getSandboxAccountsConfig();
   return NextResponse.json({
     status: "ok",
     service: "nexus-pulse-engine",
     timestamp: new Date().toISOString(),
     paypal: {
       activeMode: resolveActivePayPalMode(),
+      environment: isPayPalLiveEnvironment() ? "live" : "sandbox",
       hasLiveSandboxCredentials: hasLiveSandboxCredentials(),
+      publicClientIdConfigured: Boolean(getPublicPayPalClientId()),
+      sandboxSlot: sandboxAccounts.slot,
       sdkVersion: "@paypal/paypal-server-sdk@2.5.0",
       agentToolkitVersion: "@paypal/agent-toolkit@1.11.0",
+      jsSdkV6: "https://www.sandbox.paypal.com/web-sdk/v6/core",
     },
     ai: {
       sdk: "@google/genai@3.0.0",

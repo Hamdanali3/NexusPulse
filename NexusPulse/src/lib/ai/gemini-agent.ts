@@ -142,7 +142,7 @@ export function getNexusPulseTools() {
     },
   ];
 
-  // Native PayPal Sandbox MCP Server integration when PAYPAL_SANDBOX_ACCESS_TOKEN is present
+  // Native PayPal Sandbox MCP Server integration when OAuth/MCP access token is available
   const mcpToken = process.env.PAYPAL_SANDBOX_ACCESS_TOKEN?.trim();
   if (mcpToken) {
     tools.push({
@@ -420,16 +420,28 @@ export async function runNexusPulseAgentInteraction(params: {
         description: `Channel3 Autonomous Deal: ${deal.title}`,
         category: "CHANNEL3_DEAL",
       });
-      await gatewayCaptureOrAuthorizeOrder({
-        orderId: order.id,
-        action: "CAPTURE",
-        channel3DealId: deal.id,
-      });
-      toolExecutions.push({
-        toolName: "create_paypal_order",
-        args: { amountValue: String(deal.channel3_best_price), dealId: deal.id },
-        resultSummary: `Created & Captured PayPal Order #${order.id} for ${deal.title} at $${deal.channel3_best_price} (Saved $${deal.savings_amount})`,
-      });
+      if (order.mode !== "mirror" && order.status === "CREATED") {
+        toolExecutions.push({
+          toolName: "create_paypal_order",
+          args: {
+            amountValue: String(deal.channel3_best_price),
+            dealId: deal.id,
+            approveUrl: order.approve_url,
+          },
+          resultSummary: `Created Live PayPal Order #${order.id} ($${deal.channel3_best_price}) for ${deal.title}. Complete buyer approval in Engine 1 Checkout or at ${order.approve_url}`,
+        });
+      } else {
+        await gatewayCaptureOrAuthorizeOrder({
+          orderId: order.id,
+          action: "CAPTURE",
+          channel3DealId: deal.id,
+        });
+        toolExecutions.push({
+          toolName: "create_paypal_order",
+          args: { amountValue: String(deal.channel3_best_price), dealId: deal.id },
+          resultSummary: `Created & Captured PayPal Order #${order.id} for ${deal.title} at $${deal.channel3_best_price} (Saved $${deal.savings_amount})`,
+        });
+      }
     }
   }
 

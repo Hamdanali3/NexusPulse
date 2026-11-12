@@ -27,6 +27,9 @@ export interface PayPalOrderRecord {
   carrier?: string;
   paypal_request_id: string;
   debug_id?: string;
+  approve_url?: string;
+  requires_buyer_approval?: boolean;
+  fallback_reason?: string;
   mode: PayPalExecutionMode;
   create_time: string;
   update_time: string;
@@ -159,6 +162,8 @@ export interface SmartEscrowMilestone {
   submitted_proof?: string;
   deliverable_proof?: string;
   ai_audit_notes?: string;
+  approve_url?: string;
+  execution_mode?: PayPalExecutionMode;
   dependencies?: string[];
 }
 
@@ -185,4 +190,62 @@ export interface Channel3ProductDeal {
   mandate_status: "TARGET_MET_READY" | "MONITORING_PRICE" | "PURCHASED_VIA_PAYPAL";
   paypal_order_id?: string;
   ai_price_prediction: string;
+}
+
+export interface PayPalSandboxAccountConfig {
+  slot: string;
+  environment: "sandbox" | "live";
+  buyerEmail: string;
+  buyerAccountId: string;
+  merchantEmail: string;
+  merchantAccountId: string;
+  webhookId: string;
+}
+
+export interface PayPalLiveTelemetry {
+  connected: boolean;
+  environment: "sandbox" | "live";
+  appId?: string;
+  webhookCount: number;
+  disputesCount: number;
+  liveInvoicesCount: number;
+  catalogProductsCount: number;
+  catalogPlansCount: number;
+  reportingAuthorized: boolean;
+  sdkV6TokenReady: boolean;
+  lastSyncedAt: string;
+  recentInvoices?: Array<{
+    id: string;
+    invoice_number?: string;
+    status?: string;
+    recipient_email?: string;
+    amount_value?: string;
+    currency_code?: string;
+    view_url?: string;
+  }>;
+  recentDisputes?: Array<{
+    dispute_id: string;
+    reason?: string;
+    status?: string;
+    dispute_amount?: PayPalMoney;
+    create_time?: string;
+  }>;
+  livePlans?: Array<{
+    id: string;
+    product_id?: string;
+    name: string;
+    status: string;
+    description?: string;
+  }>;
+  error?: string;
+}
+
+export interface PayPalGatewayStatus {
+  activeMode: PayPalExecutionMode;
+  preferredMode: "auto" | "live" | "sandbox" | "mirror";
+  hasCredentials: boolean;
+  environment: "sandbox" | "live";
+  publicClientId: string;
+  sandboxSlot: string;
+  accounts: PayPalSandboxAccountConfig;
 }
