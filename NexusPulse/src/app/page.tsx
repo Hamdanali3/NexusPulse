@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -23,7 +23,12 @@ import {
   UserCheck,
 } from "lucide-react";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
-import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
+import type {
+  PayPalExecutionMode,
+  PayPalLiveTelemetry,
+  PayPalSandboxAccountConfig,
+} from "@/lib/paypal/paypal-types";
+import { formatSignedUsd, formatUsd } from "@/lib/format";
 import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
 import AuthModal from "@/components/auth/AuthModal";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
@@ -88,6 +93,15 @@ export default function NexusPulseHomePage() {
   const [preferredMode, setPreferredMode] = useState<
     "auto" | "live" | "sandbox" | "mirror"
   >("auto");
+  const [publicPayPalClientId, setPublicPayPalClientId] = useState<string>("");
+  const [clientToken, setClientToken] = useState<string>("mirror_client_token");
+  const [clientTokenIsLive, setClientTokenIsLive] = useState<boolean>(false);
+  const [sandboxAccounts, setSandboxAccounts] = useState<
+    PayPalSandboxAccountConfig | undefined
+  >(undefined);
+  const [liveTelemetry, setLiveTelemetry] = useState<PayPalLiveTelemetry | null>(null);
+  const [syncingTelemetry, setSyncingTelemetry] = useState(false);
+  const processedReturnRef = useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<WorkspaceTabId>("overview");
 
@@ -198,15 +212,181 @@ export default function NexusPulseHomePage() {
         setActiveMode(data.activeMode ?? "mirror");
         setPreferredMode(data.preferredMode ?? "auto");
         setDatabaseSource(data.database || "in_memory_mirror");
+        if (typeof data.publicPayPalClientId === "string") {
+          setPublicPayPalClientId(data.publicPayPalClientId);
+        }
+        if (typeof data.clientToken === "string") {
+          setClientToken(data.clientToken);
+        }
+        if (typeof data.clientTokenIsLive === "boolean") {
+          setClientTokenIsLive(data.clientTokenIsLive);
+        }
+        if (data.sandboxAccounts) {
+          setSandboxAccounts(data.sandboxAccounts);
+        }
       }
     } finally {
       setLoading(false);
     }
   }, []);
 
+  const handleSyncSandbox = useCallback(async () => {
+    setSyncingTelemetry(true);
+    try {
+      const res = await fetch("/api/paypal/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "SYNC_TELEMETRY" }),
+      });
+      const data = await res.json();
+      if (res.ok && data.telemetry) {
+        setLiveTelemetry(data.telemetry);
+        if (data.state) setAppState(data.state);
+        if (data.accounts) setSandboxAccounts(data.accounts);
+        addToast(
+          data.telemetry.connected ? "success" : "info",
+          "PayPal Sandbox Synced",
+          data.telemetry.connected
+            ? `Synced Slot ${data.accounts?.slot ?? "013"} (${data.telemetry.liveInvoicesCount} live invoices, ${data.telemetry.disputesCount} disputes, ${data.telemetry.catalogPlansCount} billing plans).`
+            : "Running in offline Mirror fallback mode."
+        );
+      } else {
+        addToast("error", "Sync Failed", data.error || "Could not sync PayPal Sandbox telemetry.");
+      }
+    } catch {
+      addToast("error", "Sync Error", "Network error syncing PayPal Sandbox telemetry.");
+    } finally {
+      setSyncingTelemetry(false);
+    }
+  }, [addToast]);
+
+  const handleCreateLiveInvoice = useCallback(
+    async (payload: { amountValue: string; itemName: string; recipientEmail?: string }) => {
+      try {
+        const res = await fetch("/api/paypal/invoices", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.ok && data.invoice) {
+          if (data.state) setAppState(data.state);
+          addToast(
+            "success",
+            `PayPal Invoice ${data.invoice.invoice_number} Sent`,
+            `Dispatched $${data.invoice.amount.value} USD via Invoicing v2 (${String(data.mode).toUpperCase()}).`
+          );
+          return { viewUrl: data.viewUrl as string | undefined, invoiceId: data.invoice.id as string };
+        }
+        addToast("error", "Invoice Failed", data.error || "Failed to send PayPal Invoice.");
+        return null;
+      } catch {
+        addToast("error", "Invoice Error", "Network error issuing PayPal Invoice.");
+        return null;
+      }
+    },
+    [addToast]
+  );
+
   useEffect(() => {
     fetchState();
   }, [fetchState]);
+
+  // Handle PayPal Sandbox Buyer Checkout return redirects (?paypal_return=approved&token=...)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const returnStatus = params.get("paypal_return");
+    const subStatus = params.get("paypal_sub");
+    const token = params.get("token");
+
+    if (!returnStatus && !subStatus) return;
+    const key = `${returnStatus ?? ""}:${subStatus ?? ""}:${token ?? ""}`;
+    if (processedReturnRef.current === key) return;
+    processedReturnRef.current = key;
+
+    const cleanUrl = () => {
+      const nextParams = new URLSearchParams(window.location.search);
+      ["paypal_return", "paypal_sub", "token", "PayerID", "subscription_id", "ba_token"].forEach(
+        (k) => nextParams.delete(k)
+      );
+      const nextSearch = nextParams.toString();
+      const cleaned = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`;
+      window.history.replaceState(null, "", cleaned);
+    };
+
+    if (returnStatus === "cancelled" || subStatus === "cancelled") {
+      cleanUrl();
+      addToast("info", "PayPal Checkout Cancelled", "Buyer cancelled before approval in Sandbox.");
+      return;
+    }
+
+    if (subStatus === "approved") {
+      cleanUrl();
+      addToast("success", "PayPal Subscription Approved", "Recurring Sandbox billing plan consent recorded.");
+      fetchState();
+      return;
+    }
+
+    if (returnStatus === "approved" && token) {
+      (async () => {
+        try {
+          const stateRes = await fetch("/api/state", { cache: "no-store" });
+          const stateData = await stateRes.json();
+          const matchingMilestone = stateData?.state?.escrowMilestones?.find(
+            (m: { id: string; paypal_order_id?: string }) => m.paypal_order_id === token
+          );
+
+          if (matchingMilestone) {
+            const authRes = await fetch("/api/paypal/escrow", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "FINALIZE_AUTHORIZE",
+                milestoneId: matchingMilestone.id,
+                orderId: token,
+              }),
+            });
+            const authData = await authRes.json();
+            if (authRes.ok && authData.ok) {
+              addToast(
+                "success",
+                "Escrow Authorization Locked",
+                `Approved PayPal Order ${token} finalized as Authorization ${authData.milestone?.paypal_authorization_id ?? ""}.`
+              );
+            } else {
+              addToast("error", "Authorization Failed", authData.error || "Could not finalize escrow authorization.");
+            }
+          } else {
+            const capRes = await fetch("/api/paypal/orders", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                operation: "CAPTURE",
+                orderId: token,
+              }),
+            });
+            const capData = await capRes.json();
+            const captured = capData.capturedOrder ?? capData.order;
+            if (capRes.ok && captured) {
+              addToast(
+                "success",
+                "PayPal Sandbox Payment Captured",
+                `Order ${token} captured (${captured.capture_id ?? "SETTLED"}) into Merchant Slot 013.`
+              );
+            } else {
+              addToast("error", "Capture Error", capData.error || `Order ${token} could not be captured.`);
+            }
+          }
+        } catch {
+          addToast("error", "PayPal Return Error", "Failed while settling approved PayPal Sandbox order.");
+        } finally {
+          cleanUrl();
+          fetchState();
+        }
+      })();
+    }
+  }, [addToast, fetchState]);
 
   // Sync the active feature page with URL query/hash (deep links + Back/Forward).
   useEffect(() => {
@@ -498,7 +678,7 @@ export default function NexusPulseHomePage() {
           Initializing NexusPulse Clearinghouse...
         </h1>
         <p className="mt-1 text-xs text-slate-500">
-          Loading PayPal Dual-Mode Gateway, Channel3 Catalog, Bryntum Escrow Gantt, and AG Grid Ledger
+          Connecting Slot 013 PayPal Sandbox, Channel3 Catalog, Bryntum Escrow Gantt, and AG Grid Ledger
         </p>
       </div>
     );
@@ -524,6 +704,7 @@ export default function NexusPulseHomePage() {
         activeMode={activeMode}
         preferredMode={preferredMode}
         databaseSource={databaseSource}
+        sandboxAccounts={sandboxAccounts}
         voiceLoading={voiceLoading}
         voiceTranscript={voiceTranscript}
         currentUser={currentUser}
@@ -641,13 +822,10 @@ export default function NexusPulseHomePage() {
                 <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
               </div>
               <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                ${(appState.totalSavedByAiUsd + annualSubSavings).toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatUsd(appState.totalSavedByAiUsd + annualSubSavings)}
               </div>
-              <div className="mt-1 text-[11px] text-zinc-400">
-                ${appState.totalSavedByAiUsd.toFixed(2)} realized
+              <div className="mt-1 text-[11px] text-zinc-600 tabular-nums">
+                {formatUsd(appState.totalSavedByAiUsd)} realized
               </div>
             </button>
 
@@ -657,15 +835,15 @@ export default function NexusPulseHomePage() {
               className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
+                <span className="text-xs font-medium text-zinc-600">
                   Bounties Paid
                 </span>
                 <UserCheck className="h-3.5 w-3.5 text-indigo-600" />
               </div>
               <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                ${appState.totalEarnedFromBountiesUsd.toFixed(2)}
+                {formatUsd(appState.totalEarnedFromBountiesUsd)}
               </div>
-              <div className="mt-1 text-[11px] text-zinc-400">
+              <div className="mt-1 text-[11px] text-zinc-600">
                 Instant PayPal Payouts
               </div>
             </button>
@@ -676,15 +854,15 @@ export default function NexusPulseHomePage() {
               className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
+                <span className="text-xs font-medium text-zinc-600">
                   Active Escrow Holds
                 </span>
                 <Lock className="h-3.5 w-3.5 text-indigo-600" />
               </div>
               <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                ${appState.totalEscrowProtectedUsd.toFixed(2)}
+                {formatUsd(appState.totalEscrowProtectedUsd)}
               </div>
-              <div className="mt-1 text-[11px] text-zinc-400">
+              <div className="mt-1 text-[11px] text-zinc-600">
                 PayPal Orders v2 Auth
               </div>
             </button>
@@ -695,18 +873,19 @@ export default function NexusPulseHomePage() {
               className="p-5 text-left hover:bg-zinc-50/70 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-500">
-                  Protected Wallet
+                <span className="text-xs font-medium text-zinc-600">
+                  {appState.walletBalanceUsd < 0 ? "Net balance" : "Wallet balance"}
                 </span>
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
               </div>
-              <div className="mt-2 text-2xl font-bold text-zinc-950 tabular-nums tracking-tight">
-                ${appState.walletBalanceUsd.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+              <div
+                className={`mt-2 text-2xl font-bold tabular-nums tracking-tight ${
+                  appState.walletBalanceUsd < 0 ? "text-red-700" : "text-zinc-950"
+                }`}
+              >
+                {formatUsd(appState.walletBalanceUsd)}
               </div>
-              <div className="mt-1 text-[11px] text-zinc-400">
+              <div className="mt-1 text-[11px] text-zinc-600">
                 Verified Ledger Balance
               </div>
             </button>
@@ -934,21 +1113,24 @@ export default function NexusPulseHomePage() {
                     {appState.channel3Deals.slice(0, 2).map((deal) => (
                       <div
                         key={deal.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
                       >
-                        <div className="truncate pr-2">
-                          <div className="font-medium text-zinc-900 truncate">
+                        <div className="min-w-0 flex-1">
+                          <div
+                            title={deal.title}
+                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
+                          >
                             {deal.title}
                           </div>
-                          <div className="text-[11px] text-zinc-400">
-                            Retail: ${deal.retail_price.toFixed(2)}
+                          <div className="text-[11px] text-zinc-600 tabular-nums">
+                            Retail: {formatUsd(deal.retail_price)}
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-bold text-emerald-600">
-                            ${deal.channel3_best_price.toFixed(2)}
+                          <div className="font-bold text-emerald-700">
+                            {formatUsd(deal.channel3_best_price)}
                           </div>
-                          <span className="text-[10px] text-zinc-500">
+                          <span className="text-[10px] text-zinc-600">
                             Save {deal.savings_percent}%
                           </span>
                         </div>
@@ -993,21 +1175,24 @@ export default function NexusPulseHomePage() {
                     {appState.bounties.slice(0, 2).map((b) => (
                       <div
                         key={b.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
                       >
-                        <div className="truncate pr-2">
-                          <div className="font-medium text-zinc-900 truncate">
+                        <div className="min-w-0 flex-1">
+                          <div
+                            title={b.title}
+                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
+                          >
                             {b.title}
                           </div>
-                          <div className="text-[11px] text-zinc-400">
+                          <div className="text-[11px] text-zinc-600">
                             ~{b.estimated_seconds}s check
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
-                          <div className="font-bold text-emerald-600">
-                            +${b.reward.value}
+                          <div className="font-bold text-emerald-700">
+                            {formatSignedUsd(b.reward.value)}
                           </div>
-                          <span className="text-[10px] text-zinc-500">
+                          <span className="text-[10px] text-zinc-600">
                             PayPal Payout
                           </span>
                         </div>
@@ -1052,22 +1237,25 @@ export default function NexusPulseHomePage() {
                     {appState.escrowMilestones.slice(0, 2).map((m) => (
                       <div
                         key={m.id}
-                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between text-xs"
+                        className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-2.5 flex items-center justify-between gap-2 text-xs"
                       >
-                        <div className="truncate pr-2">
-                          <div className="font-medium text-zinc-900 truncate">
+                        <div className="min-w-0 flex-1">
+                          <div
+                            title={m.project_name}
+                            className="font-medium text-zinc-900 line-clamp-2 leading-snug"
+                          >
                             {m.project_name}
                           </div>
-                          <div className="text-[11px] text-zinc-400">
+                          <div className="text-[11px] text-zinc-600">
                             Progress: {m.progress_percent}%
                           </div>
                         </div>
                         <div className="text-right shrink-0 tabular-nums">
                           <div className="font-bold text-zinc-900">
-                            ${m.amount.value}
+                            {formatUsd(m.amount.value)}
                           </div>
-                          <span className="text-[10px] text-zinc-500">
-                            {m.status === "AI_VERIFIED_CAPTURED" ? "Captured" : "Auth Locked"}
+                          <span className="text-[10px] text-zinc-600">
+                            {m.status === "AI_VERIFIED_CAPTURED" ? "Captured" : "Scheduled"}
                           </span>
                         </div>
                       </div>
@@ -1101,6 +1289,10 @@ export default function NexusPulseHomePage() {
             <Channel3DealHunterPanel
               deals={appState.channel3Deals}
               activeMode={activeMode}
+              publicPayPalClientId={publicPayPalClientId}
+              clientToken={clientToken}
+              clientTokenIsLive={clientTokenIsLive}
+              sandboxBuyerEmail={sandboxAccounts?.buyerEmail}
               onStateUpdated={fetchState}
             />
           </div>
@@ -1112,6 +1304,8 @@ export default function NexusPulseHomePage() {
             <ProofOfHumanBountyBoard
               bounties={appState.bounties}
               payouts={appState.payouts}
+              activeMode={activeMode}
+              sandboxBuyerEmail={sandboxAccounts?.buyerEmail}
               onStateUpdated={fetchState}
             />
           </div>
@@ -1123,6 +1317,7 @@ export default function NexusPulseHomePage() {
             <BryntumEscrowTimeline
               milestones={appState.escrowMilestones}
               subscriptions={appState.subscriptions}
+              activeMode={activeMode}
               onStateUpdated={fetchState}
             />
           </div>
@@ -1133,6 +1328,12 @@ export default function NexusPulseHomePage() {
           <div id="aggrid-heading" className="nexus-fade-in space-y-6">
             <AgGridFinancialCommandCenter
               state={appState}
+              activeMode={activeMode}
+              liveTelemetry={liveTelemetry}
+              syncingTelemetry={syncingTelemetry}
+              sandboxBuyerEmail={sandboxAccounts?.buyerEmail}
+              onSyncSandbox={handleSyncSandbox}
+              onCreateLiveInvoice={handleCreateLiveInvoice}
               onAskGeminiAboutLedger={(prompt) => {
                 handleRunAgentInteraction(prompt);
               }}
@@ -1202,10 +1403,10 @@ export default function NexusPulseHomePage() {
                   <div>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">
                       <KeyRound className="h-3.5 w-3.5 text-indigo-600" />
-                      Sponsor: APIMatic SDK + Dual-Mode Gateway Architecture
+                      Sponsor: APIMatic SDK + Credential-First Live Gateway
                     </span>
                     <h3 className="mt-1 text-base font-bold text-slate-900">
-                      APIMatic Architecture &amp; Dual-Mode Gateway
+                      APIMatic Architecture &amp; Slot 013 Live Sandbox
                     </h3>
                   </div>
                 </div>
@@ -1220,7 +1421,7 @@ export default function NexusPulseHomePage() {
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
-                      <strong className="text-slate-900">Dual-Mode Execution:</strong> Instant zero-blocker evaluations via deterministic mirror, with seamless hot-swap to live PayPal Sandbox.
+                      <strong className="text-slate-900">Credential-First Execution:</strong> Boots live against Slot 013 PayPal Sandbox REST &amp; JS SDK v6, retaining deterministic Mirror mode for offline unit tests.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">

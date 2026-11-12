@@ -19,6 +19,7 @@ import {
   type UserProfile,
   type UserRole,
 } from "@/lib/auth/auth-types";
+import { formatUsd } from "@/lib/format";
 
 interface LandingAuthCardProps {
   onLoginSuccess: (user: UserProfile) => void;
@@ -258,7 +259,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                 </div>
 
                 <div className="mt-2.5 flex items-center justify-between pt-1.5 border-t border-zinc-100 text-[10px]">
-                  <span className="text-zinc-400 font-mono">${demo.walletBalanceUsd.toFixed(0)}</span>
+                  <span className="text-zinc-600 font-mono tabular-nums">{formatUsd(demo.walletBalanceUsd)}</span>
                   <span className="font-semibold text-indigo-600 flex items-center gap-0.5">
                     <span>Unlock</span>
                     <ArrowRight className="h-2.5 w-2.5" />

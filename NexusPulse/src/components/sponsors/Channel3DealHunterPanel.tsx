@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -8,7 +8,6 @@ import {
   Search,
   Shield,
   ShoppingBag,
-  Sparkles,
   Tag,
   Zap,
 } from "lucide-react";
@@ -17,16 +16,25 @@ import type {
   PayPalExecutionMode,
 } from "@/lib/paypal/paypal-types";
 import PayPalV6CheckoutWidget from "@/components/paypal/PayPalV6CheckoutWidget";
+import { formatUsd } from "@/lib/format";
 
 interface Channel3DealHunterPanelProps {
   deals: Channel3ProductDeal[];
   activeMode: PayPalExecutionMode;
+  publicPayPalClientId?: string;
+  clientToken?: string;
+  clientTokenIsLive?: boolean;
+  sandboxBuyerEmail?: string;
   onStateUpdated: () => void;
 }
 
 export default function Channel3DealHunterPanel({
   deals: initialDeals,
   activeMode,
+  publicPayPalClientId,
+  clientToken,
+  clientTokenIsLive,
+  sandboxBuyerEmail = "sb-ifqau51324237@personal.example.com",
   onStateUpdated,
 }: Channel3DealHunterPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,20 +48,29 @@ export default function Channel3DealHunterPanel({
       "C3-PROD-9001"
   );
 
-  // Custom Price Mandate Creation Drawer state
+  // Custom Price Mandate Creation Drawer state (empty defaults with muted placeholders)
   const [showMandateForm, setShowMandateForm] = useState(false);
-  const [newTitle, setNewTitle] = useState("Samsung 990 PRO 4TB PCIe 4.0 NVMe M.2 SSD");
-  const [newBrand, setNewBrand] = useState("Samsung");
-  const [newCategory, setNewCategory] = useState("AI Storage Hardware");
-  const [newRetailPrice, setNewRetailPrice] = useState("349.99");
-  const [newTargetPrice, setNewTargetPrice] = useState("265.00");
+  const [newTitle, setNewTitle] = useState("");
+  const [newBrand, setNewBrand] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newRetailPrice, setNewRetailPrice] = useState("");
+  const [newTargetPrice, setNewTargetPrice] = useState("");
   const [creatingMandate, setCreatingMandate] = useState(false);
   const [mandateBanner, setMandateBanner] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
-  const displayedDeals = filteredDeals ?? initialDeals;
+  const displayedDeals = useMemo(() => {
+    const raw = filteredDeals ?? initialDeals;
+    const seen = new Set<string>();
+    return raw.filter((deal) => {
+      const key = deal.title.trim().toLowerCase().replace(/\s+/g, " ");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [filteredDeals, initialDeals]);
   const activeDeal =
     displayedDeals.find((d) => d.id === activeCheckoutDealId) ??
     displayedDeals[0] ??
@@ -109,7 +126,7 @@ export default function Channel3DealHunterPanel({
         setShowMandateForm(false);
         setMandateBanner({
           type: "success",
-          text: `Success: Channel3 matched "${data.deal.title}" at $${Number(data.deal.channel3_best_price).toFixed(2)} USD (Saved $${Number(data.deal.savings_amount).toFixed(2)} below retail) — ready for PayPal v6 checkout!`,
+          text: `Matched "${data.deal.title}" at ${formatUsd(data.deal.channel3_best_price)} (${formatUsd(data.deal.savings_amount)} below retail). Ready for PayPal checkout.`,
         });
         onStateUpdated();
       } else {
@@ -203,8 +220,8 @@ export default function Channel3DealHunterPanel({
               disabled={searching}
               className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3 text-xs font-medium text-white transition disabled:opacity-50"
             >
-              <Sparkles className="h-3.5 w-3.5 text-zinc-400" />
-              {searching ? "Scanning..." : "Scan"}
+              <Search className="h-3.5 w-3.5 text-zinc-300" />
+              {searching ? "Searching..." : "Search"}
             </button>
             {filteredDeals && (
               <button
@@ -255,9 +272,10 @@ export default function Channel3DealHunterPanel({
               <input
                 id="mandate-title-input"
                 type="text"
+                placeholder="e.g. Samsung 990 PRO 4TB NVMe SSD"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
                 required
               />
             </div>
@@ -268,9 +286,10 @@ export default function Channel3DealHunterPanel({
               <input
                 id="mandate-brand-input"
                 type="text"
+                placeholder="e.g. Samsung"
                 value={newBrand}
                 onChange={(e) => setNewBrand(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
                 required
               />
             </div>
@@ -281,9 +300,10 @@ export default function Channel3DealHunterPanel({
               <input
                 id="mandate-category-input"
                 type="text"
+                placeholder="e.g. Storage"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
                 required
               />
             </div>
@@ -295,9 +315,10 @@ export default function Channel3DealHunterPanel({
                 id="mandate-retail-input"
                 type="number"
                 step="0.01"
+                placeholder="349.99"
                 value={newRetailPrice}
                 onChange={(e) => setNewRetailPrice(e.target.value)}
-                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
                 required
               />
             </div>
@@ -309,17 +330,18 @@ export default function Channel3DealHunterPanel({
                 Max Target Price:
               </label>
               <div className="flex items-center">
-                <span className="text-xs text-zinc-400 mr-1">$</span>
+                <span className="text-xs text-zinc-500 mr-1">$</span>
                 <input
                   id="mandate-target-input"
                   type="number"
                   step="0.01"
+                  placeholder="265.00"
                   value={newTargetPrice}
                   onChange={(e) => setNewTargetPrice(e.target.value)}
-                  className="w-24 h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-semibold text-zinc-900 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
+                  className="w-24 h-8 rounded-lg border border-zinc-200 bg-white px-2.5 text-xs font-semibold text-zinc-900 placeholder:text-zinc-500 tabular-nums transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10"
                   required
                 />
-                <span className="text-[11px] text-zinc-400 ml-1">USD</span>
+                <span className="text-[11px] text-zinc-500 ml-1">USD</span>
               </div>
             </div>
 
@@ -384,67 +406,60 @@ export default function Channel3DealHunterPanel({
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-1">
+                    <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-700">
+                        <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-700 whitespace-nowrap">
                           {deal.sku}
                         </span>
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-zinc-600">
                           {deal.brand} · {deal.category}
                         </span>
-                        {deal.bnpl_eligible && (
-                          <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium text-zinc-700">
-                            ${deal.bnpl_installment_monthly}/mo
-                          </span>
-                        )}
                       </div>
-                      <h4 className="text-sm font-semibold text-zinc-900 leading-snug">
+                      <h4
+                        title={deal.title}
+                        className="text-sm font-semibold text-zinc-900 leading-snug line-clamp-2"
+                      >
                         {deal.title}
                       </h4>
                     </div>
 
                     <div className="text-right tabular-nums shrink-0">
                       <div className="flex items-center justify-end gap-1.5">
-                        <span className="text-xs text-zinc-400 line-through">
-                          ${deal.retail_price.toFixed(2)}
+                        <span className="text-xs text-zinc-500 line-through">
+                          {formatUsd(deal.retail_price)}
                         </span>
                         <span className="text-base font-bold text-zinc-900">
-                          ${deal.channel3_best_price.toFixed(2)}
+                          {formatUsd(deal.channel3_best_price)}
                         </span>
                       </div>
                       <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
                         <Tag className="h-3 w-3" />
-                        Save ${deal.savings_amount.toFixed(2)} ({deal.savings_percent}%)
+                        Save {formatUsd(deal.savings_amount)} ({deal.savings_percent}%)
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-xs text-zinc-500">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-100 text-xs text-zinc-600">
                     <div>
-                      {deal.merchant_name} · ★ {deal.rating}
+                      {deal.merchant_name}
+                      {deal.bnpl_eligible &&
+                      deal.channel3_best_price >= 30 &&
+                      deal.channel3_best_price <= 1500
+                        ? ` · 4 × ${formatUsd(deal.bnpl_installment_monthly)}`
+                        : ""}
                     </div>
 
                     {isPurchased ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Purchased via PayPal
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-emerald-700 whitespace-nowrap">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
+                        Purchased
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
-                        <Zap className="h-3 w-3 text-indigo-600" />
-                        Mandate Met (${deal.target_mandate_price})
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-700 whitespace-nowrap">
+                        <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" aria-hidden="true" />
+                        Target met ({formatUsd(deal.target_mandate_price)})
                       </span>
                     )}
-                  </div>
-
-                  {/* Savings Progress Bar */}
-                  <div className="mt-2.5">
-                    <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-indigo-600 rounded-full"
-                        style={{ width: `${Math.min(100, Math.max(15, deal.savings_percent * 2))}%` }}
-                      />
-                    </div>
                   </div>
                 </div>
               );
@@ -452,24 +467,26 @@ export default function Channel3DealHunterPanel({
           )}
         </div>
 
-        {/* Right Column: PayPal JS SDK v6 Multi-Funding Checkout */}
+        {/* Right Column: Order Summary & PayPal Checkout */}
         <div className="lg:col-span-5">
           {activeDeal && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 shadow-2xs sticky top-20">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5 space-y-4 sticky top-20">
               <div className="border-b border-zinc-100 pb-3">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                  PayPal v6 One-Click Checkout
+                <span className="text-[12px] font-medium text-zinc-600">
+                  Order summary
                 </span>
-                <h4 className="mt-1 text-sm font-semibold text-zinc-900">
+                <h4
+                  title={activeDeal.title}
+                  className="mt-1 text-sm font-semibold text-zinc-900 line-clamp-2"
+                >
                   {activeDeal.title}
                 </h4>
                 <div className="mt-2 flex items-baseline justify-between">
-                  <span className="text-xs text-zinc-500">
-                    Verified Best Price
+                  <span className="text-xs text-zinc-600">
+                    Current price
                   </span>
-                  <span className="tabular-nums text-xl font-bold text-zinc-900">
-                    ${activeDeal.channel3_best_price.toFixed(2)}{" "}
-                    <span className="text-xs font-normal text-zinc-400">USD</span>
+                  <span className="tabular-nums text-xl font-semibold text-zinc-950">
+                    {formatUsd(activeDeal.channel3_best_price)}
                   </span>
                 </div>
               </div>
@@ -477,10 +494,15 @@ export default function Channel3DealHunterPanel({
               <PayPalV6CheckoutWidget
                 key={activeDeal.id}
                 amountValue={activeDeal.channel3_best_price.toFixed(2)}
-                description={`Channel3 Deal: ${activeDeal.title} (${activeDeal.sku})`}
+                description={`Price watch order: ${activeDeal.title} (${activeDeal.sku})`}
                 channel3DealId={activeDeal.id}
                 bnplInstallment={activeDeal.bnpl_installment_monthly}
                 activeMode={activeMode}
+                publicClientId={publicPayPalClientId}
+                publicPayPalClientId={publicPayPalClientId}
+                clientToken={clientToken}
+                clientTokenIsLive={clientTokenIsLive}
+                sandboxBuyerEmail={sandboxBuyerEmail}
                 onSuccess={() => {
                   onStateUpdated();
                 }}

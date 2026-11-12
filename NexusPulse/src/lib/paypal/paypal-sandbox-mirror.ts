@@ -54,8 +54,8 @@ const INITIAL_STATE: NexusPulseState = {
       description: "Channel3 Autonomous Deal Arbitrage: Sony WH-1000XM5 ANC Headphones (Saved $171.99)",
       category: "CHANNEL3_DEAL",
       funding_source: "paypal",
-      payer_email: "sb-buyer-nexus@personal.example.com",
-      merchant_email: "sb-merchant-nexus@business.example.com",
+      payer_email: "sb-ifqau51324237@personal.example.com",
+      merchant_email: "sb-mokyu51324247@business.example.com",
       capture_id: "2GG9035941476914N",
       paypal_request_id: "req-ord-sony-xm5-001",
       debug_id: "f48912a8bc102",
@@ -79,7 +79,7 @@ const INITIAL_STATE: NexusPulseState = {
       category: "ESCROW_MILESTONE",
       funding_source: "paypal",
       payer_email: "agent-procurement@enterprise-ai.example.com",
-      merchant_email: "sb-merchant-nexus@business.example.com",
+      merchant_email: "sb-mokyu51324247@business.example.com",
       authorization_id: "0VF52814937998046",
       paypal_request_id: "req-ord-escrow-002",
       debug_id: "a91834c7de219",
@@ -107,7 +107,7 @@ const INITIAL_STATE: NexusPulseState = {
       sender_item_id: "BOUNTY_ITEM_901",
       batch_status: "SUCCESS",
       recipient_type: "EMAIL",
-      receiver: "sb-buyer-nexus@personal.example.com",
+      receiver: "sb-ifqau51324237@personal.example.com",
       amount: { currency_code: "USD", value: "25.00" },
       note: "Proof-of-Human Oracle Bounty #BOUNTY-000: Clinical Dosage Hallucination Audit (Verified by Gemini 3.8 Flash)",
       bounty_id: "BOUNTY-000",
@@ -378,7 +378,7 @@ const INITIAL_STATE: NexusPulseState = {
       project_name: "M1: Nexus Agent Protocol & MCP Auth Gateway",
       client_agent: "Apex Autonomous Systems LLC",
       provider_name: "Hamdan Ali (AI Systems Architect)",
-      provider_email: "sb-merchant-nexus@business.example.com",
+      provider_email: "sb-mokyu51324247@business.example.com",
       amount: { currency_code: "USD", value: "1400.00" },
       start_date: "2026-11-01",
       end_date: "2026-11-05",
@@ -398,7 +398,7 @@ const INITIAL_STATE: NexusPulseState = {
       project_name: "M2: Multimodal Ground-Truth Dataset & Benchmark",
       client_agent: "Helios BioAI Labs",
       provider_name: "Hamdan Ali (AI Systems Architect)",
-      provider_email: "sb-merchant-nexus@business.example.com",
+      provider_email: "sb-mokyu51324247@business.example.com",
       amount: { currency_code: "USD", value: "1250.00" },
       start_date: "2026-11-06",
       end_date: "2026-11-12",
@@ -415,7 +415,7 @@ const INITIAL_STATE: NexusPulseState = {
       project_name: "M3: Production Agentic Commerce Store Sync Rollout",
       client_agent: "Global Direct Brands Collective",
       provider_name: "Hamdan Ali (AI Systems Architect)",
-      provider_email: "sb-merchant-nexus@business.example.com",
+      provider_email: "sb-mokyu51324247@business.example.com",
       amount: { currency_code: "USD", value: "800.00" },
       start_date: "2026-11-11",
       end_date: "2026-11-18",
@@ -543,6 +543,30 @@ const globalForNexus = globalThis as unknown as {
   __nexusPulseState?: NexusPulseState;
 };
 
+export function dedupeChannel3Deals(deals: Channel3ProductDeal[]): Channel3ProductDeal[] {
+  const seenByTitle = new Map<string, Channel3ProductDeal>();
+  for (const deal of deals) {
+    const key = deal.title.trim().toLowerCase().replace(/\s+/g, " ");
+    const existing = seenByTitle.get(key);
+    if (!existing) {
+      seenByTitle.set(key, deal);
+    } else if (existing.mandate_status !== "PURCHASED_VIA_PAYPAL" && deal.mandate_status === "PURCHASED_VIA_PAYPAL") {
+      seenByTitle.set(key, deal);
+    }
+  }
+  return Array.from(seenByTitle.values());
+}
+
+export function sanitizePayoutRecords(payouts: PayPalPayoutRecord[]): PayPalPayoutRecord[] {
+  return payouts.map((p) => {
+    const lower = (p.receiver || "").toLowerCase();
+    if (lower.includes("hamdanali@") || lower.includes("hamdanaly")) {
+      return { ...p, receiver: "contributor@nexuspulse.example" };
+    }
+    return p;
+  });
+}
+
 export function getMirrorState(): NexusPulseState {
   if (!globalForNexus.__nexusPulseState) {
     globalForNexus.__nexusPulseState = structuredClone(INITIAL_STATE);
@@ -551,7 +575,10 @@ export function getMirrorState(): NexusPulseState {
 }
 
 export function hydrateMirrorState(externalState: NexusPulseState): NexusPulseState {
-  globalForNexus.__nexusPulseState = structuredClone(externalState);
+  const cloned = structuredClone(externalState);
+  cloned.channel3Deals = dedupeChannel3Deals(cloned.channel3Deals || []);
+  cloned.payouts = sanitizePayoutRecords(cloned.payouts || []);
+  globalForNexus.__nexusPulseState = cloned;
   return globalForNexus.__nexusPulseState;
 }
 
@@ -579,16 +606,26 @@ export function mirrorCreateOrder(params: {
   fundingSource?: PayPalOrderRecord["funding_source"];
   paypalRequestId?: string;
   mode?: PayPalExecutionMode;
+  overrideOrderId?: string;
+  overrideStatus?: PayPalOrderRecord["status"];
+  overrideLinks?: PayPalOrderRecord["links"];
+  overrideApproveUrl?: string;
+  overrideMerchantEmail?: string;
+  overridePayerEmail?: string;
+  overrideDebugId?: string;
+  fallbackReason?: string;
 }): PayPalOrderRecord {
   const state = getMirrorState();
-  const id = generatePayPalId("9NP");
+  const id = params.overrideOrderId ?? generatePayPalId("9NP");
   const now = new Date().toISOString();
   const intent = params.intent ?? "CAPTURE";
   const reqId = params.paypalRequestId ?? `req-${crypto.randomUUID()}`;
+  const defaultApproveUrl = `https://www.sandbox.paypal.com/checkoutnow?token=${id}`;
+  const approveUrl = params.overrideApproveUrl ?? defaultApproveUrl;
   const order: PayPalOrderRecord = {
     id,
     intent,
-    status: "CREATED",
+    status: params.overrideStatus ?? "CREATED",
     amount: {
       currency_code: params.currencyCode ?? "USD",
       value: Number(params.amountValue).toFixed(2),
@@ -596,21 +633,32 @@ export function mirrorCreateOrder(params: {
     description: params.description,
     category: params.category ?? "DIRECT_CHECKOUT",
     funding_source: params.fundingSource ?? "paypal",
-    payer_email: process.env.PAYPAL_SANDBOX_BUYER_EMAIL ?? "sb-buyer-nexus@personal.example.com",
-    merchant_email: process.env.PAYPAL_SANDBOX_MERCHANT_EMAIL ?? "sb-merchant-nexus@business.example.com",
+    payer_email:
+      params.overridePayerEmail ??
+      process.env.PAYPAL_SANDBOX_BUYER_EMAIL ??
+      "sb-ifqau51324237@personal.example.com",
+    merchant_email:
+      params.overrideMerchantEmail ??
+      process.env.PAYPAL_SANDBOX_MERCHANT_EMAIL ??
+      "sb-mokyu51324247@business.example.com",
     paypal_request_id: reqId,
-    debug_id: crypto.randomBytes(6).toString("hex"),
+    debug_id: params.overrideDebugId ?? crypto.randomBytes(6).toString("hex"),
+    approve_url: approveUrl,
+    requires_buyer_approval:
+      (params.mode ?? "mirror") !== "mirror" &&
+      (params.overrideStatus ?? "CREATED") === "CREATED",
+    fallback_reason: params.fallbackReason,
     mode: params.mode ?? "mirror",
     create_time: now,
     update_time: now,
-    links: [
+    links: params.overrideLinks ?? [
       {
         href: `https://api-m.sandbox.paypal.com/v2/checkout/orders/${id}`,
         rel: "self",
         method: "GET",
       },
       {
-        href: `https://www.sandbox.paypal.com/checkoutnow?token=${id}`,
+        href: approveUrl,
         rel: "approve",
         method: "GET",
       },
@@ -635,6 +683,13 @@ export function mirrorCaptureOrAuthorizeOrder(params: {
   trackingNumber?: string;
   carrier?: string;
   mode?: PayPalExecutionMode;
+  overrideCaptureId?: string;
+  overrideAuthorizationId?: string;
+  overrideStatus?: PayPalOrderRecord["status"];
+  overridePayerEmail?: string;
+  overrideMerchantEmail?: string;
+  overrideDebugId?: string;
+  fallbackReason?: string;
 }): PayPalOrderRecord {
   const state = getMirrorState();
   let order = state.orders.find((o) => o.id === params.orderId);
@@ -645,22 +700,40 @@ export function mirrorCaptureOrAuthorizeOrder(params: {
       amountValue: "99.00",
       description: `PayPal Order ${params.orderId}`,
       mode: params.mode ?? "mirror",
+      overrideOrderId: params.orderId,
     });
-    order.id = params.orderId;
   }
 
   const action = params.action ?? order.intent;
   if (params.fundingSource) {
     order.funding_source = params.fundingSource;
   }
+  if (params.mode) {
+    order.mode = params.mode;
+  }
+  if (params.overridePayerEmail) {
+    order.payer_email = params.overridePayerEmail;
+  }
+  if (params.overrideMerchantEmail) {
+    order.merchant_email = params.overrideMerchantEmail;
+  }
+  if (params.overrideDebugId) {
+    order.debug_id = params.overrideDebugId;
+  }
+  order.fallback_reason = params.fallbackReason;
+  order.requires_buyer_approval = false;
 
   if (action === "AUTHORIZE" && order.status === "CREATED") {
-    order.status = "APPROVED";
-    order.authorization_id = generatePayPalId("0AU");
+    order.status = params.overrideStatus ?? "APPROVED";
+    order.authorization_id =
+      params.overrideAuthorizationId ?? order.authorization_id ?? generatePayPalId("0AU");
     order.update_time = now;
   } else {
-    order.status = "COMPLETED";
-    order.capture_id = generatePayPalId("2CP");
+    order.status = params.overrideStatus ?? "COMPLETED";
+    order.capture_id = params.overrideCaptureId ?? order.capture_id ?? generatePayPalId("2CP");
+    if (params.overrideAuthorizationId) {
+      order.authorization_id = params.overrideAuthorizationId;
+    }
     order.update_time = now;
     if (params.trackingNumber) {
       order.tracking_number = params.trackingNumber;
@@ -753,17 +826,21 @@ export function mirrorCreatePayout(params: {
   geminiReasoning?: string;
   geminiModel?: string;
   mode?: PayPalExecutionMode;
+  overrideBatchId?: string;
+  overrideBatchStatus?: PayPalPayoutRecord["batch_status"];
+  overrideSenderBatchId?: string;
+  overrideSenderItemId?: string;
 }): PayPalPayoutRecord {
   const state = getMirrorState();
   const now = new Date().toISOString();
-  const batchId = generatePayPalId("PYB");
+  const batchId = params.overrideBatchId ?? generatePayPalId("PYB");
   const numericAmount = Number(params.amountValue);
 
   const payout: PayPalPayoutRecord = {
     payout_batch_id: batchId,
-    sender_batch_id: `NEXUS_BATCH_${Date.now()}`,
-    sender_item_id: `ITEM_${crypto.randomUUID().slice(0, 8)}`,
-    batch_status: "SUCCESS",
+    sender_batch_id: params.overrideSenderBatchId ?? `NEXUS_BATCH_${Date.now()}`,
+    sender_item_id: params.overrideSenderItemId ?? `ITEM_${crypto.randomUUID().slice(0, 8)}`,
+    batch_status: params.overrideBatchStatus ?? "SUCCESS",
     recipient_type: params.recipientType ?? "EMAIL",
     receiver: params.receiver,
     amount: {

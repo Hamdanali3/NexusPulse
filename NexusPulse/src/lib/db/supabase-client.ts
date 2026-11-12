@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { NexusPulseState } from "../paypal/paypal-sandbox-mirror";
+import { sanitizeDisplayEmail } from "../format";
 import type {
   Channel3ProductDeal,
   PayPalInvoiceRecord,
@@ -147,7 +148,7 @@ export async function loadStateFromSupabase(): Promise<NexusPulseState | null> {
       dependencies: (m.dependencies as string[]) || [],
     }));
 
-    const channel3Deals: Channel3ProductDeal[] = (dealsRes.data || []).map((d: Record<string, unknown>) => ({
+    const rawDeals: Channel3ProductDeal[] = (dealsRes.data || []).map((d: Record<string, unknown>) => ({
       id: String(d.id),
       title: String(d.title),
       brand: String(d.brand),
@@ -169,6 +170,14 @@ export async function loadStateFromSupabase(): Promise<NexusPulseState | null> {
       paypal_order_id: d.paypal_order_id ? String(d.paypal_order_id) : undefined,
       ai_price_prediction: String(d.ai_price_prediction),
     }));
+
+    const seenDealTitles = new Set<string>();
+    const channel3Deals: Channel3ProductDeal[] = rawDeals.filter((deal) => {
+      const key = deal.title.trim().toLowerCase().replace(/\s+/g, " ");
+      if (seenDealTitles.has(key)) return false;
+      seenDealTitles.add(key);
+      return true;
+    });
 
     const transactions: PayPalLedgerTransaction[] = (transRes.data || []).map((t: Record<string, unknown>) => ({
       transaction_id: String(t.transaction_id),
@@ -218,7 +227,7 @@ export async function loadStateFromSupabase(): Promise<NexusPulseState | null> {
       sender_item_id: String(p.sender_item_id),
       batch_status: p.batch_status as PayPalPayoutRecord["batch_status"],
       recipient_type: p.recipient_type as PayPalPayoutRecord["recipient_type"],
-      receiver: String(p.receiver),
+      receiver: sanitizeDisplayEmail(String(p.receiver)),
       amount: { currency_code: String(p.currency_code || "USD"), value: Number(p.amount_value).toFixed(2) },
       note: String(p.note),
       bounty_id: p.bounty_id ? String(p.bounty_id) : undefined,

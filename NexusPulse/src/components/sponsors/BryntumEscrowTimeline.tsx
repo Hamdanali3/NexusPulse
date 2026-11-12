@@ -1,41 +1,49 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   Calendar,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Clock,
+  ExternalLink,
   Filter,
   Info,
   Layers,
   Lock,
   Plus,
-  RefreshCw,
   Search,
   ShieldCheck,
   Sliders,
   Sparkles,
   TrendingDown,
   Truck,
-  Zap,
+  Wallet,
+  X,
 } from "lucide-react";
 import type {
   PayPalEscrowMilestone,
+  PayPalExecutionMode,
   PayPalSubscriptionRecord,
 } from "@/lib/paypal/paypal-types";
+import {
+  formatDateRange,
+  formatUsd,
+  formatUsdPerMonth,
+  humanizeEscrowStatus,
+} from "@/lib/format";
 
 interface BryntumEscrowTimelineProps {
   milestones: PayPalEscrowMilestone[];
   subscriptions: PayPalSubscriptionRecord[];
+  activeMode?: PayPalExecutionMode;
   onStateUpdated: () => void;
 }
 
 export default function BryntumEscrowTimeline({
   milestones: initialMilestones,
   subscriptions,
+  activeMode = "sandbox",
   onStateUpdated,
 }: BryntumEscrowTimelineProps) {
   // Local mutable state for interactive Gantt adjustments (progress slider, date shifting)
@@ -59,7 +67,25 @@ export default function BryntumEscrowTimeline({
       "https://github.com/nexus-pulse/smart-clearinghouse/commit/9e8b7c6a5d4e3f210"
   );
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [finalizingAuthId, setFinalizingAuthId] = useState<string | null>(null);
   const [optimizingSubId, setOptimizingSubId] = useState<string | null>(null);
+  const [confirmSubAction, setConfirmSubAction] = useState<{
+    sub: PayPalSubscriptionRecord;
+    action: "REVISE_DOWNGRADE" | "CANCEL_UNUSED";
+  } | null>(null);
+  const subConfirmDialogRef = useRef<HTMLDialogElement | null>(null);
+  const [creatingLiveSub, setCreatingLiveSub] = useState(false);
+
+  useEffect(() => {
+    const dialog = subConfirmDialogRef.current;
+    if (!dialog) return;
+    if (confirmSubAction) {
+      if (!dialog.open) dialog.showModal();
+    } else if (dialog.open) {
+      dialog.close();
+    }
+  }, [confirmSubAction]);
+  const [liveSubApproveUrl, setLiveSubApproveUrl] = useState<string | null>(null);
 
   // Interactive filters
   const [statusFilter, setStatusFilter] = useState<"ALL" | "AUTH_HOLD" | "CAPTURED">("ALL");
@@ -98,8 +124,10 @@ export default function BryntumEscrowTimeline({
   function getBarPosition(startStr: string, endStr: string) {
     const s = Math.max(timelineStart, new Date(startStr).getTime());
     const e = Math.min(timelineEnd, new Date(endStr).getTime());
-    const leftPercent = Math.max(0, Math.min(95, ((s - timelineStart) / totalDuration) * 100));
-    const widthPercent = Math.max(10, Math.min(100 - leftPercent, ((e - s) / totalDuration) * 100));
+    const rawWidth = ((e - s) / totalDuration) * 100;
+    const widthPercent = Math.max(22, Math.min(100, rawWidth));
+    const maxLeft = Math.max(0, 100 - widthPercent);
+    const leftPercent = Math.max(0, Math.min(maxLeft, ((s - timelineStart) / totalDuration) * 100));
     return {
       left: `${leftPercent.toFixed(1)}%`,
       width: `${widthPercent.toFixed(1)}%`,
@@ -115,33 +143,30 @@ export default function BryntumEscrowTimeline({
     );
     setActionBanner({
       type: "success",
-      text: `Updated ${milestoneId} progress to ${newProgress}% on interactive Gantt canvas.`,
+      text: `Updated milestone progress to ${newProgress}%.`,
     });
   }
 
-  // Interactive Date Shifting (Reschedule Milestone)
-  function handleShiftMilestoneDates(milestoneId: string, daysShift: number) {
+  // Interactive Date-Range Update
+  function handleUpdateMilestoneDates(milestoneId: string, startDate: string, endDate: string) {
+    if (!startDate || !endDate) return;
+    if (endDate < startDate) {
+      setActionBanner({
+        type: "error",
+        text: "End date must be on or after the start date.",
+      });
+      return;
+    }
     setLocalMilestones((prev) =>
-      prev.map((m) => {
-        if (m.id !== milestoneId) return m;
-        const currentStart = new Date(m.start_date);
-        const currentEnd = new Date(m.end_date);
-        currentStart.setDate(currentStart.getDate() + daysShift);
-        currentEnd.setDate(currentEnd.getDate() + daysShift);
-
-        const newStartStr = currentStart.toISOString().split("T")[0];
-        const newEndStr = currentEnd.toISOString().split("T")[0];
-
-        return {
-          ...m,
-          start_date: newStartStr,
-          end_date: newEndStr,
-        };
-      })
+      prev.map((m) =>
+        m.id === milestoneId
+          ? { ...m, start_date: startDate, end_date: endDate }
+          : m
+      )
     );
     setActionBanner({
       type: "success",
-      text: `Interactive Gantt: Rescheduled ${milestoneId} by ${daysShift > 0 ? `+${daysShift}` : daysShift} days. Timeline updated!`,
+      text: `Updated schedule for ${milestoneId} to ${formatDateRange(startDate, endDate)}.`,
     });
   }
 
@@ -230,9 +255,16 @@ export default function BryntumEscrowTimeline({
         setLocalMilestones((prev) => [data.milestone, ...prev]);
         setSelectedMilestoneId(data.milestone.id);
         setShowNewMilestoneModal(false);
+        const approvalNote = data.approveUrl
+          ? " Buyer approval required on PayPal Sandbox before Authorization lock completes."
+          : "";
         setActionBanner({
           type: "success",
-          text: `Success: Created PayPal AUTHORIZE Escrow Order ${data.milestone.paypal_order_id} (Auth ${data.milestone.paypal_authorization_id}) for $${data.milestone.amount.value} USD. Visible on interactive Gantt!`,
+          text: `Success: Created PayPal AUTHORIZE Escrow Order ${data.milestone.paypal_order_id}${
+            data.milestone.paypal_authorization_id
+              ? ` (Auth ${data.milestone.paypal_authorization_id})`
+              : ""
+          } for $${data.milestone.amount.value} USD.${approvalNote}`,
         });
         onStateUpdated();
       } else {
@@ -248,6 +280,89 @@ export default function BryntumEscrowTimeline({
       });
     } finally {
       setCreatingMilestone(false);
+    }
+  }
+
+  async function handleFinalizeAuthorization(milestone: PayPalEscrowMilestone) {
+    setFinalizingAuthId(milestone.id);
+    setActionBanner(null);
+    try {
+      const res = await fetch("/api/paypal/escrow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "FINALIZE_AUTHORIZE",
+          milestoneId: milestone.id,
+          orderId: milestone.paypal_order_id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.milestone) {
+        setLocalMilestones((prev) =>
+          prev.map((m) => (m.id === milestone.id ? data.milestone : m))
+        );
+        setActionBanner({
+          type: "success",
+          text: `Escrow Authorization Locked! Order ${milestone.paypal_order_id} authorized (${data.milestone.paypal_authorization_id}) in ${activeMode.toUpperCase()} mode.`,
+        });
+        onStateUpdated();
+      } else {
+        setActionBanner({
+          type: "error",
+          text:
+            data.error ||
+            "Order is not yet buyer-approved in PayPal Sandbox. Open the Sandbox Approval Link first.",
+        });
+      }
+    } catch (err) {
+      setActionBanner({
+        type: "error",
+        text: `Failed to finalize authorization: ${err instanceof Error ? err.message : "Error"}`,
+      });
+    } finally {
+      setFinalizingAuthId(null);
+    }
+  }
+
+  async function handleCreateLiveSubscription() {
+    setCreatingLiveSub(true);
+    setActionBanner(null);
+    setLiveSubApproveUrl(null);
+    try {
+      const res = await fetch("/api/paypal/subscriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "CREATE_LIVE_SUBSCRIPTION",
+          planName: "NexusPulse Compute GPU Plan (Sandbox)",
+          merchantName: "Slot 013 Cloud Merchant",
+          amountValue: "79.00",
+          marketBenchmarkValue: "149.00",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (data.approveUrl) {
+          setLiveSubApproveUrl(data.approveUrl);
+        }
+        setActionBanner({
+          type: "success",
+          text: `Provisioned PayPal Subscription ${data.subscription?.id ?? ""} via Catalog Products & Billing Plans (${data.mode?.toUpperCase() ?? activeMode.toUpperCase()}).`,
+        });
+        onStateUpdated();
+      } else {
+        setActionBanner({
+          type: "error",
+          text: data.error || "Failed to provision PayPal Sandbox subscription.",
+        });
+      }
+    } catch (err) {
+      setActionBanner({
+        type: "error",
+        text: `Subscription provisioning error: ${err instanceof Error ? err.message : "Error"}`,
+      });
+    } finally {
+      setCreatingLiveSub(false);
     }
   }
 
@@ -270,8 +385,9 @@ export default function BryntumEscrowTimeline({
       if (res.ok && data.ok) {
         setActionBanner({
           type: "success",
-          text: `Success: Optimized ${sub.plan_name} (${sub.id}) via PayPal Subscriptions API — Saved $${Number(data.monthlySaved ?? 0).toFixed(2)}/mo ($${Number(data.annualSaved ?? 0).toFixed(2)}/yr).`,
+          text: `${action === "CANCEL_UNUSED" ? "Cancelled" : "Downgraded"} ${sub.merchant_name} (${sub.plan_name}). Saving ${formatUsdPerMonth(data.monthlySaved ?? 0)} (${formatUsd(data.annualSaved ?? 0)}/yr).`,
         });
+        setConfirmSubAction(null);
         onStateUpdated();
       } else {
         setActionBanner({
@@ -518,15 +634,15 @@ export default function BryntumEscrowTimeline({
               <div className="col-span-2 px-3 py-2 border-r border-zinc-100 text-right">
                 Escrow Hold
               </div>
-              <div className="col-span-6 grid grid-cols-6 text-center text-zinc-500">
-                <div className="py-2 border-r border-zinc-100">Nov 01–05</div>
-                <div className="py-2 border-r border-zinc-100">Nov 06–10</div>
-                <div className="py-2 border-r border-zinc-100 bg-indigo-50/60 font-medium text-indigo-900">
-                  Nov 11–15
+              <div className="col-span-6 grid grid-cols-6 text-center text-zinc-600">
+                <div className="py-2 border-r border-zinc-100">Nov 1 – 5</div>
+                <div className="py-2 border-r border-zinc-100">Nov 6 – 10</div>
+                <div className="py-2 border-r border-zinc-100 bg-indigo-50/50 font-medium text-indigo-900">
+                  Nov 11 – 15
                 </div>
-                <div className="py-2 border-r border-zinc-100">Nov 16–20</div>
-                <div className="py-2 border-r border-zinc-100">Nov 21–25</div>
-                <div className="py-2">Nov 26–30</div>
+                <div className="py-2 border-r border-zinc-100">Nov 16 – 20</div>
+                <div className="py-2 border-r border-zinc-100">Nov 21 – 25</div>
+                <div className="py-2">Nov 26 – 30</div>
               </div>
             </div>
 
@@ -536,6 +652,15 @@ export default function BryntumEscrowTimeline({
                 const pos = getBarPosition(m.start_date, m.end_date);
                 const isSelected = selectedMilestone?.id === m.id;
                 const isCaptured = m.status === "AI_VERIFIED_CAPTURED";
+                const isInProgress = !isCaptured && m.progress_percent > 0;
+                const statusLabel = humanizeEscrowStatus(
+                  isInProgress ? "IN_PROGRESS" : m.status
+                );
+                const barClass = isCaptured
+                  ? "bg-emerald-600 text-white"
+                  : isInProgress
+                    ? "bg-indigo-600 text-white"
+                    : "bg-zinc-200 text-zinc-900 border border-zinc-300";
 
                 return (
                   <div
@@ -561,35 +686,42 @@ export default function BryntumEscrowTimeline({
                     }`}
                   >
                     <div className="col-span-4 px-3.5 py-3 border-r border-zinc-100">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex h-4 w-4 items-center justify-center rounded bg-zinc-100 text-[10px] font-mono font-medium text-zinc-600">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded bg-zinc-100 text-[10px] font-mono font-medium text-zinc-700">
                           {idx + 1}
                         </span>
-                        <span className="font-medium text-zinc-900 truncate">
+                        <span
+                          title={m.project_name}
+                          className="font-medium text-zinc-900 line-clamp-2 leading-snug"
+                        >
                           {m.project_name}
                         </span>
                       </div>
-                      <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-400">
-                        <span className="font-mono text-zinc-500">
-                          {m.paypal_authorization_id}
+                      <div className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">
+                        <span className="font-mono text-zinc-600">
+                          {m.id}
                         </span>
                         <span>·</span>
-                        <span className="truncate">{m.client_agent}</span>
+                        <span>{formatDateRange(m.start_date, m.end_date)}</span>
                       </div>
                     </div>
 
                     <div className="col-span-2 px-3 py-3 border-r border-zinc-100 text-right tabular-nums">
                       <div className="font-semibold text-zinc-900">
-                        ${m.amount.value}
+                        {formatUsd(m.amount.value)}
                       </div>
-                      <span
-                        className={`inline-block mt-0.5 rounded px-1.5 py-0.2 text-[10px] font-medium ${
-                          isCaptured
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-zinc-100 text-zinc-700"
-                        }`}
-                      >
-                        {isCaptured ? "CAPTURED" : "HOLD"}
+                      <span className="inline-flex items-center justify-end gap-1.5 mt-0.5 text-[12px] font-medium text-zinc-700">
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            isCaptured
+                              ? "bg-emerald-600"
+                              : isInProgress
+                                ? "bg-indigo-600"
+                                : "bg-zinc-400"
+                          }`}
+                          aria-hidden="true"
+                        />
+                        {statusLabel}
                       </span>
                     </div>
 
@@ -604,9 +736,10 @@ export default function BryntumEscrowTimeline({
                         <div />
                       </div>
 
-                      {/* Interactive Gantt Bar */}
+                      {/* Interactive Gantt Bar: single clean label + single color per status */}
                       <div
                         style={{ left: pos.left, width: pos.width }}
+                        title={`${m.project_name} · ${formatDateRange(m.start_date, m.end_date)} · ${statusLabel} (${m.progress_percent}%)`}
                         onMouseEnter={(e) => {
                           const rect = e.currentTarget.getBoundingClientRect();
                           setHoveredMilestone({
@@ -616,22 +749,11 @@ export default function BryntumEscrowTimeline({
                           });
                         }}
                         onMouseLeave={() => setHoveredMilestone(null)}
-                        className={`relative z-10 h-6 rounded-md px-2 flex items-center justify-between text-[11px] font-medium transition group ${
-                          isCaptured
-                            ? "bg-zinc-900 text-white"
-                            : "bg-indigo-600 text-white"
-                        } ${isSelected ? "ring-2 ring-indigo-500/30" : ""}`}
+                        className={`relative z-10 h-6 rounded-md px-2.5 flex items-center text-[11px] font-medium transition ${barClass} ${
+                          isSelected ? "ring-2 ring-indigo-600/35" : ""
+                        }`}
                       >
-                        <span className="truncate flex items-center gap-1">
-                          <span>{m.id}</span>
-                          <span className="opacity-80 text-[10px]">({m.progress_percent}%)</span>
-                        </span>
-
-                        {m.dependencies && m.dependencies.length > 0 && (
-                          <span className="rounded bg-black/20 px-1 font-mono text-[9px] text-white/90">
-                            {m.dependencies.join(",")}
-                          </span>
-                        )}
+                        <span className="truncate">{m.project_name}</span>
                       </div>
                     </div>
                   </div>
@@ -643,26 +765,29 @@ export default function BryntumEscrowTimeline({
             {hoveredMilestone && (
               <div
                 role="tooltip"
-                className="pointer-events-none fixed z-50 rounded-lg border border-zinc-800 bg-zinc-950 text-white p-2.5 shadow-xl text-xs space-y-1 max-w-xs animate-fade-in"
+                className="pointer-events-none fixed z-50 rounded-lg border border-zinc-800 bg-zinc-950 text-white p-2.5 shadow-xl text-xs space-y-1 max-w-xs"
                 style={{
                   top: Math.max(10, hoveredMilestone.y),
                   left: Math.max(10, hoveredMilestone.x),
                 }}
               >
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-800 pb-1">
-                  <span className="font-mono text-indigo-300">
+                <div className="flex items-center justify-between gap-3 border-b border-zinc-800 pb-1">
+                  <span className="font-mono text-zinc-200">
                     {hoveredMilestone.milestone.id}
                   </span>
-                  <span className="text-[10px] text-zinc-400 font-mono">
-                    {hoveredMilestone.milestone.start_date} → {hoveredMilestone.milestone.end_date}
+                  <span className="text-[11px] text-zinc-300">
+                    {formatDateRange(
+                      hoveredMilestone.milestone.start_date,
+                      hoveredMilestone.milestone.end_date
+                    )}
                   </span>
                 </div>
-                <div className="font-medium text-zinc-200 truncate">
+                <div className="font-medium text-white line-clamp-2">
                   {hoveredMilestone.milestone.project_name}
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-zinc-400">
-                  <span>${hoveredMilestone.milestone.amount.value} USD</span>
-                  <span className="text-zinc-200 font-medium">
+                <div className="flex items-center justify-between text-[11px] text-zinc-300 tabular-nums">
+                  <span>{formatUsd(hoveredMilestone.milestone.amount.value)}</span>
+                  <span className="font-medium text-white">
                     {hoveredMilestone.milestone.progress_percent}%
                   </span>
                 </div>
@@ -690,7 +815,11 @@ export default function BryntumEscrowTimeline({
                         : "bg-zinc-100 text-zinc-700"
                     }`}
                   >
-                    {selectedMilestone.status === "AI_VERIFIED_CAPTURED" ? "Captured" : "Auth Hold"}
+                    {selectedMilestone.status === "AI_VERIFIED_CAPTURED"
+                      ? "Captured"
+                      : selectedMilestone.approve_url && !selectedMilestone.paypal_authorization_id
+                        ? "Awaiting Buyer Approval"
+                        : "Auth Hold"}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-zinc-600">
@@ -700,10 +829,9 @@ export default function BryntumEscrowTimeline({
               </div>
 
               <div className="text-right tabular-nums">
-                <div className="text-[11px] text-zinc-400">Escrow Amount</div>
+                <div className="text-[11px] text-zinc-600">Escrow amount</div>
                 <div className="text-lg font-bold text-zinc-900">
-                  ${selectedMilestone.amount.value}{" "}
-                  <span className="text-xs font-normal text-zinc-400">{selectedMilestone.amount.currency_code}</span>
+                  {formatUsd(selectedMilestone.amount.value)}
                 </div>
               </div>
             </div>
@@ -756,37 +884,101 @@ export default function BryntumEscrowTimeline({
                 </div>
               </div>
 
-              {/* Interactive Date Rescheduling Tool */}
+              {/* Interactive Date-Range Picker */}
               <div className="rounded-lg bg-white border border-zinc-200 p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-medium text-zinc-700 flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                    Schedule:
+                    <Calendar className="h-3.5 w-3.5 text-zinc-500" />
+                    Schedule
                   </span>
-                  <span className="font-mono text-zinc-500 text-xs">
-                    {selectedMilestone.start_date} → {selectedMilestone.end_date}
+                  <span className="text-zinc-700 font-medium text-xs">
+                    {formatDateRange(selectedMilestone.start_date, selectedMilestone.end_date)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => handleShiftMilestoneDates(selectedMilestone.id, -2)}
-                    className="flex-1 inline-flex items-center justify-center gap-1 rounded bg-zinc-100 hover:bg-zinc-200 px-2 py-1 text-xs font-medium text-zinc-700 transition"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                    -2 Days
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleShiftMilestoneDates(selectedMilestone.id, 2)}
-                    className="flex-1 inline-flex items-center justify-center gap-1 rounded bg-zinc-100 hover:bg-zinc-200 px-2 py-1 text-xs font-medium text-zinc-700 transition"
-                  >
-                    +2 Days
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <label
+                      htmlFor="milestone-start-date"
+                      className="block text-[11px] text-zinc-600 mb-0.5"
+                    >
+                      Start date
+                    </label>
+                    <input
+                      id="milestone-start-date"
+                      type="date"
+                      value={selectedMilestone.start_date}
+                      onChange={(e) =>
+                        handleUpdateMilestoneDates(
+                          selectedMilestone.id,
+                          e.target.value,
+                          selectedMilestone.end_date
+                        )
+                      }
+                      className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="milestone-end-date"
+                      className="block text-[11px] text-zinc-600 mb-0.5"
+                    >
+                      End date
+                    </label>
+                    <input
+                      id="milestone-end-date"
+                      type="date"
+                      value={selectedMilestone.end_date}
+                      onChange={(e) =>
+                        handleUpdateMilestoneDates(
+                          selectedMilestone.id,
+                          selectedMilestone.start_date,
+                          e.target.value
+                        )
+                      }
+                      className="w-full h-8 rounded-md border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Live Sandbox Buyer Approval Gate when Authorization Hold is newly created */}
+            {selectedMilestone.status !== "AI_VERIFIED_CAPTURED" &&
+              selectedMilestone.approve_url &&
+              !selectedMilestone.paypal_authorization_id && (
+                <div className="pt-3 border-t border-zinc-200/60 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-200 bg-sky-50/70 px-3 py-2.5 text-xs text-sky-950">
+                  <div className="space-y-0.5">
+                    <div className="font-semibold flex items-center gap-1.5">
+                      <Wallet className="h-3.5 w-3.5 text-sky-600" />
+                      <span>PayPal Order {selectedMilestone.paypal_order_id} Awaiting Buyer Approval</span>
+                    </div>
+                    <p className="text-[11px] text-sky-800">
+                      Sign in as Slot 013 Buyer in PayPal Sandbox, approve this AUTHORIZE hold, then click Finalize Authorization.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <a
+                      href={selectedMilestone.approve_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#003087] hover:bg-[#002366] px-3 text-xs font-semibold text-white transition"
+                    >
+                      <span>Approve in Sandbox</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <button
+                      type="button"
+                      disabled={finalizingAuthId === selectedMilestone.id}
+                      onClick={() => handleFinalizeAuthorization(selectedMilestone)}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3 text-xs font-medium text-white transition disabled:opacity-50"
+                    >
+                      {finalizingAuthId === selectedMilestone.id
+                        ? "Finalizing..."
+                        : "Finalize Authorization"}
+                    </button>
+                  </div>
+                </div>
+              )}
 
             {/* Cryptographic Deliverable Verification & Capture Console */}
             {selectedMilestone.status !== "AI_VERIFIED_CAPTURED" ? (
@@ -812,10 +1004,10 @@ export default function BryntumEscrowTimeline({
                     onClick={() => handleVerifyAndCapture(selectedMilestone)}
                     className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-3.5 text-xs font-medium text-white transition disabled:opacity-50 shrink-0"
                   >
-                    <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                    <ShieldCheck className="h-3.5 w-3.5 text-zinc-200" />
                     {verifyingId === selectedMilestone.id
-                      ? "Auditing..."
-                      : `Verify & Capture $${selectedMilestone.amount.value}`}
+                      ? "Verifying..."
+                      : `Verify & release ${formatUsd(selectedMilestone.amount.value)}`}
                   </button>
                 </div>
               </div>
@@ -855,6 +1047,28 @@ export default function BryntumEscrowTimeline({
               Autonomous CFO detects unused seats and executes plan downgrades.
             </p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {liveSubApproveUrl && (
+              <a
+                href={liveSubApproveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#003087] hover:bg-[#002366] px-3 text-xs font-semibold text-white transition"
+              >
+                <span>Approve Subscription in Sandbox</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+            <button
+              type="button"
+              disabled={creatingLiveSub}
+              onClick={handleCreateLiveSubscription}
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 transition disabled:opacity-50"
+            >
+              <Plus className="h-3.5 w-3.5 text-indigo-600" />
+              <span>{creatingLiveSub ? "Provisioning..." : "Provision Sandbox Plan"}</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -873,18 +1087,18 @@ export default function BryntumEscrowTimeline({
                   </h4>
                   <p className="text-xs text-zinc-500">{sub.merchant_name}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <div className="text-sm font-bold text-zinc-900 tabular-nums">
-                    ${sub.billing_amount.value}/mo
+                    {formatUsdPerMonth(sub.billing_amount.value)}
                   </div>
-                  <span
-                    className={`inline-block mt-0.5 text-[10px] font-medium px-1.5 py-0.2 rounded ${
-                      sub.status === "ACTIVE"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-zinc-100 text-zinc-600"
-                    }`}
-                  >
-                    {sub.status}
+                  <span className="inline-flex items-center gap-1.5 mt-0.5 text-[12px] font-medium text-zinc-700">
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        sub.status === "ACTIVE" ? "bg-emerald-600" : "bg-zinc-400"
+                      }`}
+                      aria-hidden="true"
+                    />
+                    {sub.status === "ACTIVE" ? "Active" : sub.status}
                   </span>
                 </div>
               </div>
@@ -893,8 +1107,9 @@ export default function BryntumEscrowTimeline({
                 <p className="text-[11px] text-zinc-600">
                   {sub.ai_rationale}
                 </p>
-                <div className="font-medium text-emerald-700 text-[11px]">
-                  Potential Savings: +${sub.potential_monthly_savings.value}/mo
+                <div className="font-medium text-emerald-700 text-[11px] tabular-nums">
+                  Potential savings: {formatUsdPerMonth(sub.potential_monthly_savings.value)} (
+                  {formatUsd(Number(sub.potential_monthly_savings.value) * 12)}/yr)
                 </div>
               </div>
 
@@ -903,18 +1118,22 @@ export default function BryntumEscrowTimeline({
                   <button
                     type="button"
                     disabled={optimizingSubId === sub.id}
-                    onClick={() => handleOptimizeSubscription(sub, "REVISE_DOWNGRADE")}
-                    className="flex-1 h-8 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-2.5 text-xs font-medium text-white transition disabled:opacity-50"
+                    onClick={() =>
+                      setConfirmSubAction({ sub, action: "REVISE_DOWNGRADE" })
+                    }
+                    className="flex-1 h-8 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-xs font-medium text-zinc-900 transition disabled:opacity-50"
                   >
                     {optimizingSubId === sub.id ? "Downgrading..." : "Downgrade"}
                   </button>
                   <button
                     type="button"
                     disabled={optimizingSubId === sub.id}
-                    onClick={() => handleOptimizeSubscription(sub, "CANCEL_UNUSED")}
-                    className="h-8 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-xs font-medium text-zinc-700 transition disabled:opacity-50"
+                    onClick={() =>
+                      setConfirmSubAction({ sub, action: "CANCEL_UNUSED" })
+                    }
+                    className="h-8 rounded-md border border-red-200 bg-white hover:bg-red-50 px-2.5 text-xs font-medium text-red-700 transition disabled:opacity-50"
                   >
-                    Cancel
+                    Cancel subscription
                   </button>
                 </div>
               )}
@@ -922,6 +1141,84 @@ export default function BryntumEscrowTimeline({
           ))}
         </div>
       </div>
+
+      {/* Confirmation dialog naming the exact subscription and projected savings */}
+      <dialog
+        ref={subConfirmDialogRef}
+        aria-labelledby="sub-confirm-dialog-title"
+        onClose={() => setConfirmSubAction(null)}
+        className="m-auto w-full max-w-md rounded-xl border border-zinc-200 bg-white p-0 shadow-lg backdrop:bg-zinc-950/40"
+      >
+        {confirmSubAction && (
+          <div className="p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h4 id="sub-confirm-dialog-title" className="text-base font-semibold text-zinc-950">
+                  {confirmSubAction.action === "CANCEL_UNUSED"
+                    ? `Cancel ${confirmSubAction.sub.merchant_name}?`
+                    : `Downgrade ${confirmSubAction.sub.merchant_name}?`}
+                </h4>
+                <p className="mt-1 text-xs text-zinc-600">
+                  Plan: <span className="font-medium text-zinc-900">{confirmSubAction.sub.plan_name}</span>{" "}
+                  (<code className="font-mono">{confirmSubAction.sub.id}</code>)
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Close confirmation dialog"
+                onClick={() => setConfirmSubAction(null)}
+                className="rounded-md p-1 text-zinc-500 hover:text-zinc-900 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-600">Current charge</span>
+                <span className="tabular-nums font-medium text-zinc-900">
+                  {formatUsdPerMonth(confirmSubAction.sub.billing_amount.value)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-600">Estimated savings</span>
+                <span className="tabular-nums font-semibold text-emerald-700">
+                  {formatUsdPerMonth(confirmSubAction.sub.potential_monthly_savings.value)} (
+                  {formatUsd(Number(confirmSubAction.sub.potential_monthly_savings.value) * 12)}/yr)
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setConfirmSubAction(null)}
+                className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-800 hover:bg-zinc-50 transition"
+              >
+                Keep subscription
+              </button>
+              <button
+                type="button"
+                disabled={optimizingSubId === confirmSubAction.sub.id}
+                onClick={() =>
+                  handleOptimizeSubscription(confirmSubAction.sub, confirmSubAction.action)
+                }
+                className={`h-9 rounded-md px-3.5 text-xs font-medium text-white transition disabled:opacity-50 ${
+                  confirmSubAction.action === "CANCEL_UNUSED"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-zinc-900 hover:bg-zinc-800"
+                }`}
+              >
+                {optimizingSubId === confirmSubAction.sub.id
+                  ? "Updating..."
+                  : confirmSubAction.action === "CANCEL_UNUSED"
+                    ? "Confirm cancellation"
+                    : "Confirm downgrade"}
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
     </section>
   );
 }

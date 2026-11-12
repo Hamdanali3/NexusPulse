@@ -142,37 +142,62 @@ export async function POST(req: NextRequest) {
     }
 
     const state = getMirrorState();
+    const normalizedNewTitle = cleanTitle.trim().toLowerCase().replace(/\s+/g, " ");
+    const existingDeal = state.channel3Deals.find(
+      (d) => d.title.trim().toLowerCase().replace(/\s+/g, " ") === normalizedNewTitle
+    );
+
     const bestPrice = Number((mandateCheck.value * 0.96).toFixed(2));
     const savings = Number((retailCheck.value - bestPrice).toFixed(2));
-    const newDeal = {
-      id: `C3-PROD-${9000 + state.channel3Deals.length + 1}`,
-      title: cleanTitle,
-      brand: sanitizeText(body.brand, 60) || "Verified Brand",
-      category: sanitizeText(body.category, 60) || "Agentic Commerce",
-      sku: `C3-${Date.now().toString().slice(-6)}`,
-      retail_price: retailCheck.value,
-      channel3_best_price: bestPrice,
-      target_mandate_price: mandateCheck.value,
-      savings_amount: savings,
-      savings_percent: Number(((savings / retailCheck.value) * 100).toFixed(1)),
-      currency: "USD",
-      merchant_name: "Channel3 Verified Direct Merchant",
-      in_stock: true,
-      rating: 4.9,
-      review_count: 310,
-      bnpl_eligible: bestPrice >= 30,
-      bnpl_installment_monthly: Number((bestPrice / 4).toFixed(2)),
-      mandate_status: "TARGET_MET_READY" as const,
-      ai_price_prediction: `Channel3 found an instant match at $${bestPrice.toFixed(2)} ($${savings.toFixed(2)} below retail) satisfying your $${mandateCheck.value.toFixed(2)} cryptographic mandate.`,
-    };
+    const updatedOrNewDeal = existingDeal
+      ? {
+          ...existingDeal,
+          retail_price: retailCheck.value,
+          channel3_best_price: bestPrice,
+          target_mandate_price: mandateCheck.value,
+          savings_amount: savings,
+          savings_percent: Number(((savings / retailCheck.value) * 100).toFixed(1)),
+          bnpl_eligible: bestPrice >= 30,
+          bnpl_installment_monthly: Number((bestPrice / 4).toFixed(2)),
+          mandate_status:
+            existingDeal.mandate_status === "PURCHASED_VIA_PAYPAL"
+              ? ("PURCHASED_VIA_PAYPAL" as const)
+              : ("TARGET_MET_READY" as const),
+        }
+      : {
+          id: `C3-PROD-${9000 + state.channel3Deals.length + 1}`,
+          title: cleanTitle,
+          brand: sanitizeText(body.brand, 60) || "Verified Brand",
+          category: sanitizeText(body.category, 60) || "Agentic Commerce",
+          sku: `C3-${Date.now().toString().slice(-6)}`,
+          retail_price: retailCheck.value,
+          channel3_best_price: bestPrice,
+          target_mandate_price: mandateCheck.value,
+          savings_amount: savings,
+          savings_percent: Number(((savings / retailCheck.value) * 100).toFixed(1)),
+          currency: "USD",
+          merchant_name: "Channel3 Verified Direct Merchant",
+          in_stock: true,
+          rating: 4.9,
+          review_count: 310,
+          bnpl_eligible: bestPrice >= 30,
+          bnpl_installment_monthly: Number((bestPrice / 4).toFixed(2)),
+          mandate_status: "TARGET_MET_READY" as const,
+          ai_price_prediction: `Found an active offer at $${bestPrice.toFixed(2)} ($${savings.toFixed(2)} below retail) under your $${mandateCheck.value.toFixed(2)} price limit.`,
+        };
 
-    state.channel3Deals.unshift(newDeal);
-    syncChannel3DealToSupabase(newDeal).catch(() => {});
+    if (existingDeal) {
+      const idx = state.channel3Deals.findIndex((d) => d.id === existingDeal.id);
+      if (idx !== -1) state.channel3Deals[idx] = updatedOrNewDeal;
+    } else {
+      state.channel3Deals.unshift(updatedOrNewDeal);
+    }
+    syncChannel3DealToSupabase(updatedOrNewDeal).catch(() => {});
 
     return NextResponse.json(
       {
         ok: true,
-        deal: newDeal,
+        deal: updatedOrNewDeal,
         state,
       },
       { headers: VARY_HEADERS }

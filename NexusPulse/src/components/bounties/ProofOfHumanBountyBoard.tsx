@@ -13,26 +13,31 @@ import {
   MapPin,
   Send,
   ShieldCheck,
-  Sparkles,
   UploadCloud,
   UserCheck,
   X,
   XCircle,
 } from "lucide-react";
 import type {
+  PayPalExecutionMode,
   PayPalPayoutRecord,
   ProofOfHumanBounty,
 } from "@/lib/paypal/paypal-types";
+import { formatSignedUsd, formatUsd, sanitizeDisplayEmail } from "@/lib/format";
 
 interface ProofOfHumanBountyBoardProps {
   bounties: ProofOfHumanBounty[];
   payouts: PayPalPayoutRecord[];
+  activeMode?: PayPalExecutionMode;
+  sandboxBuyerEmail?: string;
   onStateUpdated: () => void;
 }
 
 export default function ProofOfHumanBountyBoard({
   bounties,
   payouts,
+  activeMode = "sandbox",
+  sandboxBuyerEmail = "sb-ifqau51324237@personal.example.com",
   onStateUpdated,
 }: ProofOfHumanBountyBoardProps) {
   const [selectedBountyId, setSelectedBountyId] = useState<string>(
@@ -46,9 +51,7 @@ export default function ProofOfHumanBountyBoard({
   const [evidenceText, setEvidenceText] = useState<string>(
     selectedBounty?.sample_evidence_text ?? ""
   );
-  const [receiverEmail, setReceiverEmail] = useState<string>(
-    "sb-buyer-nexus@personal.example.com"
-  );
+  const [receiverEmail, setReceiverEmail] = useState<string>(sandboxBuyerEmail);
   const [submitting, setSubmitting] = useState(false);
   const [bountyFilter, setBountyFilter] = useState<"ALL" | "OPEN" | "PAID">("ALL");
 
@@ -251,7 +254,7 @@ export default function ProofOfHumanBountyBoard({
               </span>
               <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700">
                 <DollarSign className="h-3 w-3 text-zinc-500" />
-                PayPal Payouts v1
+                {activeMode === "mirror" ? "Mirror Payouts" : "Live PayPal Payouts v1"}
               </span>
             </div>
             <h3 id="engine-2-heading" className="mt-1.5 text-base font-semibold text-zinc-900">
@@ -306,9 +309,6 @@ export default function ProofOfHumanBountyBoard({
             {displayedBounties.map((bounty) => {
               const isSelected = selectedBounty?.id === bounty.id;
               const isPaid = bounty.status === "PAID_OUT";
-              const hourlyYield = Math.round(
-                (Number(bounty.reward.value) / Math.max(15, bounty.estimated_seconds)) * 3600
-              );
 
               return (
                 <div
@@ -343,35 +343,42 @@ export default function ProofOfHumanBountyBoard({
                           {bounty.location_scope}
                         </span>
                       </div>
-                      <h4 className="text-sm font-semibold text-zinc-900 leading-snug">
+                      <h4
+                        title={bounty.title}
+                        className="text-sm font-semibold text-zinc-900 leading-snug line-clamp-2"
+                      >
                         {bounty.title}
                       </h4>
-                      <p className="text-[11px] text-zinc-500">
+                      <p className="text-[11px] text-zinc-600">
                         {bounty.requester_agent} · {bounty.requester_org}
                       </p>
                     </div>
 
                     <div className="text-right shrink-0 tabular-nums">
                       <div className="text-base font-bold text-zinc-900">
-                        +${bounty.reward.value}
+                        {formatSignedUsd(bounty.reward.value)}
                       </div>
-                      <div className="text-[11px] text-zinc-400">
-                        ~{bounty.estimated_seconds}s · ~${hourlyYield.toLocaleString()}/hr
+                      <div className="text-[11px] text-zinc-600">
+                        ~{bounty.estimated_seconds}s est.
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between text-xs">
-                    <span className="text-zinc-500 truncate max-w-[65%]">
+                  <div className="mt-3 pt-2 border-t border-zinc-100 flex items-center justify-between gap-3 text-xs">
+                    <span
+                      title={bounty.prompt_instructions}
+                      className="text-zinc-600 line-clamp-2"
+                    >
                       {bounty.prompt_instructions}
                     </span>
                     {isPaid ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 shrink-0">
-                        <CheckCircle2 className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-emerald-700 shrink-0 whitespace-nowrap">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
                         Paid
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700 shrink-0">
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-700 shrink-0 whitespace-nowrap">
+                        <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" aria-hidden="true" />
                         Open
                       </span>
                     )}
@@ -511,10 +518,10 @@ export default function ProofOfHumanBountyBoard({
                   disabled={submitting}
                   className="w-full inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 px-4 text-xs font-medium text-white transition disabled:opacity-50"
                 >
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-zinc-200" />
                   {submitting
-                    ? "Auditing & Processing..."
-                    : `Verify & Settle $${selectedBounty.reward.value} USD`}
+                    ? "Verifying & paying..."
+                    : `Verify & pay ${formatUsd(selectedBounty.reward.value)}`}
                 </button>
 
                 {/* Explicit SUCCESS or FAILURE Receipt */}
@@ -591,35 +598,67 @@ export default function ProofOfHumanBountyBoard({
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {payouts.map((p) => (
-            <div
-              key={p.payout_batch_id}
-              className="rounded-xl border border-zinc-200 bg-white hover:border-zinc-300 p-3.5 text-xs space-y-1.5 shadow-2xs transition"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-mono font-medium text-zinc-900">
-                  {p.payout_batch_id}
-                </span>
-                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                  {p.batch_status}
-                </span>
+        <div className="mt-3 hidden md:block overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-zinc-200 text-zinc-600">
+                <th className="py-2.5 pr-3 font-medium">Payout ID</th>
+                <th className="py-2.5 pr-3 font-medium">Recipient</th>
+                <th className="py-2.5 pr-3 font-medium">Task note</th>
+                <th className="py-2.5 pr-3 font-medium">Status</th>
+                <th className="py-2.5 text-right font-medium">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100">
+              {payouts.map((p) => {
+                const safeEmail = sanitizeDisplayEmail(p.receiver);
+                return (
+                  <tr key={p.payout_batch_id} className="hover:bg-zinc-50/70 transition-colors">
+                    <td className="py-2.5 pr-3 font-mono text-zinc-900 whitespace-nowrap">
+                      {p.payout_batch_id}
+                    </td>
+                    <td className="py-2.5 pr-3 text-zinc-700 whitespace-nowrap">
+                      {safeEmail}
+                    </td>
+                    <td title={p.note} className="py-2.5 pr-3 text-zinc-600 max-w-md">
+                      <span className="line-clamp-2">{p.note}</span>
+                    </td>
+                    <td className="py-2.5 pr-3 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
+                        {p.batch_status === "SUCCESS" ? "Paid" : p.batch_status}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-right font-semibold text-emerald-700 tabular-nums whitespace-nowrap">
+                      {formatSignedUsd(p.amount.value)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-3 md:hidden divide-y divide-zinc-100">
+          {payouts.map((p) => {
+            const safeEmail = sanitizeDisplayEmail(p.receiver);
+            return (
+              <div key={p.payout_batch_id} className="py-3 space-y-1 text-xs">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-mono font-medium text-zinc-900">
+                    {p.payout_batch_id}
+                  </span>
+                  <span className="font-semibold text-emerald-700 tabular-nums">
+                    {formatSignedUsd(p.amount.value)}
+                  </span>
+                </div>
+                <div className="text-zinc-600">{safeEmail}</div>
+                <p title={p.note} className="text-zinc-600 line-clamp-2">
+                  {p.note}
+                </p>
               </div>
-              <div className="flex items-baseline justify-between tabular-nums">
-                <span className="text-zinc-500 truncate max-w-[65%]">
-                  {p.receiver}
-                </span>
-                <span className="text-sm font-bold text-zinc-900">
-                  +${p.amount.value} <span className="text-[10px] font-normal text-zinc-400">{p.amount.currency_code}</span>
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 truncate">{p.note}</p>
-              <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono pt-1 border-t border-zinc-100">
-                <span>ReqID: {p.paypal_request_id.slice(0, 12)}...</span>
-                <span className="font-medium text-zinc-600">{p.mode.toUpperCase()}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
