@@ -109,48 +109,6 @@ export default function NexusHeader({
         <div className="flex items-center gap-3 sm:gap-6">
           <NexusPulseLogo onNavigateHome={() => onSelectTab?.("overview")} />
 
-          {/* TOP LEFT: Sign In / Sign Up & Evaluator Demo Switcher */}
-          <button
-            type="button"
-            onClick={onOpenAuthModal}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition"
-            title={
-              currentUser
-                ? `Signed in as ${currentUser.fullName} (${currentUser.role})`
-                : "Sign In, Sign Up, or select an Evaluator Demo Persona"
-            }
-          >
-            {currentUser ? (
-              <>
-                <div className="h-5 w-5 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold uppercase shrink-0">
-                  {currentUser.fullName.slice(0, 2)}
-                </div>
-                <span className="font-semibold text-zinc-900 max-w-[85px] sm:max-w-[130px] truncate">
-                  {currentUser.fullName}
-                </span>
-                <span className="rounded bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono text-[9px] px-1 py-0.2 font-medium">
-                  {currentUser.role === "CONSUMER"
-                    ? "Consumer"
-                    : currentUser.role === "ORACLE_WORKER"
-                    ? "Oracle"
-                    : currentUser.role === "ENTERPRISE_AGENT"
-                    ? "Agent"
-                    : "Admin"}
-                </span>
-              </>
-            ) : (
-              <>
-                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                <span className="font-semibold text-zinc-900">Sign In</span>
-                <span className="text-zinc-300">/</span>
-                <span className="font-semibold text-zinc-900 hidden sm:inline">Sign Up</span>
-                <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.2 font-medium">
-                  Demo
-                </span>
-              </>
-            )}
-          </button>
-
           {/* Primary navigation — 4 items */}
           <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
             <button
@@ -206,8 +164,50 @@ export default function NexusHeader({
           </nav>
         </div>
 
-        {/* Quiet controls */}
-        <div className="flex items-center gap-1">
+        {/* Quiet controls & Auth Action */}
+        <div className="flex items-center gap-2">
+          {/* TOP RIGHT: Sign In / Sign Up & Evaluator Demo Switcher */}
+          <button
+            type="button"
+            onClick={onOpenAuthModal}
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white hover:bg-zinc-50 hover:border-zinc-300 px-2.5 py-1 text-xs text-zinc-700 shadow-2xs transition"
+            title={
+              currentUser
+                ? `Signed in as ${currentUser.fullName} (${currentUser.role})`
+                : "Sign In, Sign Up, or select an Evaluator Demo Persona"
+            }
+          >
+            {currentUser ? (
+              <>
+                <div className="h-5 w-5 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold uppercase shrink-0">
+                  {currentUser.fullName.slice(0, 2)}
+                </div>
+                <span className="font-semibold text-zinc-900 max-w-[85px] sm:max-w-[130px] truncate">
+                  {currentUser.fullName}
+                </span>
+                <span className="rounded bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono text-[9px] px-1 py-0.2 font-medium">
+                  {currentUser.role === "CONSUMER"
+                    ? "Consumer"
+                    : currentUser.role === "ORACLE_WORKER"
+                    ? "Oracle"
+                    : currentUser.role === "ENTERPRISE_AGENT"
+                    ? "Agent"
+                    : "Admin"}
+                </span>
+              </>
+            ) : (
+              <>
+                <User className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                <span className="font-semibold text-zinc-900">Sign In</span>
+                <span className="text-zinc-300">/</span>
+                <span className="font-semibold text-zinc-900 hidden sm:inline">Sign Up</span>
+                <span className="rounded bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-mono px-1.5 py-0.2 font-medium">
+                  Demo
+                </span>
+              </>
+            )}
+          </button>
+
           <button
             type="button"
             onClick={() => setShowSettings((v) => !v)}
