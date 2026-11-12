@@ -2,20 +2,22 @@
 
 import React, { useState } from "react";
 import {
-  ArrowRight,
-  Bot,
-  Camera,
-  CheckCircle2,
-  CreditCard,
-  Lock,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+  Analytics01Icon,
+  ArrowRight02Icon,
+  Camera01Icon,
+  CancelCircleIcon,
+  CheckmarkCircle02Icon,
+  CreditCardIcon,
+  SecurityCheckIcon,
+  SquareLock02Icon,
+} from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
+import { AppIcon } from "@/components/ui/Icon";
 
 interface FeaturePillar {
   id: string;
   tabTitle: string;
-  tabIcon: React.ElementType;
+  tabIcon: IconSvgElement;
   engineLabel: string;
   engineTab: "channel3" | "bounties" | "bryntum" | "aggrid";
   headline: string;
@@ -32,7 +34,7 @@ const PILLARS: FeaturePillar[] = [
   {
     id: "wallets",
     tabTitle: "Spending limits",
-    tabIcon: CreditCard,
+    tabIcon: CreditCardIcon,
     engineLabel: "Price watch",
     engineTab: "channel3",
     headline: "Approve purchases within set price targets",
@@ -47,7 +49,7 @@ const PILLARS: FeaturePillar[] = [
   {
     id: "oracles",
     tabTitle: "Field verification",
-    tabIcon: Camera,
+    tabIcon: Camera01Icon,
     engineLabel: "Verified tasks",
     engineTab: "bounties",
     headline: "Confirm real-world work before sending money",
@@ -62,7 +64,7 @@ const PILLARS: FeaturePillar[] = [
   {
     id: "escrow",
     tabTitle: "Milestone escrow",
-    tabIcon: Lock,
+    tabIcon: SquareLock02Icon,
     engineLabel: "Milestone escrow",
     engineTab: "bryntum",
     headline: "Hold funds until scheduled deliverables finish",
@@ -77,7 +79,7 @@ const PILLARS: FeaturePillar[] = [
   {
     id: "cfo",
     tabTitle: "Spending review",
-    tabIcon: Bot,
+    tabIcon: Analytics01Icon,
     engineLabel: "Spending review",
     engineTab: "aggrid",
     headline: "Spot unused subscriptions before they renew",
@@ -142,7 +144,7 @@ export default function ProblemSolutionComparison({
             className="inline-flex h-9 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 text-[13px] font-medium text-zinc-800 transition self-start sm:self-center shrink-0"
           >
             <span>Open {pillar.engineLabel}</span>
-            <ArrowRight className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+            <AppIcon icon={ArrowRight02Icon} size="sm" className="text-zinc-500" />
           </button>
         )}
       </div>
@@ -150,7 +152,6 @@ export default function ProblemSolutionComparison({
       {/* Neutral Tab Switcher */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         {PILLARS.map((p) => {
-          const Icon = p.tabIcon;
           const isActive = p.id === activePillarId;
 
           return (
@@ -167,11 +168,10 @@ export default function ProblemSolutionComparison({
                   : "border-zinc-200 bg-[#fafafa] hover:bg-white text-zinc-700"
               }`}
             >
-              <Icon
-                className={`h-4 w-4 shrink-0 ${
-                  isActive ? "text-indigo-600" : "text-zinc-500"
-                }`}
-                strokeWidth={1.5}
+              <AppIcon
+                icon={p.tabIcon}
+                size="sm"
+                className={isActive ? "text-indigo-600" : "text-zinc-600"}
               />
               <div className="min-w-0">
                 <div className="text-[13px] font-medium truncate">{p.tabTitle}</div>
@@ -219,7 +219,7 @@ export default function ProblemSolutionComparison({
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-zinc-200">
                 <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-950">
-                  <XCircle className="h-4 w-4 text-red-700 shrink-0" strokeWidth={1.5} />
+                  <AppIcon icon={CancelCircleIcon} size="sm" className="text-red-700" />
                   Without guardrails: {pillar.problemTitle}
                 </span>
                 <span className="text-[12px] font-medium text-red-700 whitespace-nowrap">
@@ -314,7 +314,7 @@ export default function ProblemSolutionComparison({
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-zinc-200">
                 <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-950">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+                  <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
                   With NexusPulse: {pillar.solutionTitle}
                 </span>
                 <span className="text-[12px] font-medium text-emerald-700 whitespace-nowrap">
@@ -352,7 +352,7 @@ export default function ProblemSolutionComparison({
                       >
                         {simulatedCheckout ? (
                           <>
-                            <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            <AppIcon icon={CheckmarkCircle02Icon} size="xs" />
                             <span>Simulated capture complete</span>
                           </>
                         ) : (
@@ -370,7 +370,7 @@ export default function ProblemSolutionComparison({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-zinc-200 text-[12px]">
                       <span className="font-medium text-zinc-900 flex items-center gap-1.5">
-                        <Camera className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                        <AppIcon icon={Camera01Icon} size="xs" className="text-zinc-600" />
                         Field check review
                       </span>
                       <span className="text-emerald-700 font-medium">Payout approved</span>
@@ -399,7 +399,7 @@ export default function ProblemSolutionComparison({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-zinc-200 text-[12px]">
                       <span className="font-medium text-zinc-900 flex items-center gap-1.5">
-                        <Lock className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                        <AppIcon icon={SquareLock02Icon} size="xs" className="text-zinc-600" />
                         Milestone release steps
                       </span>
                       <span className="text-indigo-700 font-medium">Authorization held</span>
@@ -421,7 +421,7 @@ export default function ProblemSolutionComparison({
                     </div>
 
                     <div className="flex items-center gap-1.5 text-[12px] text-zinc-600">
-                      <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+                      <AppIcon icon={SecurityCheckIcon} size="sm" className="text-emerald-700" />
                       <span>Funds remain protected until completion criteria are met.</span>
                     </div>
                   </div>
@@ -431,7 +431,7 @@ export default function ProblemSolutionComparison({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between pb-2 border-b border-zinc-200 text-[12px]">
                       <span className="font-medium text-zinc-900 flex items-center gap-1.5">
-                        <Bot className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                        <AppIcon icon={Analytics01Icon} size="xs" className="text-zinc-600" />
                         Subscription audit
                       </span>
                       <span className="text-emerald-700 font-medium">Savings ready</span>
@@ -457,7 +457,7 @@ export default function ProblemSolutionComparison({
                         onClick={handleSimulateAction}
                         className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 text-white px-3 text-[12px] font-medium transition"
                       >
-                        <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                        <AppIcon icon={ArrowRight02Icon} size="xs" />
                         <span>{cfoOptimized ? "Downgrade simulated" : "Simulate downgrade"}</span>
                       </button>
                       <span className="text-[12px] text-emerald-700 font-medium">

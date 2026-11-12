@@ -1,4 +1,5 @@
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from "./Button";
+export { AppIcon, type AppIconProps, type AppIconSize } from "./Icon";
 export { StatusDot, type StatusDotProps, type StatusTone } from "./StatusDot";
 export { ListSection, ListRow, type ListSectionProps, type ListRowProps } from "./ListSection";
 export { SkeletonBlock, WorkspaceSkeleton } from "./Skeleton";

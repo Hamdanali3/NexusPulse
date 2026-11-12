@@ -3,12 +3,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
-  Lock,
-  RotateCcw,
-  ShoppingBag,
-  UserCheck,
-} from "lucide-react";
+  ArrowRight02Icon,
+  SecurityLockIcon,
+  Tag01Icon,
+  TaskDone01Icon,
+  Undo02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 import type {
   PayPalExecutionMode,
@@ -795,7 +796,7 @@ export default function NexusPulseHomePage() {
                   className="inline-flex h-10 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
                 >
                   <span>Try the demo</span>
-                  <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                  <AppIcon icon={ArrowRight02Icon} size="sm" />
                 </button>
 
                 <Link
@@ -803,7 +804,7 @@ export default function NexusPulseHomePage() {
                   className="inline-flex items-center gap-1 text-[13px] font-medium text-zinc-700 hover:text-indigo-600 transition-colors"
                 >
                   <span>How it works</span>
-                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <AppIcon icon={ArrowRight02Icon} size="xs" />
                 </Link>
               </div>
             </section>
@@ -910,7 +911,7 @@ export default function NexusPulseHomePage() {
                       }}
                       className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[12px] font-medium text-zinc-700 transition-colors"
                     >
-                      <RotateCcw className="h-3.5 w-3.5" />
+                      <AppIcon icon={Undo02Icon} size="xs" />
                       <span>Clear</span>
                     </button>
                   )}
@@ -938,7 +939,7 @@ export default function NexusPulseHomePage() {
                       className="inline-flex h-10 items-center justify-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors shrink-0 disabled:opacity-50"
                     >
                       <span>{agentRunning ? "Reviewing..." : "Review my spending"}</span>
-                      <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowRight02Icon} size="sm" />
                     </button>
                   </div>
 
@@ -1006,7 +1007,7 @@ export default function NexusPulseHomePage() {
                     className="inline-flex h-9 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 text-[13px] font-medium text-zinc-900 transition-colors"
                   >
                     <span>Sign in to continue</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                    <AppIcon icon={ArrowRight02Icon} size="xs" className="text-zinc-600" />
                   </button>
                 )}
               </div>
@@ -1016,7 +1017,7 @@ export default function NexusPulseHomePage() {
                 <div id="engine-channel3" className="flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
-                      <ShoppingBag className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <AppIcon icon={Tag01Icon} size="sm" className="text-zinc-700" />
                       <span>Price watch</span>
                     </div>
                     <p className="text-[14px] text-zinc-600 leading-relaxed">
@@ -1046,7 +1047,7 @@ export default function NexusPulseHomePage() {
                       className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
                     >
                       <span>Open price watch</span>
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowRight02Icon} size="xs" />
                     </button>
                   </div>
                 </div>
@@ -1055,7 +1056,7 @@ export default function NexusPulseHomePage() {
                 <div id="engine-bounties" className="flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
-                      <UserCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <AppIcon icon={TaskDone01Icon} size="sm" className="text-zinc-700" />
                       <span>Verified tasks</span>
                     </div>
                     <p className="text-[14px] text-zinc-600 leading-relaxed">
@@ -1085,7 +1086,7 @@ export default function NexusPulseHomePage() {
                       className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
                     >
                       <span>Open verified tasks</span>
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowRight02Icon} size="xs" />
                     </button>
                   </div>
                 </div>
@@ -1094,7 +1095,7 @@ export default function NexusPulseHomePage() {
                 <div id="engine-bryntum" className="flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-[15px] font-semibold text-zinc-950">
-                      <Lock className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <AppIcon icon={SecurityLockIcon} size="sm" className="text-zinc-700" />
                       <span>Milestone escrow</span>
                     </div>
                     <p className="text-[14px] text-zinc-600 leading-relaxed">
@@ -1124,7 +1125,7 @@ export default function NexusPulseHomePage() {
                       className="inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-600 hover:text-indigo-700"
                     >
                       <span>Open milestone escrow</span>
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowRight02Icon} size="xs" />
                     </button>
                   </div>
                 </div>
@@ -1145,7 +1146,7 @@ export default function NexusPulseHomePage() {
                   className="text-[13px] font-medium text-zinc-700 hover:text-zinc-950 inline-flex items-center gap-1"
                 >
                   <span>Architecture &amp; details</span>
-                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <AppIcon icon={ArrowRight02Icon} size="xs" />
                 </Link>
               </div>
             </section>

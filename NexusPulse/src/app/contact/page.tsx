@@ -3,18 +3,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CheckCircle2,
-  ChevronDown,
-  Copy,
-  ExternalLink,
-  Mail,
-  Send,
-  ShieldCheck,
-} from "lucide-react";
+  AlertCircleIcon,
+  ArrowDown01Icon,
+  ArrowLeft02Icon,
+  ArrowRight02Icon,
+  ArrowUpRight01Icon,
+  CheckmarkCircle02Icon,
+  Copy01Icon,
+  Mail01Icon,
+  SecurityCheckIcon,
+  SentIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import NexusHeader from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
@@ -324,7 +325,7 @@ export default function ContactPage() {
               href="/"
               className="inline-flex items-center gap-1 hover:text-zinc-950 font-medium transition-colors"
             >
-              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={ArrowLeft02Icon} size="xs" />
               <span>Overview</span>
             </Link>
             <span className="text-zinc-400">/</span>
@@ -348,7 +349,11 @@ export default function ContactPage() {
             {successData ? (
               <div className="rounded-[12px] border border-zinc-200 bg-white p-6 sm:p-8 space-y-6">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" strokeWidth={1.5} />
+                  <AppIcon
+                    icon={CheckmarkCircle02Icon}
+                    size="lg"
+                    className="text-emerald-700 mt-0.5"
+                  />
                   <div className="space-y-1">
                     <h2 className="text-[20px] font-semibold text-zinc-950">
                       Inquiry received, {successData.summary.fullName}
@@ -370,12 +375,12 @@ export default function ContactPage() {
                     <Button type="button" variant="secondary" size="sm" onClick={copyTicketId}>
                       {copiedTicket ? (
                         <>
-                          <Check className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+                          <AppIcon icon={Tick02Icon} size="xs" className="text-emerald-700" />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                          <AppIcon icon={Copy01Icon} size="xs" className="text-zinc-600" />
                           <span>Copy ID</span>
                         </>
                       )}
@@ -413,7 +418,7 @@ export default function ContactPage() {
                     className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
                   >
                     <span>Return to workspace</span>
-                    <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                    <AppIcon icon={ArrowRight02Icon} size="sm" />
                   </Link>
                 </div>
               </div>
@@ -449,7 +454,7 @@ export default function ContactPage() {
                     role="alert"
                     className="rounded-[6px] border border-red-200 bg-red-50/70 p-3.5 text-[13px] text-red-900 flex items-start gap-2.5"
                   >
-                    <AlertCircle className="h-4 w-4 text-red-700 shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700 mt-0.5" />
                     <span>{submitError}</span>
                   </div>
                 )}
@@ -541,7 +546,11 @@ export default function ContactPage() {
                         <option value="investor_researcher">Researcher</option>
                         <option value="other">Other</option>
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                      <AppIcon
+                        icon={ArrowDown01Icon}
+                        size="sm"
+                        className="pointer-events-none absolute right-2.5 top-2.5 text-zinc-500"
+                      />
                     </div>
                   </div>
 
@@ -569,7 +578,11 @@ export default function ContactPage() {
                         <option value="hackathon_judging">Evaluator review</option>
                         <option value="security_disclosure">Security inquiry</option>
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                      <AppIcon
+                        icon={ArrowDown01Icon}
+                        size="sm"
+                        className="pointer-events-none absolute right-2.5 top-2.5 text-zinc-500"
+                      />
                     </div>
                   </div>
                 </div>
@@ -721,12 +734,12 @@ export default function ContactPage() {
 
                 <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200">
                   <div className="text-[12px] text-zinc-600 flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+                    <AppIcon icon={SecurityCheckIcon} size="sm" className="text-zinc-600" />
                     <span>Do not include passwords or API secrets.</span>
                   </div>
 
                   <Button type="submit" variant="primary" loading={isSubmitting}>
-                    <Send className="h-4 w-4" strokeWidth={1.5} />
+                    <AppIcon icon={SentIcon} size="sm" />
                     <span>{isSubmitting ? "Sending..." : "Send message"}</span>
                   </Button>
                 </div>
@@ -739,7 +752,7 @@ export default function ContactPage() {
             <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-[14px] font-semibold text-zinc-950">
-                  <Mail className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                  <AppIcon icon={Mail01Icon} size="sm" className="text-zinc-700" />
                   <span>Direct support</span>
                 </div>
                 <p className="text-[13px] text-zinc-600 leading-relaxed">
@@ -764,12 +777,12 @@ export default function ContactPage() {
                 >
                   {copiedEmail ? (
                     <>
-                      <Check className="h-3 w-3 text-emerald-700" strokeWidth={1.5} />
+                      <AppIcon icon={Tick02Icon} size={12} className="text-emerald-700" />
                       <span>Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="h-3 w-3 text-zinc-500" strokeWidth={1.5} />
+                      <AppIcon icon={Copy01Icon} size={12} className="text-zinc-500" />
                       <span>Copy</span>
                     </>
                   )}
@@ -780,7 +793,7 @@ export default function ContactPage() {
                 href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("NexusPulse Support Inquiry")}`}
                 className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[13px] font-medium text-zinc-900 transition-colors"
               >
-                <Mail className="h-4 w-4 text-zinc-600" strokeWidth={1.5} />
+                <AppIcon icon={Mail01Icon} size="sm" className="text-zinc-600" />
                 <span>Email {SUPPORT_EMAIL}</span>
               </a>
 
@@ -792,14 +805,14 @@ export default function ContactPage() {
                   className="flex items-center justify-between text-zinc-700 hover:text-zinc-950 transition-colors"
                 >
                   <span>Source repository</span>
-                  <ExternalLink className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
+                  <AppIcon icon={ArrowUpRight01Icon} size="xs" className="text-zinc-500" />
                 </a>
                 <Link
                   href="/about"
                   className="flex items-center justify-between text-zinc-700 hover:text-zinc-950 transition-colors"
                 >
                   <span>Architecture &amp; documentation</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
+                  <AppIcon icon={ArrowRight02Icon} size="xs" className="text-zinc-500" />
                 </Link>
               </div>
             </div>
@@ -808,7 +821,7 @@ export default function ContactPage() {
             <details className="rounded-[12px] border border-zinc-200 bg-white p-5">
               <summary className="cursor-pointer list-none flex items-center justify-between text-[14px] font-semibold text-zinc-950">
                 <span>For reviewers</span>
-                <ChevronDown className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={ArrowDown01Icon} size="sm" className="text-zinc-500" />
               </summary>
               <div className="mt-4 pt-4 border-t border-zinc-200 space-y-3 text-[12px] text-zinc-600">
                 <p className="leading-relaxed">
@@ -851,11 +864,12 @@ export default function ContactPage() {
                     className="w-full flex items-center justify-between gap-4 text-left text-[14px] font-medium text-zinc-950 hover:text-indigo-700 transition-colors"
                   >
                     <span>{item.q}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 text-zinc-500 shrink-0 transition-transform duration-150 ${
+                    <AppIcon
+                      icon={ArrowDown01Icon}
+                      size="sm"
+                      className={`text-zinc-500 transition-transform duration-150 ${
                         isOpen ? "rotate-180 text-indigo-600" : ""
                       }`}
-                      strokeWidth={1.5}
                     />
                   </button>
                   {isOpen && (

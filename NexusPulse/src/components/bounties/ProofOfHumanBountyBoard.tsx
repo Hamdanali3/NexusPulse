@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 import {
-  AlertCircle,
-  Camera,
-  CheckCircle2,
-  FileCheck,
-  ShieldCheck,
-  X,
-  XCircle,
-} from "lucide-react";
+  AlertCircleIcon,
+  Camera01Icon,
+  Cancel01Icon,
+  CancelCircleIcon,
+  CheckmarkCircle02Icon,
+  FileValidationIcon,
+  SecurityCheckIcon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type {
   PayPalExecutionMode,
   PayPalPayoutRecord,
@@ -221,9 +222,9 @@ export default function ProofOfHumanBountyBoard({
         >
           <div className="flex items-center gap-2">
             {statusBanner.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
             ) : (
-              <AlertCircle className="h-4 w-4 text-red-700 shrink-0" strokeWidth={1.5} />
+              <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700" />
             )}
             <span className="font-medium">{statusBanner.text}</span>
           </div>
@@ -356,7 +357,7 @@ export default function ProofOfHumanBountyBoard({
                           key={idx}
                           className="flex items-start gap-2 text-[13px] text-zinc-600"
                         >
-                          <ShieldCheck className="h-4 w-4 text-zinc-700 shrink-0 mt-0.5" strokeWidth={1.5} />
+                          <AppIcon icon={SecurityCheckIcon} size="sm" className="text-zinc-700 mt-0.5" />
                           <span>{sanitizeSeedCopy(criterion)}</span>
                         </li>
                       )
@@ -390,7 +391,7 @@ export default function ProofOfHumanBountyBoard({
                   {attachedFile ? (
                     <div className="flex items-center justify-between rounded-[6px] border border-zinc-200 bg-[#fafafa] px-3 py-2 text-[13px]">
                       <div className="flex items-center gap-2 min-w-0">
-                        <FileCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+                        <AppIcon icon={FileValidationIcon} size="sm" className="text-emerald-700" />
                         <span className="font-medium text-zinc-900 truncate">
                           {attachedFile.fileName}
                         </span>
@@ -402,7 +403,7 @@ export default function ProofOfHumanBountyBoard({
                         title="Remove attached file"
                         aria-label="Remove attached file"
                       >
-                        <X className="h-4 w-4" strokeWidth={1.5} />
+                        <AppIcon icon={Cancel01Icon} size="sm" />
                       </button>
                     </div>
                   ) : (
@@ -410,7 +411,7 @@ export default function ProofOfHumanBountyBoard({
                       htmlFor="bounty-media-file-input"
                       className="flex cursor-pointer items-center justify-center gap-2 rounded-[6px] border border-dashed border-zinc-300 bg-[#fafafa] hover:bg-zinc-100/70 px-3 py-2.5 text-[13px] text-zinc-600 transition-colors"
                     >
-                      <Camera className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                      <AppIcon icon={Camera01Icon} size="sm" className="text-zinc-600" />
                       <span>
                         {uploadingFile
                           ? "Uploading file..."
@@ -482,9 +483,9 @@ export default function ProofOfHumanBountyBoard({
                             }`}
                           >
                             {passed ? (
-                              <CheckCircle2 className="h-4 w-4 text-emerald-700" strokeWidth={1.5} />
+                              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
                             ) : (
-                              <XCircle className="h-4 w-4 text-red-700" strokeWidth={1.5} />
+                              <AppIcon icon={CancelCircleIcon} size="sm" className="text-red-700" />
                             )}
                             Score {result.score}/100 ({passed ? "Approved" : "Needs revision"})
                           </span>

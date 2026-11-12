@@ -2,18 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-  AlertCircle,
-  Calendar,
-  CheckCircle2,
-  ExternalLink,
-  Lock,
-  Plus,
-  Search,
-  ShieldCheck,
-  Sliders,
-  Wallet,
-  X,
-} from "lucide-react";
+  Add01Icon,
+  AlertCircleIcon,
+  ArrowUpRight01Icon,
+  Calendar03Icon,
+  CheckmarkCircle02Icon,
+  Search01Icon,
+  SecurityCheckIcon,
+  SlidersHorizontalIcon,
+  SquareLock02Icon,
+  Wallet01Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type {
   PayPalEscrowMilestone,
   PayPalExecutionMode,
@@ -417,9 +417,9 @@ export default function BryntumEscrowTimeline({
         >
           <div className="flex items-center gap-2">
             {actionBanner.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
             ) : (
-              <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+              <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700" />
             )}
             <span className="font-semibold">{actionBanner.text}</span>
           </div>
@@ -429,7 +429,7 @@ export default function BryntumEscrowTimeline({
             className={`text-xs font-bold px-2 py-0.5 rounded transition ${
               actionBanner.type === "success"
                 ? "text-emerald-700 hover:text-emerald-950 hover:bg-emerald-100"
-                : "text-rose-700 hover:text-rose-950 hover:bg-rose-100"
+                : "text-red-700 hover:text-red-950 hover:bg-red-100"
             }`}
           >
             Dismiss
@@ -450,7 +450,7 @@ export default function BryntumEscrowTimeline({
             size="sm"
             onClick={() => setShowNewMilestoneModal((v) => !v)}
           >
-            <Plus className="h-4 w-4" strokeWidth={1.5} />
+            <AppIcon icon={Add01Icon} size="sm" />
             Add milestone
           </Button>
         </div>
@@ -497,7 +497,11 @@ export default function BryntumEscrowTimeline({
             <label htmlFor="escrow-search-input" className="visually-hidden">
               Search milestone
             </label>
-            <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={1.5} />
+            <AppIcon
+              icon={Search01Icon}
+              size="sm"
+              className="text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            />
             <input
               id="escrow-search-input"
               type="text"
@@ -610,7 +614,7 @@ export default function BryntumEscrowTimeline({
                 disabled={creatingMilestone}
                 className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3.5 text-[13px] font-medium text-white transition disabled:opacity-50"
               >
-                <Lock className="h-3.5 w-3.5" />
+                <AppIcon icon={SquareLock02Icon} size="xs" />
                 {creatingMilestone
                   ? "Holding funds..."
                   : Number(newAmount) > 0
@@ -916,7 +920,7 @@ export default function BryntumEscrowTimeline({
                     htmlFor="interactive-progress-slider"
                     className="font-medium text-zinc-800 flex items-center gap-1.5"
                   >
-                    <Sliders className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                    <AppIcon icon={SlidersHorizontalIcon} size="sm" className="text-zinc-500" />
                     Completion progress
                   </label>
                   <span className="font-mono font-medium text-zinc-950 tabular-nums">
@@ -961,7 +965,7 @@ export default function BryntumEscrowTimeline({
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between text-[13px]">
                   <span className="font-medium text-zinc-800 flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                    <AppIcon icon={Calendar03Icon} size="sm" className="text-zinc-500" />
                     Date range
                   </span>
                   <span className="text-[12px] text-zinc-600 font-medium">
@@ -1022,7 +1026,7 @@ export default function BryntumEscrowTimeline({
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-zinc-200 bg-[#fafafa] px-4 py-3 text-[13px]">
                   <div className="space-y-0.5">
                     <div className="font-medium text-zinc-950 flex items-center gap-1.5">
-                      <Wallet className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                      <AppIcon icon={Wallet01Icon} size="sm" className="text-zinc-700" />
                       <span>Order {selectedMilestone.paypal_order_id} awaiting approval</span>
                     </div>
                     <p className="text-[12px] text-zinc-600">
@@ -1037,7 +1041,7 @@ export default function BryntumEscrowTimeline({
                       className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[13px] font-medium text-white transition-colors"
                     >
                       <span>Approve hold</span>
-                      <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowUpRight01Icon} size="xs" />
                     </a>
                     <Button
                       type="button"
@@ -1080,7 +1084,7 @@ export default function BryntumEscrowTimeline({
                     onClick={() => handleVerifyAndCapture(selectedMilestone)}
                     className="shrink-0"
                   >
-                    <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />
+                    <AppIcon icon={SecurityCheckIcon} size="sm" />
                     {verifyingId === selectedMilestone.id
                       ? "Verifying..."
                       : `Verify & release ${formatUsd(selectedMilestone.amount.value)}`}
@@ -1090,7 +1094,7 @@ export default function BryntumEscrowTimeline({
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-emerald-900 bg-emerald-50/70 px-3.5 py-2.5 rounded-[6px] border border-emerald-200">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0" strokeWidth={1.5} />
+                  <AppIcon icon={SecurityCheckIcon} size="sm" className="text-emerald-700" />
                   <span>
                     <strong className="font-semibold">Released:</strong>{" "}
                     {sanitizeSeedCopy(selectedMilestone.ai_audit_notes)}
@@ -1127,7 +1131,7 @@ export default function BryntumEscrowTimeline({
                 className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[13px] font-medium text-white transition-colors"
               >
                 <span>Approve plan</span>
-                <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <AppIcon icon={ArrowUpRight01Icon} size="xs" />
               </a>
             )}
             <Button
@@ -1137,7 +1141,7 @@ export default function BryntumEscrowTimeline({
               loading={creatingLiveSub}
               onClick={handleCreateLiveSubscription}
             >
-              <Plus className="h-4 w-4" strokeWidth={1.5} />
+              <AppIcon icon={Add01Icon} size="sm" />
               <span>{creatingLiveSub ? "Adding plan..." : "Add test plan"}</span>
             </Button>
           </div>

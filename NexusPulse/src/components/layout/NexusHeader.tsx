@@ -2,9 +2,23 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu, RotateCcw, Settings2, User, Volume2, X } from "lucide-react";
+import {
+  ArrowDown01Icon,
+  Cancel01Icon,
+  Key01Icon,
+  LayoutTable01Icon,
+  Menu01Icon,
+  SecurityLockIcon,
+  SlidersHorizontalIcon,
+  Tag01Icon,
+  TaskDone01Icon,
+  Undo02Icon,
+  VolumeHighIcon,
+} from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
 import type { PayPalExecutionMode, PayPalSandboxAccountConfig } from "@/lib/paypal/paypal-types";
 import type { UserProfile } from "@/lib/auth/auth-types";
+import { AppIcon } from "@/components/ui/Icon";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
 export type WorkspaceTabId = "overview" | "channel3" | "bounties" | "bryntum" | "aggrid";
@@ -31,11 +45,12 @@ export const ENGINE_ITEMS: Array<{
   id: Exclude<WorkspaceTabId, "overview">;
   label: string;
   description: string;
+  icon: IconSvgElement;
 }> = [
-  { id: "channel3", label: "Price watch", description: "Track target prices on items you want" },
-  { id: "bounties", label: "Verified tasks", description: "Quick checks paid out via PayPal" },
-  { id: "bryntum", label: "Milestone escrow", description: "Hold funds until delivery is verified" },
-  { id: "aggrid", label: "Ledger", description: "All payments and invoices in one table" },
+  { id: "channel3", label: "Price watch", description: "Track target prices on items you want", icon: Tag01Icon },
+  { id: "bounties", label: "Verified tasks", description: "Quick checks paid out via PayPal", icon: TaskDone01Icon },
+  { id: "bryntum", label: "Milestone escrow", description: "Hold funds until delivery is verified", icon: SecurityLockIcon },
+  { id: "aggrid", label: "Ledger", description: "All payments and invoices in one table", icon: LayoutTable01Icon },
 ];
 
 const linkBase = "rounded-[6px] px-3 py-1.5 text-[13px] font-medium transition-colors duration-150";
@@ -151,8 +166,10 @@ export default function NexusHeader({
                 className={`${linkBase} inline-flex items-center gap-1 ${isEngineActive ? linkActive : linkIdle}`}
               >
                 <span>Tools</span>
-                <ChevronDown
-                  className={`h-3.5 w-3.5 transition-transform duration-150 ${showEngines ? "rotate-180" : ""}`}
+                <AppIcon
+                  icon={ArrowDown01Icon}
+                  size="xs"
+                  className={`transition-transform duration-150 ${showEngines ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -160,7 +177,7 @@ export default function NexusHeader({
                 <div
                   role="menu"
                   aria-label="Tools menu"
-                  className="absolute left-0 mt-2 w-64 rounded-[12px] border border-zinc-200 bg-white p-1.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)]"
+                  className="absolute left-0 mt-2 w-72 rounded-[12px] border border-zinc-200 bg-white p-1.5 shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)]"
                 >
                   {ENGINE_ITEMS.map((item) => {
                     const selected = activeTab === item.id;
@@ -170,14 +187,21 @@ export default function NexusHeader({
                         type="button"
                         role="menuitem"
                         onClick={() => go(item.id)}
-                        className={`w-full text-left rounded-[6px] px-3 py-2 transition-colors duration-150 flex flex-col gap-0.5 ${
+                        className={`w-full text-left rounded-[6px] px-3 py-2 transition-colors duration-150 flex items-start gap-2.5 ${
                           selected
                             ? "bg-indigo-50/70 text-zinc-950 border-l-2 border-l-indigo-600"
                             : "text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
                         }`}
                       >
-                        <span className="text-[13px] font-medium text-zinc-950">{item.label}</span>
-                        <span className="text-[12px] text-zinc-600">{item.description}</span>
+                        <AppIcon
+                          icon={item.icon}
+                          size="sm"
+                          className={`mt-0.5 ${selected ? "text-indigo-600" : "text-zinc-600"}`}
+                        />
+                        <span className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-[13px] font-medium text-zinc-950">{item.label}</span>
+                          <span className="text-[12px] text-zinc-600">{item.description}</span>
+                        </span>
                       </button>
                     );
                   })}
@@ -213,9 +237,9 @@ export default function NexusHeader({
               aria-haspopup="menu"
               className="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[13px] font-medium text-zinc-700 transition-colors duration-150"
             >
-              <Settings2 className="h-3.5 w-3.5 text-zinc-600" />
+              <AppIcon icon={SlidersHorizontalIcon} size="xs" className="text-zinc-600" />
               <span>Workspace</span>
-              <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
+              <AppIcon icon={ArrowDown01Icon} size="xs" className="text-zinc-500" />
             </button>
 
             {showToolsMenu && (
@@ -260,7 +284,7 @@ export default function NexusHeader({
                   className="w-full flex items-center justify-between rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 disabled:opacity-50"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <Volume2 className="h-4 w-4 text-zinc-600" />
+                    <AppIcon icon={VolumeHighIcon} size="sm" className="text-zinc-600" />
                     <span>{voiceLoading ? "Preparing audio summary..." : "Play audio summary"}</span>
                   </span>
                   {voiceTranscript && (
@@ -282,7 +306,7 @@ export default function NexusHeader({
                   }}
                   className="w-full flex items-center gap-2 rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
                 >
-                  <RotateCcw className="h-4 w-4 text-zinc-600" />
+                  <AppIcon icon={Undo02Icon} size="sm" className="text-zinc-600" />
                   <span>Reset demo data</span>
                 </button>
 
@@ -295,7 +319,10 @@ export default function NexusHeader({
                   }}
                   className="w-full flex items-center justify-between rounded-[6px] px-3 py-2 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
                 >
-                  <span>PayPal sandbox keys</span>
+                  <span className="inline-flex items-center gap-2">
+                    <AppIcon icon={Key01Icon} size="sm" className="text-zinc-600" />
+                    <span>PayPal sandbox keys</span>
+                  </span>
                   <span className="text-[12px] text-zinc-600">
                     {sandboxAccounts?.merchantEmail ? "Ready" : "Configure"}
                   </span>
@@ -349,7 +376,7 @@ export default function NexusHeader({
             aria-expanded={mobileOpen}
             className="inline-flex md:hidden h-8 w-8 items-center justify-center rounded-[6px] border border-zinc-200 bg-white text-zinc-700"
           >
-            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            <AppIcon icon={mobileOpen ? Cancel01Icon : Menu01Icon} size="sm" />
           </button>
         </div>
       </div>
@@ -380,7 +407,7 @@ export default function NexusHeader({
                 aria-label="Dismiss demo mode notice"
                 className="p-0.5 text-zinc-600 hover:text-zinc-950 rounded-[6px]"
               >
-                <X className="h-3.5 w-3.5" />
+                <AppIcon icon={Cancel01Icon} size="xs" />
               </button>
             </div>
           </div>
@@ -401,18 +428,26 @@ export default function NexusHeader({
               Overview
             </button>
             <p className="pt-2 pb-1 px-3 text-[12px] font-medium text-zinc-600">Tools</p>
-            {ENGINE_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => go(item.id)}
-                className={`rounded-[6px] px-3 py-2 text-left font-medium ${
-                  activeTab === item.id ? "bg-indigo-50/70 text-zinc-950 border-l-2 border-l-indigo-600" : "text-zinc-700"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+            {ENGINE_ITEMS.map((item) => {
+              const selected = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => go(item.id)}
+                  className={`rounded-[6px] px-3 py-2 text-left font-medium flex items-center gap-2.5 ${
+                    selected ? "bg-indigo-50/70 text-zinc-950 border-l-2 border-l-indigo-600" : "text-zinc-700"
+                  }`}
+                >
+                  <AppIcon
+                    icon={item.icon}
+                    size="sm"
+                    className={selected ? "text-indigo-600" : "text-zinc-600"}
+                  />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
             <div className="pt-2 border-t border-zinc-100 flex flex-col gap-1">
               <Link href="/about" onClick={() => setMobileOpen(false)} className="rounded-[6px] px-3 py-2 text-zinc-700">
                 About
@@ -428,7 +463,7 @@ export default function NexusHeader({
                 }}
                 className="rounded-[6px] px-3 py-2 text-left text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
               >
-                <RotateCcw className="h-4 w-4 text-zinc-600" />
+                <AppIcon icon={Undo02Icon} size="sm" className="text-zinc-600" />
                 <span>Reset demo data</span>
               </button>
               <button
@@ -439,7 +474,7 @@ export default function NexusHeader({
                 }}
                 className="rounded-[6px] px-3 py-2 text-left text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
               >
-                <Volume2 className="h-4 w-4 text-zinc-600" />
+                <AppIcon icon={VolumeHighIcon} size="sm" className="text-zinc-600" />
                 <span>{voiceLoading ? "Preparing audio summary..." : "Play audio summary"}</span>
               </button>
             </div>

@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { User, ShieldCheck, ShoppingBag, UserCheck, Lock, ArrowRight } from "lucide-react";
+import {
+  ArrowRight02Icon,
+  SecurityCheckIcon,
+  SecurityLockIcon,
+  Tag01Icon,
+  TaskDone01Icon,
+  UserCheck01Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile } from "@/lib/auth/auth-types";
 
 interface PersonaQuickSwitchBannerProps {
@@ -24,7 +32,7 @@ export default function PersonaQuickSwitchBanner({
       badge: "Reviewer",
       badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
       description: "Full access to spending review, account ledger, and workspace settings.",
-      icon: ShieldCheck,
+      icon: SecurityCheckIcon,
       recommendedFor: "Overview",
     },
     {
@@ -35,7 +43,7 @@ export default function PersonaQuickSwitchBanner({
       badge: "Buyer",
       badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
       description: "Monitors tracked hardware prices and recurring subscriptions with PayPal checkout.",
-      icon: ShoppingBag,
+      icon: Tag01Icon,
       recommendedFor: "Price watch",
     },
     {
@@ -46,7 +54,7 @@ export default function PersonaQuickSwitchBanner({
       badge: "Contributor",
       badgeColor: "bg-amber-50 text-amber-700 border-amber-200",
       description: "Completes quick physical inspection checks for fast PayPal payouts.",
-      icon: UserCheck,
+      icon: TaskDone01Icon,
       recommendedFor: "Verified tasks",
     },
     {
@@ -57,7 +65,7 @@ export default function PersonaQuickSwitchBanner({
       badge: "Team",
       badgeColor: "bg-zinc-100 text-zinc-700 border-zinc-200",
       description: "Manages milestone-based escrow holds and verified delivery releases.",
-      icon: Lock,
+      icon: SecurityLockIcon,
       recommendedFor: "Milestone escrow",
     },
   ];
@@ -66,7 +74,7 @@ export default function PersonaQuickSwitchBanner({
     <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-2xs space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
         <div className="flex items-center gap-2">
-          <UserCheck className="h-4 w-4 text-indigo-600 shrink-0" strokeWidth={1.5} />
+          <AppIcon icon={UserCheck01Icon} size="sm" className="text-indigo-600" />
           <h3 className="text-[13px] font-medium text-zinc-900">
             Quick-switch sample accounts
           </h3>
@@ -134,8 +142,11 @@ export default function PersonaQuickSwitchBanner({
               </div>
 
               <div className="mt-3 pt-2 border-t border-zinc-200 flex items-center justify-between text-[12px] text-zinc-600 font-medium">
-                <span>{p.recommendedFor}</span>
-                <ArrowRight className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                <span className="inline-flex items-center gap-1.5">
+                  <AppIcon icon={p.icon} size="xs" className="text-zinc-500" />
+                  <span>{p.recommendedFor}</span>
+                </span>
+                <AppIcon icon={ArrowRight02Icon} size="xs" className="text-zinc-600" />
               </div>
             </button>
           );

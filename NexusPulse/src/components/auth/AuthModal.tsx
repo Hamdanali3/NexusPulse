@@ -2,21 +2,20 @@
 
 import React, { useState } from "react";
 import {
-  AlertCircle,
-  ArrowRight,
-  Bot,
-  CheckCircle2,
-  Lock,
-  LogOut,
-  Mail,
-  Shield,
-  ShieldCheck,
-  ShoppingBag,
-  User,
-  UserCheck,
-  X,
-  Zap,
-} from "lucide-react";
+  AlertCircleIcon,
+  Analytics01Icon,
+  ArrowRight02Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  Logout01Icon,
+  Mail01Icon,
+  SecurityCheckIcon,
+  SquareLock02Icon,
+  Tag01Icon,
+  TaskDone01Icon,
+  User02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import {
   DEMO_EVALUATOR_ACCOUNTS,
   type DemoAccountDefinition,
@@ -214,7 +213,7 @@ export default function AuthModal({
             aria-label="Close"
             className="rounded-[6px] p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
           >
-            <X className="h-4 w-4" strokeWidth={1.5} />
+            <AppIcon icon={Cancel01Icon} size="sm" />
           </button>
         </div>
 
@@ -245,7 +244,7 @@ export default function AuthModal({
               }}
               className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-zinc-200 bg-white hover:bg-red-50 hover:text-red-700 px-2.5 text-[12px] font-medium text-zinc-700 transition-colors shrink-0"
             >
-              <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={Logout01Icon} size="xs" />
               <span>Sign out</span>
             </button>
           </div>
@@ -319,13 +318,13 @@ export default function AuthModal({
                     <div className="flex items-start gap-2.5 min-w-0">
                       <div className="h-8 w-8 rounded-[6px] bg-zinc-950 text-white flex items-center justify-center shrink-0 mt-0.5">
                         {key === "judge" ? (
-                          <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />
+                          <AppIcon icon={SecurityCheckIcon} size="sm" />
                         ) : key === "consumer" ? (
-                          <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
+                          <AppIcon icon={Tag01Icon} size="sm" />
                         ) : key === "oracle" ? (
-                          <UserCheck className="h-4 w-4" strokeWidth={1.5} />
+                          <AppIcon icon={TaskDone01Icon} size="sm" />
                         ) : (
-                          <Bot className="h-4 w-4" strokeWidth={1.5} />
+                          <AppIcon icon={Analytics01Icon} size="sm" />
                         )}
                       </div>
                       <div className="min-w-0">
@@ -350,7 +349,7 @@ export default function AuthModal({
                     <div className="shrink-0 pt-1">
                       <span className="inline-flex items-center gap-1 rounded-[6px] border border-zinc-200 bg-[#fafafa] px-2 py-1 text-[12px] font-medium text-zinc-700">
                         <span>Select</span>
-                        <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
+                        <AppIcon icon={ArrowRight02Icon} size={12} />
                       </span>
                     </div>
                   </button>
@@ -364,8 +363,8 @@ export default function AuthModal({
         {activeTab === "signin" && (
           <form onSubmit={handleSignInSubmit} className="mt-4 space-y-3">
             {signInError && (
-              <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 flex items-start gap-2 text-xs text-rose-700">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-xs text-red-700">
+                <AppIcon icon={AlertCircleIcon} size="sm" className="mt-0.5" />
                 <span>{signInError}</span>
               </div>
             )}
@@ -375,7 +374,7 @@ export default function AuthModal({
                 Email
               </label>
               <div className="relative mt-1">
-                <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={Mail01Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
                 <input
                   id="signin-email"
                   type="email"
@@ -394,7 +393,7 @@ export default function AuthModal({
                 Password
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={SquareLock02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
                 <input
                   id="signin-password"
                   type="password"
@@ -422,15 +421,15 @@ export default function AuthModal({
         {activeTab === "signup" && (
           <form onSubmit={handleSignUpSubmit} className="mt-4 space-y-3">
             {signUpError && (
-              <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 flex items-start gap-2 text-xs text-rose-700">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-xs text-red-700">
+                <AppIcon icon={AlertCircleIcon} size="sm" className="mt-0.5" />
                 <span>{signUpError}</span>
               </div>
             )}
 
             {signUpSuccess && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 flex items-start gap-2 text-xs text-emerald-700">
-                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="rounded-[6px] border border-emerald-200 bg-emerald-50 p-2.5 flex items-start gap-2 text-xs text-emerald-700">
+                <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="mt-0.5" />
                 <span>{signUpSuccess}</span>
               </div>
             )}
@@ -443,7 +442,7 @@ export default function AuthModal({
                 {nameError && <span className="text-[12px] text-red-700">{nameError}</span>}
               </div>
               <div className="relative mt-1">
-                <User className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={User02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
                 <input
                   id="signup-name"
                   type="text"
@@ -469,7 +468,7 @@ export default function AuthModal({
                 {emailError && <span className="text-[12px] text-red-700">{emailError}</span>}
               </div>
               <div className="relative mt-1">
-                <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={Mail01Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
                 <input
                   id="signup-email"
                   type="email"
@@ -492,7 +491,7 @@ export default function AuthModal({
                 Password
               </label>
               <div className="relative mt-1">
-                <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={SquareLock02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
                 <input
                   id="signup-password"
                   type="password"

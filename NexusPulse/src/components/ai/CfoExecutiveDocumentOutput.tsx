@@ -2,25 +2,21 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  ArrowRight,
-  Bot,
-  Check,
-  CheckCircle2,
-  Code2,
-  Copy,
-  DollarSign,
-  Download,
-  FileCheck,
-  FileText,
-  Layers,
-  Lock,
-  ShieldAlert,
-  ShieldCheck,
-  ShoppingBag,
-  TrendingUp,
-  UserCheck,
-  Zap,
-} from "lucide-react";
+  Analytics01Icon,
+  CheckmarkCircle02Icon,
+  CodeIcon,
+  Copy01Icon,
+  Download01Icon,
+  File01Icon,
+  FileValidationIcon,
+  LayoutTable01Icon,
+  SecurityCheckIcon,
+  SecurityLockIcon,
+  Tag01Icon,
+  TaskDone01Icon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type { WorkspaceTabId } from "@/components/layout/NexusHeader";
 
 export interface AgentInteractionResponse {
@@ -294,7 +290,7 @@ export default function CfoExecutiveDocumentOutput({
       <div className="bg-[#fafafa] px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-[6px] border border-zinc-200 bg-zinc-950 flex items-center justify-center shrink-0">
-            <Bot className="h-4 w-4 text-white" strokeWidth={1.5} />
+            <AppIcon icon={FileValidationIcon} size="sm" className="text-white" />
           </div>
           <div>
             <span className="text-[12px] font-medium text-zinc-600 block">
@@ -318,7 +314,7 @@ export default function CfoExecutiveDocumentOutput({
                   : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
-              <FileText className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={File01Icon} size="xs" />
               <span>Summary</span>
             </button>
             <button
@@ -330,7 +326,7 @@ export default function CfoExecutiveDocumentOutput({
                   : "text-zinc-600 hover:text-zinc-950"
               }`}
             >
-              <Code2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={CodeIcon} size="xs" />
               <span>JSON</span>
             </button>
           </div>
@@ -343,12 +339,12 @@ export default function CfoExecutiveDocumentOutput({
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+                <AppIcon icon={Tick02Icon} size="xs" className="text-emerald-700" />
                 <span className="text-emerald-700">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.5} />
+                <AppIcon icon={Copy01Icon} size="xs" className="text-zinc-600" />
                 <span>Copy</span>
               </>
             )}
@@ -360,7 +356,7 @@ export default function CfoExecutiveDocumentOutput({
             className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 text-[12px] font-medium text-white transition-colors"
             title="Save summary as PDF"
           >
-            <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
+            <AppIcon icon={Download01Icon} size="xs" />
             <span>Save PDF</span>
           </button>
         </div>
@@ -407,7 +403,7 @@ export default function CfoExecutiveDocumentOutput({
       {response.toolExecutions && response.toolExecutions.length > 0 && (
         <div className="bg-[#fafafa] border-b border-zinc-200 px-5 sm:px-6 py-3">
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+            <AppIcon icon={Analytics01Icon} size="xs" className="text-zinc-700" />
             <span className="text-[13px] font-medium text-zinc-900">
               Completed checks ({response.toolExecutions.length})
             </span>
@@ -418,7 +414,7 @@ export default function CfoExecutiveDocumentOutput({
                 key={idx}
                 className="rounded-[6px] bg-white border border-zinc-200 p-2.5 text-[12px] flex items-start gap-2"
               >
-                <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" strokeWidth={1.5} />
+                <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700 mt-0.5" />
                 <div>
                   <div className="font-mono font-medium text-zinc-950">
                     {t.toolName}
@@ -514,7 +510,7 @@ export default function CfoExecutiveDocumentOutput({
                     </h4>
                   </div>
 
-                  <div className="space-y-2 text-xs text-slate-700 leading-relaxed">
+                  <div className="space-y-2 text-xs text-zinc-700 leading-relaxed">
                     {sec.items.map((item, iIdx) => {
                       // Check if it's a bold action item
                       const isActionCard = /^[0-9]+\.\s+\*\*/.test(item) || item.startsWith("**");
@@ -522,11 +518,11 @@ export default function CfoExecutiveDocumentOutput({
                         return (
                           <div
                             key={iIdx}
-                            className="rounded-lg border border-slate-100 bg-slate-50/70 p-3 hover:border-slate-200 hover:bg-slate-50 transition"
+                            className="rounded-lg border border-zinc-200 bg-zinc-50/70 p-3 hover:border-zinc-300 hover:bg-zinc-50 transition"
                           >
                             <div className="flex items-start gap-2">
-                              <CheckCircle2 className="h-4 w-4 text-sky-600 shrink-0 mt-0.5" />
-                              <div className="text-slate-800">
+                              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-indigo-600 mt-0.5" />
+                              <div className="text-zinc-800">
                                 {renderInlineStyles(item)}
                               </div>
                             </div>
@@ -536,8 +532,8 @@ export default function CfoExecutiveDocumentOutput({
 
                       return (
                         <div key={iIdx} className="flex items-start gap-2">
-                          <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0 mt-1.5" />
-                          <div className="text-slate-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400 shrink-0 mt-1.5" />
+                          <div className="text-zinc-700">
                             {renderInlineStyles(item)}
                           </div>
                         </div>
@@ -561,7 +557,7 @@ export default function CfoExecutiveDocumentOutput({
                 onClick={() => onNavigate("channel3")}
                 className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <ShoppingBag className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <AppIcon icon={Tag01Icon} size="xs" className="text-zinc-700" />
                 <span>Price watch</span>
               </button>
               <button
@@ -569,7 +565,7 @@ export default function CfoExecutiveDocumentOutput({
                 onClick={() => onNavigate("bounties")}
                 className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <UserCheck className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <AppIcon icon={TaskDone01Icon} size="xs" className="text-zinc-700" />
                 <span>Verified tasks</span>
               </button>
               <button
@@ -577,7 +573,7 @@ export default function CfoExecutiveDocumentOutput({
                 onClick={() => onNavigate("bryntum")}
                 className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <Lock className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <AppIcon icon={SecurityLockIcon} size="xs" className="text-zinc-700" />
                 <span>Milestone escrow</span>
               </button>
               <button
@@ -585,7 +581,7 @@ export default function CfoExecutiveDocumentOutput({
                 onClick={() => onNavigate("aggrid")}
                 className="inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-[12px] font-medium text-zinc-800 transition-colors"
               >
-                <Layers className="h-3.5 w-3.5 text-zinc-700" strokeWidth={1.5} />
+                <AppIcon icon={LayoutTable01Icon} size="xs" className="text-zinc-700" />
                 <span>Ledger</span>
               </button>
             </div>
@@ -596,7 +592,7 @@ export default function CfoExecutiveDocumentOutput({
       {/* 6. FOOTER */}
       <div className="bg-[#fafafa] border-t border-zinc-200 px-5 sm:px-6 py-2.5 text-[12px] text-zinc-600 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" strokeWidth={1.5} />
+          <AppIcon icon={SecurityCheckIcon} size="xs" className="text-emerald-700" />
           <span>Synced with account ledger</span>
         </div>
         <div>

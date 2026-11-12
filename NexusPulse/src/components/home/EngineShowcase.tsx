@@ -2,17 +2,18 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ArrowRight,
-  BadgeCheck,
-  Camera,
-  CheckCircle2,
-  Lock,
-  ShoppingBag,
-  TrendingDown,
-  Truck,
-  UserCheck,
-  Zap,
-} from "lucide-react";
+  ArrowRight02Icon,
+  Camera01Icon,
+  CheckmarkBadge02Icon,
+  CheckmarkCircle02Icon,
+  DeliveryTruck01Icon,
+  SecurityLockIcon,
+  Tag01Icon,
+  TaskDone01Icon,
+  TradeDownIcon,
+} from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
+import { AppIcon } from "@/components/ui/Icon";
 import type { WorkspaceTabId } from "@/components/layout/NexusHeader";
 
 /**
@@ -33,7 +34,7 @@ type EngineDef = {
   tag: string;
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconSvgElement;
   highlights: string[];
   theme: {
     text: string;
@@ -51,7 +52,7 @@ const ENGINES: EngineDef[] = [
     title: "Track prices and cut recurring waste",
     description:
       "Tracks price drops across merchants and spots idle subscriptions to downgrade or cancel.",
-    icon: ShoppingBag,
+    icon: Tag01Icon,
     highlights: ["Merchant price alerts", "Subscription review", "PayPal Checkout"],
     theme: {
       text: "text-indigo-600",
@@ -67,7 +68,7 @@ const ENGINES: EngineDef[] = [
     title: "Quick verification tasks with fast payouts",
     description:
       "Complete short checks reviewed against evidence and receive direct PayPal payouts.",
-    icon: UserCheck,
+    icon: TaskDone01Icon,
     highlights: ["Short checks", "Evidence review", "PayPal payouts"],
     theme: {
       text: "text-indigo-600",
@@ -83,7 +84,7 @@ const ENGINES: EngineDef[] = [
     title: "Hold payments until work is verified",
     description:
       "Locks project funds on a milestone schedule and releases them only after delivery is confirmed.",
-    icon: Lock,
+    icon: SecurityLockIcon,
     highlights: ["Milestone holds", "Schedule tracking", "Delivery review"],
     theme: {
       text: "text-indigo-600",
@@ -102,7 +103,7 @@ function DealHunterVisual() {
       <div className="rounded-[12px] border border-zinc-200 bg-white p-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-[6px] border border-zinc-200 bg-zinc-50 flex items-center justify-center">
-            <ShoppingBag className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+            <AppIcon icon={Tag01Icon} size="sm" className="text-zinc-700" />
           </div>
           <div className="min-w-0">
             <div className="text-[13px] font-medium text-zinc-900 truncate">Jetson Orin Nano Kit</div>
@@ -126,7 +127,7 @@ function DealHunterVisual() {
             <div className="text-lg font-semibold text-zinc-950 tabular-nums">$279.00</div>
           </div>
           <span className="inline-flex items-center gap-1 rounded-[6px] bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[12px] font-medium text-emerald-700">
-            <TrendingDown className="h-3.5 w-3.5" strokeWidth={1.5} /> −20%
+            <AppIcon icon={TradeDownIcon} size="xs" /> −20%
           </span>
         </div>
       </div>
@@ -142,13 +143,13 @@ function BountyVisual() {
   return (
     <div className="relative w-full max-w-[280px] mx-auto">
       <div className="relative aspect-[4/3] rounded-[12px] border border-zinc-200 bg-zinc-900 overflow-hidden flex flex-col items-center justify-center p-4 text-center">
-        <Camera className="h-7 w-7 text-zinc-400 mb-2" strokeWidth={1.5} />
+        <AppIcon icon={Camera01Icon} size={28} className="text-zinc-300 mb-2" />
         <span className="text-[13px] font-medium text-white">Inspection photo verified</span>
         <span className="mt-1 text-[12px] text-zinc-400">Matches required location &amp; checklist</span>
       </div>
       <div className="mt-2 flex items-center justify-between rounded-[6px] border border-zinc-200 bg-white px-3 py-1.5 text-[12px] text-zinc-700">
         <span className="inline-flex items-center gap-1.5">
-          <BadgeCheck className="h-4 w-4 text-emerald-700" strokeWidth={1.5} />
+          <AppIcon icon={CheckmarkBadge02Icon} size="sm" className="text-emerald-700" />
           Payout sent
         </span>
         <span className="font-medium text-zinc-950 tabular-nums">$4.50</span>
@@ -188,13 +189,13 @@ function EscrowVisual() {
         </div>
         <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-2.5">
           <span className="inline-flex items-center gap-1 text-[12px] text-zinc-600">
-            <Truck className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} /> Shipment tracked
+            <AppIcon icon={DeliveryTruck01Icon} size="xs" className="text-zinc-600" /> Shipment tracked
           </span>
           <span className="text-[14px] font-semibold text-zinc-950 tabular-nums">$1,240.00</span>
         </div>
       </div>
-      <div className="es-chip absolute -bottom-4 -right-3 sm:-right-6 inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-[10px] font-semibold text-white shadow-lg">
-        <CheckCircle2 className="h-3 w-3 text-indigo-300" /> Milestone 1 captured
+      <div className="es-chip absolute -bottom-3 -right-2 sm:-right-4 inline-flex items-center gap-1.5 rounded-[6px] border border-zinc-800 bg-zinc-950 px-2.5 py-1 text-[11px] font-medium text-white shadow-sm">
+        <AppIcon icon={CheckmarkCircle02Icon} size={13} className="text-indigo-300" /> Milestone 1 captured
       </div>
     </div>
   );
@@ -315,7 +316,7 @@ export default function EngineShowcase({ onOpenEngine }: EngineShowcaseProps) {
               }`}
             >
               <span className={`font-mono text-[12px] ${isActive ? "text-zinc-300" : "text-zinc-500"}`}>{e.step}</span>
-              <Icon className="h-4 w-4" />
+              <AppIcon icon={Icon} size="sm" />
               <span className="hidden sm:inline">{e.tag}</span>
               {isActive && (
                 <span aria-hidden="true" className="absolute inset-x-3 bottom-[2px] h-[2px] bg-white/20 overflow-hidden">
@@ -341,7 +342,6 @@ export default function EngineShowcase({ onOpenEngine }: EngineShowcaseProps) {
       <div className="relative mt-6 grid rounded-[12px] border border-zinc-200 bg-white p-6">
         {ENGINES.map((e, i) => {
           const Visual = VISUALS[e.id];
-          const Icon = e.icon;
           const state = i === active ? "active" : i === prev ? "prev" : "next";
           return (
             <div
@@ -358,7 +358,7 @@ export default function EngineShowcase({ onOpenEngine }: EngineShowcaseProps) {
               <div className="text-left order-2 md:order-1">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-[6px] border border-zinc-200 bg-zinc-50 text-zinc-900">
-                    <Icon className="h-4 w-4" />
+                    <AppIcon icon={e.icon} size="sm" />
                   </span>
                   <span className="text-[13px] font-medium text-indigo-600">
                     {e.tag}
@@ -376,7 +376,7 @@ export default function EngineShowcase({ onOpenEngine }: EngineShowcaseProps) {
                       key={h}
                       className="inline-flex items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-[12px] font-medium text-zinc-700"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5 text-zinc-600" />
+                      <AppIcon icon={CheckmarkCircle02Icon} size="xs" className="text-zinc-600" />
                       {h}
                     </li>
                   ))}
@@ -387,7 +387,7 @@ export default function EngineShowcase({ onOpenEngine }: EngineShowcaseProps) {
                   className="mt-6 inline-flex h-9 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors duration-150"
                 >
                   Open {e.tag}
-                  <ArrowRight className="h-4 w-4" />
+                  <AppIcon icon={ArrowRight02Icon} size="sm" />
                 </button>
               </div>
 

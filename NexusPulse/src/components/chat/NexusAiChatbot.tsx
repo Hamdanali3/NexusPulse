@@ -2,24 +2,25 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
-  AlertCircle,
-  ArrowRight,
-  Bot,
-  Check,
-  CheckCircle2,
-  Copy,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  KeyRound,
-  Maximize2,
-  Minimize2,
-  RefreshCw,
-  Send,
-  ShieldCheck,
-  Trash2,
-  X,
-} from "lucide-react";
+  AlertCircleIcon,
+  ArrowExpand01Icon,
+  ArrowRight02Icon,
+  ArrowShrink01Icon,
+  ArrowUpRight01Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  Copy01Icon,
+  Delete02Icon,
+  Key01Icon,
+  Message02Icon,
+  RefreshIcon,
+  SecurityCheckIcon,
+  SentIcon,
+  Tick02Icon,
+  ViewIcon,
+  ViewOffSlashIcon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type { WorkspaceTabId } from "@/components/layout/NexusHeader";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 
@@ -357,10 +358,10 @@ export default function NexusAiChatbot({
               onSelectTab(targetTab);
               if (!isExpanded) setIsOpen(false);
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-3 py-1.5 text-[12px] font-medium text-white transition-colors"
           >
             <span>{labelMap[targetTab] || `Navigate to ${targetTab}`}</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <AppIcon icon={ArrowRight02Icon} size="xs" />
           </button>
         </div>
       );
@@ -555,10 +556,10 @@ export default function NexusAiChatbot({
                 e.preventDefault();
                 handleInternalNavigation(href);
               }}
-              className="inline-flex items-center gap-0.5 font-bold text-sky-700 hover:text-sky-900 underline decoration-sky-400 underline-offset-2 transition"
+              className="inline-flex items-center gap-0.5 font-medium text-indigo-600 hover:text-indigo-700 underline decoration-indigo-300 underline-offset-2 transition"
             >
               <span>{label}</span>
-              <ArrowRight className="h-3 w-3 inline" />
+              <AppIcon icon={ArrowRight02Icon} size={12} />
             </a>
           );
         }
@@ -569,10 +570,10 @@ export default function NexusAiChatbot({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-0.5 font-bold text-sky-700 hover:text-sky-900 underline decoration-sky-400 underline-offset-2"
+            className="inline-flex items-center gap-0.5 font-medium text-indigo-600 hover:text-indigo-700 underline decoration-indigo-300 underline-offset-2"
           >
             <span>{label}</span>
-            <ExternalLink className="h-2.5 w-2.5 inline" />
+            <AppIcon icon={ArrowUpRight01Icon} size={12} />
           </a>
         );
       }
@@ -618,9 +619,9 @@ export default function NexusAiChatbot({
           aria-haspopup="dialog"
         >
           {isOpen ? (
-            <X className="h-4 w-4" strokeWidth={1.5} />
+            <AppIcon icon={Cancel01Icon} size="sm" />
           ) : (
-            <Bot className="h-4 w-4" strokeWidth={1.5} />
+            <AppIcon icon={Message02Icon} size="sm" />
           )}
         </button>
       </aside>
@@ -641,7 +642,7 @@ export default function NexusAiChatbot({
           <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 bg-[#fafafa] rounded-t-[12px]">
             <div className="flex items-center gap-2.5">
               <div className="h-7 w-7 rounded-[6px] bg-zinc-950 flex items-center justify-center">
-                <Bot className="h-4 w-4 text-white" strokeWidth={1.5} />
+                <AppIcon icon={Message02Icon} size="sm" className="text-white" />
               </div>
               <div>
                 <h3 className="text-[13px] font-medium text-zinc-950">Assistant</h3>
@@ -665,7 +666,7 @@ export default function NexusAiChatbot({
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                 }`}
               >
-                <KeyRound className="h-3 w-3" />
+                <AppIcon icon={Key01Icon} size={12} />
                 <span>{savedApiKey ? "Key" : "API Key"}</span>
               </button>
               <button
@@ -674,7 +675,7 @@ export default function NexusAiChatbot({
                 title="Clear conversation"
                 className="rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <AppIcon icon={Delete02Icon} size="xs" />
               </button>
               <button
                 type="button"
@@ -683,9 +684,9 @@ export default function NexusAiChatbot({
                 className="hidden sm:inline-flex rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
                 {isExpanded ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
+                  <AppIcon icon={ArrowShrink01Icon} size="xs" />
                 ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
+                  <AppIcon icon={ArrowExpand01Icon} size="xs" />
                 )}
               </button>
               <button
@@ -694,7 +695,7 @@ export default function NexusAiChatbot({
                 title="Close chat"
                 className="rounded-lg p-1.5 hover:bg-zinc-100 hover:text-zinc-800 transition"
               >
-                <X className="h-4 w-4" />
+                <AppIcon icon={Cancel01Icon} size="sm" />
               </button>
             </div>
           </div>
@@ -705,7 +706,7 @@ export default function NexusAiChatbot({
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+                    <AppIcon icon={SecurityCheckIcon} size="sm" className="text-zinc-700" />
                     <h4 className="text-[13px] font-semibold text-zinc-950">
                       Custom API key
                     </h4>
@@ -720,7 +721,7 @@ export default function NexusAiChatbot({
                   className="rounded-[6px] p-1 text-zinc-500 hover:text-zinc-900"
                   title="Close API key settings"
                 >
-                  <X className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <AppIcon icon={Cancel01Icon} size="xs" />
                 </button>
               </div>
 
@@ -728,12 +729,12 @@ export default function NexusAiChatbot({
                 <span className="font-medium text-zinc-700">Status:</span>
                 {savedApiKey ? (
                   <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
-                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    <AppIcon icon={CheckmarkCircle02Icon} size="xs" />
                     Personal key active ({maskApiKey(savedApiKey)})
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 font-medium text-zinc-700">
-                    <Bot className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    <AppIcon icon={Message02Icon} size="xs" />
                     Standard assistant mode
                   </span>
                 )}
@@ -764,9 +765,9 @@ export default function NexusAiChatbot({
                     className="absolute right-2.5 text-zinc-500 hover:text-zinc-800"
                   >
                     {showKeyText ? (
-                      <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ViewOffSlashIcon} size="xs" />
                     ) : (
-                      <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      <AppIcon icon={ViewIcon} size="xs" />
                     )}
                   </button>
                 </div>
@@ -777,7 +778,7 @@ export default function NexusAiChatbot({
                     disabled={validatingKey || !keyInput.trim()}
                     className="inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-300 px-3 text-[12px] font-medium text-white transition-colors"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    <AppIcon icon={CheckmarkCircle02Icon} size="xs" />
                     <span>
                       {validatingKey
                         ? "Validating..."
@@ -793,7 +794,7 @@ export default function NexusAiChatbot({
                       onClick={handleRemoveApiKey}
                       className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-red-200 bg-white hover:bg-red-50 px-3 text-[12px] font-medium text-red-700 transition-colors"
                     >
-                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                      <AppIcon icon={Delete02Icon} size={12} />
                       <span>Remove</span>
                     </button>
                   )}
@@ -811,7 +812,7 @@ export default function NexusAiChatbot({
                       : "border-zinc-200 bg-white text-zinc-800"
                   }`}
                 >
-                  <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" strokeWidth={1.5} />
+                  <AppIcon icon={AlertCircleIcon} size="xs" className="mt-0.5" />
                   <span>{keyStatusMessage.text}</span>
                 </div>
               )}
@@ -850,22 +851,22 @@ export default function NexusAiChatbot({
                   className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`max-w-[90%] rounded-2xl p-3.5 shadow-xs ${
+                    className={`max-w-[90%] rounded-[12px] p-3.5 ${
                       isUser
-                        ? "bg-slate-950 text-white rounded-br-xs text-xs"
+                        ? "bg-zinc-950 text-white text-xs"
                         : m.isError
-                        ? "bg-rose-50/90 border border-rose-200 text-rose-950 rounded-bl-xs"
-                        : "bg-slate-50 border border-slate-200 text-slate-800 rounded-bl-xs"
+                        ? "bg-red-50/90 border border-red-200 text-red-950"
+                        : "bg-[#fafafa] border border-zinc-200 text-zinc-800"
                     }`}
                   >
                     {!isUser && (
-                      <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-200/70 text-[10px] font-mono text-slate-500">
-                        <span className="font-bold text-sky-800 flex items-center gap-1">
-                          <Bot className="h-3 w-3 text-sky-600" />
+                      <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-200/80 text-[11px] font-mono text-zinc-500">
+                        <span className="font-sans font-semibold text-zinc-900 flex items-center gap-1.5">
+                          <AppIcon icon={Message02Icon} size={12} className="text-indigo-600" />
                           NexusPulse AI Assistant
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className="rounded bg-white px-1.5 py-0.2 border border-slate-200 text-slate-600 font-sans font-semibold">
+                          <span className="rounded-[4px] bg-white px-1.5 py-0.5 border border-zinc-200 text-zinc-600 font-sans font-medium">
                             {m.keySource === "personal_byok"
                               ? "Personal Key"
                               : "Verified Context"}
@@ -874,12 +875,12 @@ export default function NexusAiChatbot({
                             type="button"
                             onClick={() => handleCopyMessage(m.id, m.content)}
                             title="Copy response"
-                            className="rounded p-0.5 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition"
+                            className="rounded-[4px] p-0.5 hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900 transition"
                           >
                             {copiedId === m.id ? (
-                              <Check className="h-3 w-3 text-emerald-600" />
+                              <AppIcon icon={Tick02Icon} size={12} className="text-emerald-700" />
                             ) : (
-                              <Copy className="h-3 w-3" />
+                              <AppIcon icon={Copy01Icon} size={12} />
                             )}
                           </button>
                         </div>
@@ -895,17 +896,17 @@ export default function NexusAiChatbot({
                         <button
                           type="button"
                           onClick={() => handleSendMessage(m.retryText)}
-                          className="inline-flex items-center gap-1 rounded-md bg-slate-900 hover:bg-slate-800 px-2.5 py-1 text-[11px] font-bold text-white"
+                          className="inline-flex items-center gap-1 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-2.5 py-1 text-[11px] font-semibold text-white"
                         >
-                          <RefreshCw className="h-3 w-3" />
+                          <AppIcon icon={RefreshIcon} size={12} />
                           <span>Retry Question</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setShowKeySettings(true)}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white hover:bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-800"
+                          className="inline-flex items-center gap-1 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 py-1 text-[11px] font-medium text-zinc-800"
                         >
-                          <KeyRound className="h-3 w-3" />
+                          <AppIcon icon={Key01Icon} size={12} />
                           <span>API Key Settings</span>
                         </button>
                       </div>
@@ -959,7 +960,7 @@ export default function NexusAiChatbot({
                 aria-label="Send message"
                 className="absolute right-1.5 rounded-[4px] bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-300 p-1.5 text-white transition-colors disabled:cursor-not-allowed"
               >
-                <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <AppIcon icon={SentIcon} size="xs" />
               </button>
             </div>
             <div className="mt-1.5 flex items-center justify-between text-[12px] text-zinc-600 px-1">

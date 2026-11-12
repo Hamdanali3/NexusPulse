@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowLeft02Icon, ArrowRight01Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type { WorkspaceTabId } from "@/components/layout/NexusHeader";
 
 type FeatureMeta = {
@@ -54,10 +55,10 @@ export default function FeaturePageHeader({ tab, onNavigate }: FeaturePageHeader
           onClick={() => onNavigate("overview")}
           className="inline-flex items-center gap-1 font-medium text-zinc-600 hover:text-zinc-950 transition-colors"
         >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+          <AppIcon icon={ArrowLeft02Icon} size="xs" />
           Overview
         </button>
-        <ChevronRight className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.5} />
+        <AppIcon icon={ArrowRight01Icon} size="xs" className="text-zinc-500" />
         <span className="font-medium text-zinc-950">{meta.title}</span>
       </nav>
 
@@ -79,7 +80,7 @@ export default function FeaturePageHeader({ tab, onNavigate }: FeaturePageHeader
         >
           <span className="text-zinc-600">Next:</span>
           <span>{nextMeta.title}</span>
-          <ArrowRight className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
+          <AppIcon icon={ArrowRight02Icon} size="xs" className="text-zinc-500" />
         </button>
       </div>
     </div>

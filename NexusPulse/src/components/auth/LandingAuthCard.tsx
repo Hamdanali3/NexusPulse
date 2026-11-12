@@ -2,17 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  AlertCircle,
-  ArrowRight,
-  Bot,
-  CheckCircle2,
-  Lock,
-  Mail,
-  ShieldCheck,
-  ShoppingBag,
-  User,
-  UserCheck,
-} from "lucide-react";
+  AlertCircleIcon,
+  ArrowRight02Icon,
+  CheckmarkCircle02Icon,
+  Mail01Icon,
+  SquareLock02Icon,
+  User02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import {
   DEMO_EVALUATOR_ACCOUNTS,
   type UserProfile,
@@ -229,7 +226,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
         <div className="mt-4 space-y-2">
           {signInError && (
             <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-[13px] text-red-700">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={1.5} />
+              <AppIcon icon={AlertCircleIcon} size="sm" className="mt-0.5" />
               <span>{signInError}</span>
             </div>
           )}
@@ -261,7 +258,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
                   <span className="text-zinc-700 tabular-nums font-medium">{formatUsd(demo.walletBalanceUsd)}</span>
                   <span className="font-medium text-indigo-600 flex items-center gap-0.5">
                     <span>Use account</span>
-                    <ArrowRight className="h-3 w-3" strokeWidth={1.5} />
+                    <AppIcon icon={ArrowRight02Icon} size="xs" />
                   </span>
                 </div>
               </button>
@@ -274,8 +271,8 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
       {activeTab === "signin" && (
         <form onSubmit={handleSignIn} className="mt-4 space-y-3">
           {signInError && (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 flex items-start gap-2 text-xs text-rose-700">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-xs text-red-700">
+              <AppIcon icon={AlertCircleIcon} size="sm" className="mt-0.5" />
               <span>{signInError}</span>
             </div>
           )}
@@ -285,7 +282,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
               Email
             </label>
             <div className="relative mt-1">
-              <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={Mail01Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
               <input
                 id="landing-signin-email"
                 type="email"
@@ -304,7 +301,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
               Password
             </label>
             <div className="relative mt-1">
-              <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={SquareLock02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
               <input
                 id="landing-signin-password"
                 type="password"
@@ -332,15 +329,15 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
       {activeTab === "signup" && (
         <form onSubmit={handleSignUp} className="mt-4 space-y-3">
           {signUpError && (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 p-2.5 flex items-start gap-2 text-xs text-rose-700">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="rounded-[6px] border border-red-200 bg-red-50 p-2.5 flex items-start gap-2 text-xs text-red-700">
+              <AppIcon icon={AlertCircleIcon} size="sm" className="mt-0.5" />
               <span>{signUpError}</span>
             </div>
           )}
 
           {signUpSuccess && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 flex items-start gap-2 text-xs text-emerald-700">
-              <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="rounded-[6px] border border-emerald-200 bg-emerald-50 p-2.5 flex items-start gap-2 text-xs text-emerald-700">
+              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="mt-0.5" />
               <span>{signUpSuccess}</span>
             </div>
           )}
@@ -353,7 +350,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
               {nameError && <span className="text-[12px] text-red-700">{nameError}</span>}
             </div>
             <div className="relative mt-1">
-              <User className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={User02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
               <input
                 id="landing-signup-name"
                 type="text"
@@ -379,7 +376,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
               {emailError && <span className="text-[12px] text-red-700">{emailError}</span>}
             </div>
             <div className="relative mt-1">
-              <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={Mail01Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
               <input
                 id="landing-signup-email"
                 type="email"
@@ -402,7 +399,7 @@ export default function LandingAuthCard({ onLoginSuccess }: LandingAuthCardProps
               Password
             </label>
             <div className="relative mt-1">
-              <Lock className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={SquareLock02Icon} size="sm" className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500" />
               <input
                 id="landing-signup-password"
                 type="password"

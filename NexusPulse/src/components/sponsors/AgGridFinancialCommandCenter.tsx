@@ -4,7 +4,16 @@ import React, { useMemo, useRef, useState } from "react";
 import { AllCommunityModule, ModuleRegistry, themeQuartz } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { Columns3, Download, ExternalLink, FilePlus2, Filter, RefreshCw, Search } from "lucide-react";
+import {
+  ArrowUpRight01Icon,
+  Download01Icon,
+  FileAddIcon,
+  FilterHorizontalIcon,
+  Layout3ColumnIcon,
+  RefreshIcon,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type { NexusPulseState } from "@/lib/paypal/paypal-sandbox-mirror";
 import type {
   PayPalExecutionMode,
@@ -475,7 +484,11 @@ export default function AgGridFinancialCommandCenter({
               onClick={onSyncSandbox}
               className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 transition disabled:opacity-50"
             >
-              <RefreshCw className={`h-3.5 w-3.5 text-zinc-600 ${syncingTelemetry ? "animate-spin" : ""}`} />
+              <AppIcon
+                icon={RefreshIcon}
+                size="xs"
+                className={`text-zinc-600 ${syncingTelemetry ? "animate-spin" : ""}`}
+              />
               <span>{syncingTelemetry ? "Syncing..." : "Sync PayPal"}</span>
             </button>
           )}
@@ -486,7 +499,7 @@ export default function AgGridFinancialCommandCenter({
               onClick={() => setShowInvoiceForm((v) => !v)}
               className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 transition"
             >
-              <FilePlus2 className="h-3.5 w-3.5 text-zinc-600" />
+              <AppIcon icon={FileAddIcon} size="xs" className="text-zinc-600" />
               <span>Issue invoice</span>
             </button>
           )}
@@ -496,7 +509,7 @@ export default function AgGridFinancialCommandCenter({
             onClick={exportCsv}
             className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-3 text-xs font-medium text-zinc-800 transition"
           >
-            <Download className="h-3.5 w-3.5 text-zinc-600" />
+            <AppIcon icon={Download01Icon} size="xs" className="text-zinc-600" />
             <span>Export CSV</span>
           </button>
 
@@ -601,7 +614,7 @@ export default function AgGridFinancialCommandCenter({
                 className="inline-flex items-center gap-1 font-medium text-emerald-900 underline"
               >
                 <span>Open invoice</span>
-                <ExternalLink className="h-3 w-3" />
+                <AppIcon icon={ArrowUpRight01Icon} size={12} />
               </a>
             </div>
           )}
@@ -643,7 +656,7 @@ export default function AgGridFinancialCommandCenter({
         <div className="flex flex-wrap items-center gap-2">
           {activeTab === "transactions" && (
             <div className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 h-8 text-xs">
-              <Filter className="h-3.5 w-3.5 text-zinc-500" />
+              <AppIcon icon={FilterHorizontalIcon} size="xs" className="text-zinc-500" />
               <label htmlFor="aggrid-engine-filter" className="visually-hidden">
                 Filter transactions by category
               </label>
@@ -666,7 +679,11 @@ export default function AgGridFinancialCommandCenter({
             <label htmlFor="aggrid-quick-search" className="visually-hidden">
               Search ledger rows
             </label>
-            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-500" />
+            <AppIcon
+              icon={Search01Icon}
+              size="xs"
+              className="pointer-events-none absolute left-2.5 top-2.5 text-zinc-500"
+            />
             <input
               id="aggrid-quick-search"
               type="search"
@@ -686,7 +703,7 @@ export default function AgGridFinancialCommandCenter({
               onClick={() => setShowColumnsMenu((v) => !v)}
               className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-xs font-medium text-zinc-800 transition"
             >
-              <Columns3 className="h-3.5 w-3.5 text-zinc-600" />
+              <AppIcon icon={Layout3ColumnIcon} size="xs" className="text-zinc-600" />
               <span>Columns</span>
             </button>
 

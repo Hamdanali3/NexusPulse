@@ -88,13 +88,16 @@
   --np-duration-fast: 150ms;
   --np-duration-base: 200ms;
 
-  /* Iconography (Lucide standard) */
+  /* Iconography (Hugeicons Stroke Rounded standard) */
+  --np-icon-size-xs: 14px;
   --np-icon-size: 16px;
+  --np-icon-size-md: 18px;
+  --np-icon-size-lg: 20px;
   --np-icon-stroke: 1.5;
 }
 
-svg.lucide {
-  stroke-width: var(--np-icon-stroke);
+svg[data-slot="icon"] {
+  flex-shrink: 0;
 }
 
 /* Core Typography & Layout Token Helpers */

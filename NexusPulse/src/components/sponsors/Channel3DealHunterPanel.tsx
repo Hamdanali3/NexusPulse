@@ -2,11 +2,12 @@
 
 import React, { useMemo, useState } from "react";
 import {
-  AlertCircle,
-  CheckCircle2,
-  Plus,
-  Search,
-} from "lucide-react";
+  Add01Icon,
+  AlertCircleIcon,
+  CheckmarkCircle02Icon,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import type {
   Channel3ProductDeal,
   PayPalExecutionMode,
@@ -183,9 +184,9 @@ export default function Channel3DealHunterPanel({
         >
           <div className="flex items-center gap-2">
             {mandateBanner.type === "success" ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-700" strokeWidth={1.5} />
+              <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
             ) : (
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-700" strokeWidth={1.5} />
+              <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700" />
             )}
             <span className="font-medium">{mandateBanner.text}</span>
           </div>
@@ -211,7 +212,7 @@ export default function Channel3DealHunterPanel({
               <label htmlFor="channel3-search-input" className="visually-hidden">
                 Search SKU, brand, or product
               </label>
-              <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" strokeWidth={1.5} />
+              <AppIcon icon={Search01Icon} size="sm" className="text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 id="channel3-search-input"
                 type="search"
@@ -237,7 +238,7 @@ export default function Channel3DealHunterPanel({
             size="sm"
             onClick={() => setShowMandateForm((v) => !v)}
           >
-            <Plus className="h-4 w-4" strokeWidth={1.5} />
+            <AppIcon icon={Add01Icon} size="sm" />
             Add price alert
           </Button>
         </div>

@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import type { PayPalExecutionMode } from "@/lib/paypal/paypal-types";
+import { AppIcon } from "@/components/ui/Icon";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 import type { WorkspaceTabId } from "./NexusHeader";
 
@@ -114,7 +115,7 @@ export default function NexusFooter({
               className="inline-flex items-center gap-1 text-zinc-600 hover:text-zinc-950 transition-colors"
             >
               <span>GitHub</span>
-              <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={ArrowUpRight01Icon} size="xs" />
             </a>
           </div>
         </div>

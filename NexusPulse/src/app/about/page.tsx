@@ -3,15 +3,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
-  ArrowRight,
-  ExternalLink,
-  Globe,
-  Lock,
-  Mail,
-  Server,
-  ShieldCheck,
-} from "lucide-react";
+  ArrowLeft02Icon,
+  ArrowRight02Icon,
+  ArrowUpRight01Icon,
+  Globe02Icon,
+  Mail01Icon,
+  SecurityCheckIcon,
+  ServerStack01Icon,
+  SquareLock02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import NexusHeader from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
 import NexusAiChatbot from "@/components/chat/NexusAiChatbot";
@@ -389,7 +390,7 @@ export default function AboutPage() {
               href="/"
               className="inline-flex items-center gap-1 hover:text-zinc-950 font-medium transition-colors"
             >
-              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <AppIcon icon={ArrowLeft02Icon} size="xs" />
               <span>Overview</span>
             </Link>
             <span className="text-zinc-400">/</span>
@@ -410,13 +411,13 @@ export default function AboutPage() {
                 className="inline-flex h-9 items-center gap-2 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
               >
                 <span>Try the workspace</span>
-                <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+                <AppIcon icon={ArrowRight02Icon} size="sm" />
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex h-9 items-center gap-2 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-4 text-[13px] font-medium text-zinc-800 transition-colors"
               >
-                <Mail className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={Mail01Icon} size="sm" className="text-zinc-500" />
                 <span>Contact team</span>
               </Link>
             </div>
@@ -491,7 +492,7 @@ export default function AboutPage() {
                 className="inline-flex h-9 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-3.5 text-[13px] font-medium text-zinc-800 transition-colors shrink-0 self-start sm:self-center"
               >
                 <span>{currentWorkflow.ctaLabel}</span>
-                <ArrowRight className="h-4 w-4 text-zinc-500" strokeWidth={1.5} />
+                <AppIcon icon={ArrowRight02Icon} size="sm" className="text-zinc-500" />
               </Link>
             </div>
 
@@ -602,7 +603,7 @@ export default function AboutPage() {
                       className="inline-flex items-center gap-1 rounded-[6px] border border-zinc-200 bg-[#fafafa] hover:bg-zinc-100 px-2.5 py-1 font-mono text-[12px] text-indigo-700 transition-colors"
                     >
                       <span>{link.label}</span>
-                      <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+                      <AppIcon icon={ArrowUpRight01Icon} size={12} />
                     </a>
                   ))}
                 </div>
@@ -658,28 +659,28 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-2">
-              <Globe className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+              <AppIcon icon={Globe02Icon} size="sm" className="text-zinc-700" />
               <div className="text-[14px] font-semibold text-zinc-950">Scoped credentials</div>
               <p className="text-[13px] text-zinc-600 leading-relaxed">
                 Supports sandbox evaluation credentials while keeping demo data isolated.
               </p>
             </div>
             <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-2">
-              <Lock className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+              <AppIcon icon={SquareLock02Icon} size="sm" className="text-zinc-700" />
               <div className="text-[14px] font-semibold text-zinc-950">Signed webhooks</div>
               <p className="text-[13px] text-zinc-600 leading-relaxed">
                 Validates SHA256withRSA headers against raw request bytes before updating ledger state.
               </p>
             </div>
             <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-2">
-              <ShieldCheck className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+              <AppIcon icon={SecurityCheckIcon} size="sm" className="text-zinc-700" />
               <div className="text-[14px] font-semibold text-zinc-950">Idempotent retries</div>
               <p className="text-[13px] text-zinc-600 leading-relaxed">
                 Applies unique PayPal-Request-Id keys across mutations to avoid duplicate charges.
               </p>
             </div>
             <div className="rounded-[12px] border border-zinc-200 bg-white p-5 space-y-2">
-              <Server className="h-4 w-4 text-zinc-700" strokeWidth={1.5} />
+              <AppIcon icon={ServerStack01Icon} size="sm" className="text-zinc-700" />
               <div className="text-[14px] font-semibold text-zinc-950">Origin protection</div>
               <p className="text-[13px] text-zinc-600 leading-relaxed">
                 Enforces strict same-origin request headers across mutating API routes.
@@ -704,7 +705,7 @@ export default function AboutPage() {
               className="inline-flex h-9 items-center gap-1.5 rounded-[6px] bg-zinc-950 hover:bg-zinc-800 px-4 text-[13px] font-medium text-white transition-colors"
             >
               <span>Open workspace</span>
-              <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
+              <AppIcon icon={ArrowRight02Icon} size="sm" />
             </Link>
             <Link
               href="/contact"
@@ -719,7 +720,7 @@ export default function AboutPage() {
               className="inline-flex h-9 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-4 text-[13px] font-medium text-zinc-800 transition-colors"
             >
               <span>GitHub</span>
-              <ExternalLink className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.5} />
+              <AppIcon icon={ArrowUpRight01Icon} size="xs" className="text-zinc-500" />
             </a>
           </div>
         </section>

@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
+import {
+  AlertCircleIcon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  InformationCircleIcon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 
 export type ToastType = "success" | "error" | "info";
 
@@ -64,28 +70,28 @@ function ToastItem({
   const isError = toast.type === "error";
 
   const borderColor = isSuccess
-    ? "border-emerald-300"
+    ? "border-emerald-200"
     : isError
-      ? "border-rose-300"
-      : "border-sky-300";
+      ? "border-red-200"
+      : "border-zinc-200";
 
   const bgColor = isSuccess
     ? "bg-emerald-50/95"
     : isError
-      ? "bg-rose-50/95"
-      : "bg-sky-50/95";
+      ? "bg-red-50/95"
+      : "bg-white/95";
 
   const textColor = isSuccess
     ? "text-emerald-950"
     : isError
-      ? "text-rose-950"
-      : "text-sky-950";
+      ? "text-red-950"
+      : "text-zinc-950";
 
   const iconColor = isSuccess
-    ? "text-emerald-600"
+    ? "text-emerald-700"
     : isError
-      ? "text-rose-600"
-      : "text-sky-600";
+      ? "text-red-700"
+      : "text-indigo-600";
 
   return (
     <div
@@ -96,9 +102,9 @@ function ToastItem({
     >
       <div className="flex items-start gap-3">
         <div className="shrink-0 mt-0.5">
-          {isSuccess && <CheckCircle2 className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
-          {isError && <AlertCircle className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
-          {!isSuccess && !isError && <Info className={`h-4 w-4 ${iconColor}`} strokeWidth={1.5} />}
+          {isSuccess && <AppIcon icon={CheckmarkCircle02Icon} size="sm" className={iconColor} />}
+          {isError && <AppIcon icon={AlertCircleIcon} size="sm" className={iconColor} />}
+          {!isSuccess && !isError && <AppIcon icon={InformationCircleIcon} size="sm" className={iconColor} />}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -121,7 +127,7 @@ function ToastItem({
           className="shrink-0 p-1 text-zinc-600 hover:text-zinc-950 rounded-[6px] transition-colors"
           aria-label="Dismiss notification"
         >
-          <X className="h-3.5 w-3.5" />
+          <AppIcon icon={Cancel01Icon} size="xs" />
         </button>
       </div>
     </div>

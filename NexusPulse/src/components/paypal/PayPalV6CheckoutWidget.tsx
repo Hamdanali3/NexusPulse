@@ -1,7 +1,15 @@
 "use client";
 
 import React, { Component, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, ExternalLink, Lock, ShieldCheck, X } from "lucide-react";
+import {
+  AlertCircleIcon,
+  ArrowUpRight01Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  SecurityCheckIcon,
+  SquareLock02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 import {
   INSTANCE_LOADING_STATE,
   PayLaterOneTimePaymentButton,
@@ -356,7 +364,7 @@ export default function PayPalV6CheckoutWidget({
         className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs"
       >
         <div className="flex items-center gap-2 font-semibold text-emerald-900 text-sm">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          <AppIcon icon={CheckmarkCircle02Icon} size="sm" className="text-emerald-700" />
           <span>Payment completed ({completedOrder.id})</span>
         </div>
         <div className="mt-1 text-xs text-emerald-800 font-mono">
@@ -421,7 +429,7 @@ export default function PayPalV6CheckoutWidget({
           role="alert"
           className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800"
         >
-          <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+          <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -496,7 +504,7 @@ export default function PayPalV6CheckoutWidget({
           <div className="overflow-hidden rounded-[12px] bg-white">
             <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-950 px-5 py-3.5 text-white">
               <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-zinc-300" />
+                <AppIcon icon={SquareLock02Icon} size="sm" className="text-zinc-300" />
                 <h3 id="paypal-v6-dialog-title" className="text-[14px] font-semibold">
                   Confirm PayPal payment
                 </h3>
@@ -507,7 +515,7 @@ export default function PayPalV6CheckoutWidget({
                 onClick={() => setModalOpen(false)}
                 className="rounded-[6px] p-1 text-zinc-300 hover:text-white transition"
               >
-                <X className="h-4 w-4" />
+                <AppIcon icon={Cancel01Icon} size="sm" />
               </button>
             </div>
 
@@ -546,8 +554,8 @@ export default function PayPalV6CheckoutWidget({
               </div>
 
               {createdOrder.mode !== "mirror" && createdOrder.approve_url && (
-                <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-3 text-xs text-sky-950 space-y-2">
-                  <p className="text-[11px] text-sky-900">
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50/70 p-3 text-xs text-zinc-900 space-y-2">
+                  <p className="text-[11px] text-zinc-700">
                     Live Sandbox order <strong>{createdOrder.id}</strong> requires buyer approval on{" "}
                     <span className="font-mono">sandbox.paypal.com</span> before capture.
                   </p>
@@ -559,12 +567,12 @@ export default function PayPalV6CheckoutWidget({
                       className="inline-flex h-8 items-center justify-center gap-1 rounded-md bg-[#003087] hover:bg-[#002366] px-2.5 text-[11px] font-semibold text-white transition"
                     >
                       <span>Approve in Sandbox</span>
-                      <ExternalLink className="h-3 w-3" />
+                      <AppIcon icon={ArrowUpRight01Icon} size={12} />
                     </a>
                     <button
                       type="button"
                       onClick={() => window.location.assign(createdOrder.approve_url!)}
-                      className="inline-flex h-8 items-center justify-center rounded-md border border-sky-300 bg-white hover:bg-sky-50 px-2.5 text-[11px] font-semibold text-sky-950 transition"
+                      className="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[11px] font-semibold text-zinc-900 transition"
                     >
                       Redirect &amp; Return
                     </button>
@@ -577,7 +585,7 @@ export default function PayPalV6CheckoutWidget({
                   role="alert"
                   className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800"
                 >
-                  <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                  <AppIcon icon={AlertCircleIcon} size="sm" className="text-red-700" />
                   <span>{errorMessage}</span>
                 </div>
               )}
@@ -596,7 +604,7 @@ export default function PayPalV6CheckoutWidget({
                   onClick={approveAndCaptureOrder}
                   className="flex h-9 flex-1 items-center justify-center gap-2 rounded-md bg-zinc-950 hover:bg-zinc-800 px-4 text-xs font-medium text-white transition disabled:opacity-50"
                 >
-                  <ShieldCheck className="h-4 w-4" />
+                  <AppIcon icon={SecurityCheckIcon} size="sm" />
                   <span>
                     {loading
                       ? "Processing payment..."

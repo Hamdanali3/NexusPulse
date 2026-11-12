@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Bot,
-  UserCheck,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Play,
-  RotateCcw,
-  ExternalLink,
-  DollarSign,
-  Camera,
-  Layers,
-  Clock,
-} from "lucide-react";
+  ArrowRight02Icon,
+  Camera01Icon,
+  CheckmarkCircle02Icon,
+  DollarCircleIcon,
+  FileAddIcon,
+  PlayIcon,
+  SecurityCheckIcon,
+  Undo02Icon,
+} from "@hugeicons/core-free-icons";
+import { AppIcon } from "@/components/ui/Icon";
 
 interface StepData {
   step: number;
@@ -150,7 +147,7 @@ export default function InteractiveFlowSimulator({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-5">
         <div>
           <div className="inline-flex items-center gap-2 rounded-[6px] border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[12px] font-medium text-zinc-700">
-            <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" strokeWidth={1.5} />
+            <AppIcon icon={SecurityCheckIcon} size="xs" className="text-indigo-600" />
             <span>Step-by-step walkthrough</span>
           </div>
           <h2
@@ -177,7 +174,7 @@ export default function InteractiveFlowSimulator({
               </>
             ) : (
               <>
-                <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <AppIcon icon={PlayIcon} size="xs" />
                 <span>{activeStep === 4 ? "Replay walkthrough" : "Run sample flow"}</span>
               </>
             )}
@@ -187,9 +184,10 @@ export default function InteractiveFlowSimulator({
             type="button"
             onClick={handleReset}
             title="Reset simulation"
+            aria-label="Reset simulation"
             className="inline-flex items-center justify-center rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 p-2 text-zinc-600 transition"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <AppIcon icon={Undo02Icon} size="xs" />
           </button>
         </div>
       </div>
@@ -218,7 +216,11 @@ export default function InteractiveFlowSimulator({
                   0{s.step}
                 </span>
                 {isDone && (
-                  <CheckCircle2 className={`h-3.5 w-3.5 ${isCurrent ? "text-indigo-600" : "text-emerald-600"}`} />
+                  <AppIcon
+                    icon={CheckmarkCircle02Icon}
+                    size="xs"
+                    className={isCurrent ? "text-indigo-600" : "text-emerald-700"}
+                  />
                 )}
               </div>
               <div className="mt-1 font-semibold text-xs text-zinc-900 truncate">
@@ -237,10 +239,10 @@ export default function InteractiveFlowSimulator({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-zinc-200/60">
           <div className="flex items-start gap-3">
             <div className="h-9 w-9 rounded-xl bg-white border border-zinc-200 flex items-center justify-center shadow-2xs shrink-0 mt-0.5">
-              {activeStep === 1 && <Bot className="h-5 w-5 text-indigo-600" />}
-              {activeStep === 2 && <Camera className="h-5 w-5 text-amber-600" />}
-              {activeStep === 3 && <ShieldCheck className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />}
-              {activeStep === 4 && <DollarSign className="h-5 w-5 text-emerald-600" />}
+              {activeStep === 1 && <AppIcon icon={FileAddIcon} size="lg" className="text-indigo-600" />}
+              {activeStep === 2 && <AppIcon icon={Camera01Icon} size="lg" className="text-amber-700" />}
+              {activeStep === 3 && <AppIcon icon={SecurityCheckIcon} size="lg" className="text-indigo-600" />}
+              {activeStep === 4 && <AppIcon icon={DollarCircleIcon} size="lg" className="text-emerald-700" />}
             </div>
 
             <div>
@@ -339,7 +341,7 @@ export default function InteractiveFlowSimulator({
                 className="font-medium text-indigo-600 hover:underline inline-flex items-center gap-1 shrink-0"
               >
                 <span>Open verified tasks</span>
-                <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <AppIcon icon={ArrowRight02Icon} size="xs" />
               </button>
             )}
           </div>
