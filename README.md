@@ -1,165 +1,261 @@
+<div align="center">
+
+<img src="NexusPulse/public/logo.svg" alt="NexusPulse logo mark" width="72" height="72" />
+
 # NexusPulse
 
-> **Connecting AI Agents, Human Oracles & Smart Payments on PayPal**  
-> Built for the **PayPal AI Hackathon ("Build What's Next with PayPal and AI")**
+**Spend smarter. Pay people fairly. Release money when work is done.**
+
+Autonomous PayPal Commerce, Verified Human Task Payouts, Smart Milestone Escrow & Financial Command Center — built on Next.js 16, PayPal JS SDK v6, APIMatic Server SDK, Google Gemini, Groq RAG, AG Grid v36, and Supabase.
+
+[![CI Verification](https://github.com/Hamdanali3/NexusPulse/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
+
+[Quick Start](#quick-start) · [Screenshots](#screenshots) · [Design System & Branding](#calm-fintech-design-system--branding) · [Workspace Engines](#workspace-engines--routes) · [API Surface](#api-surface) · [Deployment](#deployment)
+
+</div>
 
 ---
 
-## 1. Executive Summary & 50-Year AGI Economic Thesis
+## 1. Executive Summary
 
-Every day, consumers lose billions of dollars to **subscription bloat** and **retail price asymmetry**, while autonomous AI agents face a fundamental **physical-world verification and trust bottleneck** as we transition toward an AGI-driven economy.
+**NexusPulse** is an intelligent commerce, task verification, and financial workflow workspace built on PayPal. It brings subscription management, product price monitoring, verified contributor payouts, milestone escrow holds, and an auditable financial ledger together in one unified interface—running seamlessly in both offline deterministic mirror mode and live PayPal Sandbox mode (`Orders v2`, `Payouts v1`, `Subscriptions v1`, `Invoicing v2`, `Trackers v2`, and cryptographic Webhook signature verification) with optional Supabase PostgreSQL persistence.
 
-Grounded in frontier research from **Google DeepMind** (*Virtual Agent Economies*, `arXiv:2509.10147`; *Distributional AGI Safety*, `arXiv:2512.16856`), **Anthropic** (*Economic Index I & II*, `arXiv:2503.04761`, `arXiv:2511.15080`), and macroeconomic AGI literature (*Some Simple Economics of AGI*, `arXiv:2602.20946`; *The Agentic Economy*, `arXiv:2505.15799`), **NexusPulse** solves both sides of the equation in a single unified financial super-app on the **PayPal Developer Platform**:
+### Key Capabilities
 
-1. **Engine 1 — Personal Agentic CFO & Channel3 Autonomous Deal-Hunter (Immediate Consumer Value)**:
-   - Continuously audits recurring **PayPal Subscriptions (`v1/billing/subscriptions`)**, detecting unused "zombie" plans and downgrading overpriced tiers (`POST /v1/billing/subscriptions/{id}/revise` & `/cancel`) to save **\$1,548+/year** automatically.
-   - Monitors **Channel3's 100M+ SKU product catalog** against cryptographic user spending mandates and executes instant checkouts via **PayPal JS SDK v6 (`<paypal-button>`, `<paylater-button>`, `<venmo-button>`, `<paypal-message>`)** and **PayPal Orders v2 (`POST /v2/checkout/orders`)**.
-2. **Engine 2 — Proof-of-Human Oracle Micro-Bounties & Instant PayPal Payouts (50-Year AGI Income Bridge)**:
-   - As routine cognitive work becomes automated, human comparative advantage shifts to **verified physical-world ground truth, high-stakes security auditing, and cultural/linguistic nuance**.
-   - Enterprise AI agents post real-time micro-bounties (`$15–$45` for 30–60 seconds of work). **Google Gemini 3.8 Flash** (`@google/genai` `client.interactions.create()`) verifies human submissions in under 2 seconds and dispatches **instant PayPal Payouts (`POST /v1/payments/payouts`)** to the contributor's PayPal or Venmo account.
-3. **Engine 3 — Zero-Dispute A2A Smart Escrow & Dispute Shield (Agentic Commerce Trust Layer)**:
-   - Locks multi-party project milestones using **PayPal Orders v2 `intent: "AUTHORIZE"`** (`POST /v2/checkout/orders/{id}/authorize`), visualizes critical-path dependencies in an interactive **Bryntum Milestone Gantt & Cashflow Scheduler**, verifies cryptographic deliverable proofs via **Gemini 4 Argon**, captures funds (`POST /v2/payments/authorizations/{id}/capture`), and automatically attaches shipment tracking (`POST /v2/checkout/orders/{id}/track`) to immunize transactions against chargebacks and disputes.
+1. **Price Watch & Subscription Review (`/?tab=channel3`)** — Monitor product prices against buyer target ceilings (`Channel3`), approve checkout via official `@paypal/react-paypal-js` v6 buttons (`PayPal`, `Pay Later`, `Venmo`), and review idle recurring SaaS subscriptions with explicit confirmation dialogs (`ConfirmDialog`) showing exact monthly savings.
+2. **Verified Tasks & Payouts (`/?tab=bounties`)** — Split list-and-detail board for physical/field verification tasks with photo/receipt upload (`/api/media/upload`), Gemini multimodal evidence review (`/api/ai/verify-bounty`), and instant PayPal Payouts release.
+3. **Milestone Escrow Timeline (`/?tab=bryntum`)** — Interactive timeline with neutral status-coded bars (**Scheduled** / **In progress** / **Captured**), date-range updates, PayPal Orders v2 `AUTHORIZE` holds, shipment tracker updates, and milestone capture.
+4. **Transaction Ledger & Webhooks (`/?tab=aggrid`)** — `AG Grid v36` (`themeQuartz` light palette) financial ledger with pinned Transaction ID and Amount columns, column visibility menu, unified filter bar, humanized transaction/status labels, CSV export, and PayPal webhook simulator.
+5. **AI Spending Review & Groq RAG Assistant** — Command-driven spending reviews (`/api/ai/interact`), executive audio briefings (`/api/ai/voice-briefing`), and a floating workspace assistant (`NexusAiChatbot`) powered by `groq-sdk` + `nexus-knowledge-base.ts` with browser-stored BYOK key support.
 
 ---
 
-## 2. Architecture & Sponsor Technology Matrix
+## Calm Fintech Design System & Branding
+
+All presentation, typography, iconography, and brand assets follow a restrained, high-clarity design system located in [`NexusPulse/src/app/tokens.css`](NexusPulse/src/app/tokens.css) and [`NexusPulse/src/app/globals.css`](NexusPulse/src/app/globals.css):
+
+- **Design Tokens & Typography**: Geist Sans & Geist Mono (`weights 400 / 500 / 600`), sentence-case headings, `tabular-nums` alignment for all monetary columns, neutral Zinc surface palette with hairline `1px` borders, ink-black primary controls, and a single `#4f46e5` indigo focus/selection accent.
+- **Formatting & Data Integrity**: Centralized money, date, and enum formatters in [`NexusPulse/src/lib/format.ts`](NexusPulse/src/lib/format.ts) (`formatUsd`, `formatSignedUsd` using true minus `U+2212`, `formatShortDate`, `formatDateRange`, `humanizeEngine`, `humanizeTransactionStatus`, `sanitizeSeedCopy`).
+- **Hugeicons Icon System**: Migrated exclusively to **Hugeicons Stroke Rounded** (`@hugeicons/react` + `@hugeicons/core-free-icons`) via the shared `<AppIcon />` primitive in [`NexusPulse/src/components/ui/Icon.tsx`](NexusPulse/src/components/ui/Icon.tsx).
+- **Shared UI Primitives**: Standardized `Button`, `ConfirmDialog`, `FormField`, `ListSection`, `Skeleton`, and `StatusDot` components under [`NexusPulse/src/components/ui/`](NexusPulse/src/components/ui/index.ts).
+- **Brand Identity & 8s Opening Splash**: Connected-node `N` monogram + violet pulse beacon (`NexusPulseMark` / `NexusPulseLogo` in [`NexusPulse/src/components/brand/NexusPulseLogo.tsx`](NexusPulse/src/components/brand/NexusPulseLogo.tsx), [`NexusPulse/src/app/icon.svg`](NexusPulse/src/app/icon.svg), [`NexusPulse/public/logo.svg`](NexusPulse/public/logo.svg)) paired with an **8-second** animated opening/reload splash (`BrandIntroSplash` in [`NexusPulse/src/components/brand/BrandIntroSplash.tsx`](NexusPulse/src/components/brand/BrandIntroSplash.tsx), skippable anytime with `Skip` / `Escape` and honoring `prefers-reduced-motion`).
+- **Interactive Header Profile Switcher**: Single-click account switcher & wallet popover in [`NexusPulse/src/components/layout/NexusHeader.tsx`](NexusPulse/src/components/layout/NexusHeader.tsx) supporting 4 demo evaluator personas (`Judge Evaluator`, `Alex Rivera`, `Elena Rostova`, `Marcus Vance`), 1-click PayPal email copy, balance/spend limit display, Workspace Sandbox/Mirror switcher, and custom BYOK Sandbox credentials.
+
+---
+
+## System Architecture
 
 ```mermaid
-flowchart TB
-    subgraph UI["NexusPulse Next.js 16 + React 19 Command Center"]
-        Header["Top Executive Telemetry + Dual-Mode Switcher + Gemini 3.8 Flash TTS Voice Briefing"]
-        C3Panel["Engine 1: Channel3 100M+ Catalog Deal-Hunter + PayPal JS SDK v6 Checkout"]
-        BountyBoard["Engine 2: Proof-of-Human Oracle Bounties + Instant PayPal Payouts v1"]
-        BryntumGantt["Engine 3: Bryntum A2A Smart Escrow Gantt + Subscription Renewal Scheduler"]
-        AgGridCenter["AG Grid v36 Enterprise Financial Ledger + Webhook & APIMatic Inspector"]
-    end
+flowchart TD
+    UI["Next.js 16 + React 19 UI<br/>Geist UI · Hugeicons · AG Grid v36 · Escrow Gantt · PayPal SDK v6"] --> API["Next.js API Route Handlers<br/>/api/paypal/* · /api/ai/* · /api/state · /api/auth/* · /api/contact"]
 
-    subgraph AI["Google Gemini Interactions API (@google/genai v3.0.0)"]
-        GeminiArgon["gemini-4-argon (Deep Agentic CFO & Escrow Audit)"]
-        GeminiFlash["gemini-3.8-flash (Multimodal Bounty Verification)"]
-        GeminiTTS["gemini-3.8-flash-tts (Executive Voice Briefing)"]
-        PayPalMCP["@paypal/agent-toolkit MCP Tools (mcp.sandbox.paypal.com/sse)"]
-    end
-
-    subgraph Gateway["Dual-Mode Zero-Blocker PayPal Gateway"]
-        ApimaticSDK["APIMatic @paypal/paypal-server-sdk v2.5.0 (Orders, Payments, Subscriptions, Trackers)"]
-        LiveSandbox["Live PayPal Sandbox API (api-m.sandbox.paypal.com)"]
-        MirrorEngine["Deterministic PayPal Sandbox Mirror (100% Schema-Identical v1/v2 + Idempotency)"]
-    end
-
-    UI --> AI
-    UI --> Gateway
-    AI --> PayPalMCP
-    AI --> Gateway
-    Gateway --> ApimaticSDK
-    ApimaticSDK --> LiveSandbox
-    Gateway --> MirrorEngine
+    API --> PayPal["PayPal Gateway & Server SDK v2.5<br/>Orders v2 · Payouts · Subscriptions · Webhooks · Agent Toolkit"]
+    API --> AI["AI & RAG Layer<br/>Google Gemini (@google/genai) · Groq SDK · Knowledge Base"]
+    API --> Channel3["Price Watch<br/>Channel3 Product & Price Rules"]
+    API --> Storage["Persistence Layer<br/>Supabase PostgreSQL (optional) · Deterministic Sandbox Mirror"]
 ```
-
-### All 7 Hackathon Sponsor Integrations Included
-
-| Sponsor / Track | Integration in NexusPulse (`NexusPulse/`) | Key Files |
-| :--- | :--- | :--- |
-| **1. PayPal (Primary Platform)** | Orders API v2 (`CAPTURE` & `AUTHORIZE`), Payouts API v1, Subscriptions API v1, Invoicing API v2, Shipment Trackers API v2, Webhooks v1 Signature Verification, JS SDK v6 (`<paypal-button>`, `<paylater-button>`, `<venmo-button>`, `<paypal-message>`), and PayPal MCP Server (`@paypal/agent-toolkit`) | `src/lib/paypal/paypal-client.ts`, `src/lib/paypal/paypal-gateway.ts`, `src/components/paypal/PayPalV6CheckoutWidget.tsx` |
-| **2. APIMatic** | Strongly-typed `@paypal/paypal-server-sdk@2.5.0` (`OrdersController`, `PaymentsController`, `SubscriptionsController`, `TransactionSearchController`) with automatic OAuth2 token caching, `PayPal-Request-Id` idempotency, and `INSTRUMENT_DECLINED` / `429` retry handling | `src/lib/paypal/paypal-client.ts` |
-| **3. AG Grid** | High-density `ag-grid-react@36.3.0` Dark Quartz Financial Command Center across Transactions (`/v1/reporting/transactions`), Orders v2, Payouts v1, and Invoices v2 with quick-search, engine filtering, CSV export, and one-click Gemini CFO audit | `src/components/sponsors/AgGridFinancialCommandCenter.tsx` |
-| **4. Bryntum** | Interactive WBS Critical-Path Milestone Gantt & Subscription Renewal Scheduler binding PayPal `AUTHORIZE` holds to cryptographic deliverable verification | `src/components/sponsors/BryntumEscrowTimeline.tsx` |
-| **5. Channel3** | 100M+ SKU Product Catalog Deal-Hunter & Cryptographic Price-Drop Mandate Engine integrated with PayPal JS SDK v6 | `src/components/sponsors/Channel3DealHunterPanel.tsx`, `src/app/api/channel3/search/route.ts` |
-| **6. Google DeepMind / Gemini** | `@google/genai@3.0.0` `client.interactions.create()` using `gemini-4-argon`, `gemini-3.8-flash` (structured JSON schema verification), `gemini-3.8-flash-tts` (audio briefing), and native `mcp_server` tools | `src/lib/ai/gemini-agent.ts`, `src/app/api/ai/interact/route.ts`, `src/app/api/ai/verify-bounty/route.ts` |
-| **7. Render** | Production Infrastructure-as-Code Blueprint (`render.yaml`) provisioning both the Next.js Web Service and an hourly Autonomous Cron Worker (`scripts/autonomous-sweep.mjs`) | `render.yaml`, `NexusPulse/scripts/autonomous-sweep.mjs` |
 
 ---
 
-## 3. Quick Start & Judge Verification Instructions
+## Integrations & Tech Stack
+
+| Layer / Integration | Package / Component | Responsibility |
+| :--- | :--- | :--- |
+| **Framework** | `next@16.3.6`, `react@19.2.8` | App Router UI, SSR/static routes, secure API handlers & CSP headers (`next.config.ts`) |
+| **PayPal Commerce** | `@paypal/react-paypal-js`, `@paypal/paypal-server-sdk`, `@paypal/agent-toolkit` | Official PayPal / Pay Later / Venmo buttons, Orders v2 capture & `AUTHORIZE` holds, Payouts, Subscriptions, Invoices, Trackers, and signed Webhook checks |
+| **Data Grid** | `ag-grid-community@^36.3.0`, `ag-grid-react@^36.3.0` | Light `themeQuartz` transaction ledger with pinned ID & amount columns, column visibility menu, unified filter bar, and CSV export |
+| **Milestone Timeline** | [`BryntumEscrowTimeline.tsx`](NexusPulse/src/components/sponsors/BryntumEscrowTimeline.tsx) | Interactive status-coded schedule Gantt with date-range editing and Orders v2 capture controls |
+| **Iconography** | `@hugeicons/react@^1.1.10`, `@hugeicons/core-free-icons@^4.4.0` | Consistent stroke-rounded icons wrapped via [`Icon.tsx`](NexusPulse/src/components/ui/Icon.tsx) |
+| **AI & RAG** | `@google/genai@^3.0.0`, `groq-sdk@^1.6.0` | Spending reviews, image/checklist verification, TTS voice briefings, and Groq-powered RAG workspace assistant |
+| **Database** | `@supabase/supabase-js@^2.119.0`, `pg@^8.23.1` | Optional PostgreSQL persistence (`src/lib/db/schema.sql`) with transparent mirror fallback |
+| **Deployment** | [`NexusPulse/vercel.json`](NexusPulse/vercel.json), [`render.yaml`](render.yaml) | Vercel production hosting + daily AI cron, plus Render web service + 15-minute autonomous sweep worker |
+
+---
+
+## Workspace Engines & Routes
+
+| Route | View / Purpose | Key Files |
+| :--- | :--- | :--- |
+| `/` | Overview, KPI strip & Spending Review panel | [`NexusPulse/src/app/page.tsx`](NexusPulse/src/app/page.tsx) |
+| `/?tab=channel3#deal-hunter` | Price watch, target ceilings, PayPal v6 checkout & subscriptions | [`Channel3DealHunterPanel.tsx`](NexusPulse/src/components/sponsors/Channel3DealHunterPanel.tsx), [`PayPalV6CheckoutWidget.tsx`](NexusPulse/src/components/paypal/PayPalV6CheckoutWidget.tsx) |
+| `/?tab=bounties#human-bounties` | Verified tasks board, upload proof & instant payouts | [`ProofOfHumanBountyBoard.tsx`](NexusPulse/src/components/bounties/ProofOfHumanBountyBoard.tsx) |
+| `/?tab=bryntum#escrow-gantt` | Milestone escrow Gantt, holds, dates & capture | [`BryntumEscrowTimeline.tsx`](NexusPulse/src/components/sponsors/BryntumEscrowTimeline.tsx) |
+| `/?tab=aggrid#telemetry` | AG Grid ledger, CSV export & webhook simulator | [`AgGridFinancialCommandCenter.tsx`](NexusPulse/src/components/sponsors/AgGridFinancialCommandCenter.tsx) |
+| `/about` | Architecture overview, integrations, workflow guide & comparison | [`NexusPulse/src/app/about/page.tsx`](NexusPulse/src/app/about/page.tsx) |
+| `/contact` | Validated contact intake, FAQs, reviewer info & briefings | [`NexusPulse/src/app/contact/page.tsx`](NexusPulse/src/app/contact/page.tsx) |
+
+### API Surface
+
+| Namespace | Endpoints |
+| :--- | :--- |
+| **System & State** | `GET /api/health` · `GET\|POST /api/state` · `POST /api/media/upload` · `GET\|POST /api/contact` |
+| **Auth & Personas** | `POST /api/auth/login` · `POST /api/auth/signup` · `GET /api/auth/session` |
+| **PayPal Gateway** | `GET /api/paypal/client-token` · `GET\|POST /api/paypal/orders` · `POST /api/paypal/escrow` · `POST /api/paypal/subscriptions` · `GET\|POST /api/paypal/invoices` · `POST /api/paypal/sync` · `POST /api/paypal/webhooks` |
+| **AI & Price Watch** | `POST /api/ai/interact` · `POST /api/ai/chatbot` · `POST /api/ai/verify-bounty` · `POST /api/ai/voice-briefing` · `POST /api/channel3/search` |
+
+---
+
+## Quick Start
 
 ### Prerequisites
-- **Node.js** `>= 20.x` (tested on Node `v24.16.0`)
-- **npm** `>= 10.x`
 
-### Step 1: Install & Run
+- **Node.js** `>= 20` and **npm**
+- *(Optional)* PayPal Developer Sandbox credentials, Gemini API key, Groq API key, and Supabase project (all omitted keys default gracefully to the deterministic sandbox mirror)
+
+### Local Setup
+
 ```bash
 cd NexusPulse
 npm install
+cp .env.example .env.local
 npm run dev
 ```
-Open **`http://localhost:3000`** in your browser.
 
-### Step 2: Credential-First PayPal Sandbox Gateway (Slot 013 + Mirror Offline Fallback)
-NexusPulse runs **Credential-First Live Sandbox Mode** when `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` are configured in `NexusPulse/.env.local`, with an automatic **Deterministic Mirror Fallback** for offline evaluation:
-1. **Live PayPal Sandbox Mode (`api-m.sandbox.paypal.com`)**:
-   - Powered by PayPal x Voice AI Hackathon **Slot 013** Sandbox credentials (`NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `@paypal/paypal-server-sdk@2.5.0`, PayPal JS SDK v6 `web-sdk/v6/core`), settling orders, authorizations, payouts, live invoices, catalog plans/subscriptions, and webhook/dispute telemetry.
-2. **Deterministic PayPal Sandbox Mirror Mode (Offline / Unit Tests)**:
-   - Toggleable via the **"PayPal Sandbox / Mirror"** drawer in the top navigation bar whenever evaluating offline or without `.env.local` credentials.
+Open [http://localhost:3000](http://localhost:3000).
 
-### Sandbox Test Accounts (Slot 013 — Judge & Buyer Testing)
-- **Sandbox Personal Buyer Account (`AEME4VE2LQ8D8`)**: `sb-ifqau51324237@personal.example.com` (Password stored locally in `NexusPulse/.env.local` / Hackathon Slot 013 sheet)
-- **Sandbox Business Merchant Account (`6NGH9RSQMDEUJ`)**: `sb-mokyu51324247@business.example.com` (Password stored locally in `NexusPulse/.env.local` / Hackathon Slot 013 sheet)
+### Verification Commands
 
-### Step 3: Run Automated Tests & Production Build
+Run inside `NexusPulse/`:
+
 ```bash
-cd NexusPulse
-npm run test
+# TypeScript typecheck
+npm run lint
+
+# Automated unit, security & PayPal gateway integration suite (17 tests)
+npm test
+
+# Production build verification
 npm run build
 ```
 
+### Optional Supabase Schema Provisioning
+
+If you configure `DIRECT_URL` or `DATABASE_URL` in `NexusPulse/.env.local`, apply the SQL schema via:
+
+```bash
+cd NexusPulse
+node scripts/migrate-supabase.mjs
+```
+
+### Environment Variables
+
+See [`NexusPulse/.env.example`](NexusPulse/.env.example) for the complete template. Key variables include:
+
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `PAYPAL_MODE` / `PAYPAL_ENVIRONMENT` | Optional | Execution mode (`auto`, `sandbox`, `mirror`, `live`) |
+| `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` | Optional | Server-side PayPal REST OAuth credentials |
+| `NEXT_PUBLIC_PAYPAL_CLIENT_ID` | Optional | Public PayPal JS SDK v6 client ID for frontend checkout buttons |
+| `PAYPAL_WEBHOOK_ID` | Optional | PayPal webhook ID used by `/api/paypal/webhooks` signature verification |
+| `GEMINI_API_KEY` | Optional | Google Gemini API key for spending review, vision audit & TTS briefing |
+| `GROQ_API_KEY` | Optional | Server Groq API key for `NexusAiChatbot` (can also be supplied via client BYOK) |
+| `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SECRET_KEY` | Optional | Supabase project URL and secret/publishable key |
+| `CHANNEL3_API_KEY` | Optional | Channel3 product search API key |
+
+> **Pre-configured Sandbox Slot `013` Test Identities (non-secret placeholders in `.env.example`):**
+> - Buyer: `sb-ifqau51324237@personal.example.com` (`AEME4VE2LQ8D8`)
+> - Merchant: `sb-mokyu51324247@business.example.com` (`6NGH9RSQMDEUJ`)
+
 ---
 
-## 4. Repository Structure
+## Repository Structure
 
 ```text
-PayPal_AI_Hackathon/
-├── LICENSE                                  # MIT Open-Source License (Required by Devpost)
-├── render.yaml                              # Sponsor: Render Cloud Blueprint (Web + Cron Worker)
-├── README.md                                # Project Architecture, Judge Guide & Demo Script
-├── Research_Papers_And_Survey/              # Downloaded DeepMind/Anthropic AGI Papers & Reports
-└── NexusPulse/                              # Flagship Next.js 16 + TypeScript Application
+.
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── config.yml
+│   │   └── feature_request.md
+│   ├── workflows/
+│   │   └── ci.yml                       # GitHub Actions CI: lint, 17-test suite & build
+│   └── pull_request_template.md
+├── HD_Screenshots/                      # Verified 2160x1215 desktop & responsive captures
+├── Top10_Submission_Screenshots/        # Top 10 curated workspace captures + CAPTIONS.md
+├── render.yaml                          # Render Web Service + 15-min Cron Worker blueprint
+├── README.md
+└── NexusPulse/
     ├── package.json
-    ├── .env.example
+    ├── next.config.ts                   # Strict CSP, COOP, HSTS & framing headers
+    ├── vercel.json                      # Vercel config + daily /api/ai/interact cron
+    ├── public/
+    │   └── logo.svg                     # NexusPulse connected-node monogram
     ├── scripts/
-    │   ├── autonomous-sweep.mjs             # Render Background Cron Worker
-    │   └── migrate-supabase.mjs             # Supabase PostgreSQL Seeding Script
+    │   ├── autonomous-sweep.mjs         # Cron job script (render.yaml)
+    │   ├── migrate-supabase.mjs         # Idempotent SQL schema runner
+    │   ├── test-200-chatbot-queries.mjs # RAG chatbot verification script
+    │   └── capture-*.mjs                # Screenshot & Devpost gallery generators
     └── src/
         ├── app/
-        │   ├── page.tsx                     # Unified NexusPulse Command Center
-        │   └── api/                         # Next.js App Router API Endpoints
-        │       ├── state/route.ts
-        │       ├── health/route.ts
-        │       ├── paypal/orders/route.ts
-        │       ├── paypal/subscriptions/route.ts
-        │       ├── paypal/escrow/route.ts
-        │       ├── paypal/webhooks/route.ts
-        │       ├── ai/interact/route.ts
-        │       ├── ai/verify-bounty/route.ts
-        │       ├── ai/voice-briefing/route.ts
-        │       ├── channel3/search/route.ts
-        │       └── contact/route.ts             # Contact Desk & Inquiry Ingestion (Fetch Metadata Isolated)
-        │   ├── about/page.tsx                   # Comprehensive Product Story, 50-Yr AGI Thesis & Sponsor Matrix
-        │   ├── contact/page.tsx                 # Validated Operations & Judge Desk (RFC Validation, SLA Targets)
+        │   ├── tokens.css               # Single source of design tokens (Zinc, Indigo, Geist)
+        │   ├── globals.css              # Base styles & 8s intro splash keyframes
+        │   ├── icon.svg                 # App favicon matching NexusPulseMark
+        │   ├── layout.tsx               # Geist fonts & BrandIntroSplash mount
+        │   ├── page.tsx                 # Main workspace & Overview
+        │   ├── about/                   # Architecture & integration details route
+        │   ├── contact/                 # Support form, FAQ & briefings route
+        │   └── api/                     # PayPal, AI/RAG, Auth, State, Contact & Health routes
         ├── components/
-        │   ├── paypal/PayPalV6CheckoutWidget.tsx
-        │   ├── sponsors/AgGridFinancialCommandCenter.tsx
-        │   ├── sponsors/BryntumEscrowTimeline.tsx
-        │   ├── sponsors/Channel3DealHunterPanel.tsx
-        │   └── bounties/ProofOfHumanBountyBoard.tsx
+        │   ├── ai/                      # Executive briefing output
+        │   ├── auth/                    # Auth modal & landing auth card
+        │   ├── bounties/                # Proof-of-human task board
+        │   ├── brand/                   # NexusPulseLogo & 8s BrandIntroSplash
+        │   ├── chat/                    # NexusAiChatbot floating Groq RAG drawer
+        │   ├── common/                  # Toast notifications
+        │   ├── home/                    # Flow simulator, persona banner & comparison table
+        │   ├── layout/                  # NexusHeader (profile switcher), FeaturePageHeader, Footer
+        │   ├── paypal/                  # Official PayPal SDK v6 checkout widget
+        │   ├── sponsors/                # AG Grid ledger, Escrow Gantt, Channel3 Deal Hunter
+        │   └── ui/                      # Button, ConfirmDialog, FormField, Icon, ListSection, Skeleton, StatusDot
         ├── lib/
-        │   ├── paypal/paypal-types.ts
-        │   ├── paypal/paypal-client.ts      # APIMatic @paypal/paypal-server-sdk v2.5.0
-        │   ├── paypal/paypal-sandbox-mirror.ts
-        │   ├── paypal/paypal-gateway.ts
-        │   ├── ai/gemini-agent.ts           # Google Gemini Interactions API (@google/genai v3.0.0)
-        │   └── db/
-        │       ├── schema.sql               # Supabase PostgreSQL Schema
-        │       └── supabase-client.ts       # Supabase Client & Realtime Sync
+        │   ├── format.ts                # Intl USD formatting, short dates & humanized enum maps
+        │   ├── ai/                      # Gemini agent & RAG knowledge base
+        │   ├── auth/                    # 4 demo evaluator accounts & types
+        │   ├── db/                      # schema.sql & Supabase client
+        │   ├── paypal/                  # Server client, gateway, mirror state & types
+        │   └── security/                # Input validation & origin checks
         └── tests/
-            └── nexus-pulse.test.ts          # Automated Test Suite (12/12 Passing)
+            ├── nexus-pulse.test.ts      # 17 unit/integration/security tests
+            └── chatbot-200-questions.test.ts
 ```
 
 ---
 
-## 5. 3-Minute Hackathon Demo Video Script
+## Screenshots
 
-- **0:00 – 0:30 | The Problem & 50-Year Vision**: Introduce **NexusPulse** — *"Connecting AI Agents, Human Oracles & Smart Payments on PayPal"*. The Personal AI CFO that stops subscription & retail price leakage today while building the **Proof-of-Human Oracle Clearinghouse** on PayPal for the AGI economy. Show the live KPI strip and click **"AI Voice CFO Briefing"** (`gemini-3.8-flash-tts`).
-- **0:30 – 1:15 | Engine 1: Channel3 Deal-Hunter & PayPal JS SDK v6 Checkout**: Run an Autonomous CFO Sweep with **Gemini 4 Argon** (`client.interactions.create()`). Select the **NVIDIA Jetson Orin Nano Super** deal discovered via **Channel3** (`$189.00` vs `$249.00` retail) and complete a live **PayPal JS SDK v6** checkout (`POST /v2/checkout/orders` + `/capture` via APIMatic `@paypal/paypal-server-sdk`).
-- **1:15 – 1:55 | Engine 2: Proof-of-Human Oracle Bounties & Instant PayPal Payouts**: Switch to Engine 2, select an open Proof-of-Human bounty, submit ground-truth verification telemetry, and watch **Gemini 3.8 Flash** audit the submission (`97/100`) and trigger an instant **PayPal Payout (`POST /v1/payments/payouts`)**.
-- **1:55 – 2:30 | Engine 3: Bryntum A2A Smart Escrow Gantt & Subscription Guard**: Inspect the **Bryntum Milestone Gantt**, verify deliverable proof on Milestone `ESCROW-102` to capture the locked **PayPal Authorization Hold** with automatic **DHL Shipment Tracker (`POST /v2/checkout/orders/{id}/track`)** dispute protection, and click **Auto-Revise Plan** on an overpriced PayPal Subscription (`+$50/mo` saved).
-- **2:30 – 3:00 | AG Grid Enterprise Command Center & Webhook Security**: Open the **AG Grid v36** multi-endpoint ledger, filter across Transactions, Orders v2, Payouts v1, and Invoices v2, simulate a cryptographically verified **PayPal Webhook (`POST /v1/notifications/verify-webhook-signature`)**, and export the audit CSV.
+### Workspace Overview & Controls
+
+| Overview & KPIs | Workspace & Sandbox Mode Switcher |
+| :---: | :---: |
+| ![Overview Hero and KPIs](Top10_Submission_Screenshots/01_Overview_Hero_And_KPIs.png)<br/>*Hero, live KPI metrics, and Spending Review command bar* | ![Workspace Sandbox Switcher](Top10_Submission_Screenshots/03_Workspace_Sandbox_Switcher.png)<br/>*Auto / Demo / Sandbox environment toggle, audio summary & state reset* |
+
+| Multi-Role Persona Sign-In | AI Spending Review |
+| :---: | :---: |
+| ![Auth Role Switcher](Top10_Submission_Screenshots/02_Auth_Role_Switcher.png)<br/>*One-click demo personas (Judge, Consumer, Oracle, Enterprise) & sign-in* | ![Gemini Spending Review](Top10_Submission_Screenshots/04_Gemini_Spending_Review_CFO.png)<br/>*Structured spending analysis with Summary, JSON & PDF exports* |
+
+### Core Engines, Ledger & Workspace Views
+
+| Price Watch & PayPal Checkout | Verified Tasks & Instant Payouts |
+| :---: | :---: |
+| ![Price Watch and Checkout](Top10_Submission_Screenshots/05_Engine1_Channel3_Price_Watch.png)<br/>*Target-price rules with official PayPal, Pay Later & Venmo checkout buttons* | ![Verified Tasks and Payout](Top10_Submission_Screenshots/06_Engine2_Verified_Tasks_Payout.png)<br/>*Task verification checklists, receipt scoring & instant PayPal Payouts* |
+
+| Milestone Escrow Gantt | Subscription Downgrade Guard |
+| :---: | :---: |
+| ![Milestone Escrow Gantt](Top10_Submission_Screenshots/07_Engine3_Milestone_Escrow_Gantt.png)<br/>*Status-coded schedule timeline & Orders v2 AUTHORIZE holds* | ![Dispute Shield and Subscriptions](Top10_Submission_Screenshots/08_Engine3_Dispute_Shield_Subscriptions.png)<br/>*Tracking verification & explicit savings confirmation modal* |
+
+| AG Grid Transaction Ledger | Live PayPal Invoicing v2 |
+| :---: | :---: |
+| ![AG Grid Financial Ledger](Top10_Submission_Screenshots/09_Engine4_AG_Grid_Financial_Ledger.png)<br/>*Pinned ID & amount columns, category filters, column picker & CSV export* | ![PayPal Invoicing v2](Top10_Submission_Screenshots/10_Engine4_Live_PayPal_Invoicing_V2.png)<br/>*Direct PayPal Invoicing v2 creation and tracking inside the ledger* |
+
+| Floating RAG Workspace Assistant | About & Support Views |
+| :---: | :---: |
+| ![Floating RAG Assistant](HD_Screenshots/16_Floating_AI_Chatbot_Assistant.png)<br/>*Groq RAG drawer with suggested prompts & custom BYOK API key support* | ![About Architecture View](HD_Screenshots/17_About_Hero_And_Architecture.png)<br/>*Architecture overview, workflow comparison tabs & integration details* |
+
+Browse full-resolution captions in [`Top10_Submission_Screenshots/CAPTIONS.md`](Top10_Submission_Screenshots/CAPTIONS.md) and [`HD_Screenshots/CAPTIONS.md`](HD_Screenshots/CAPTIONS.md).
+
+---
+
+## Deployment
+
+- **Vercel**: [`NexusPulse/vercel.json`](NexusPulse/vercel.json) sets the Next.js framework preset and schedules a daily check against `/api/ai/interact`. Set the root directory to `NexusPulse` in Vercel project settings.
+- **Render**: [`render.yaml`](render.yaml) defines the `nexus-pulse-web` web service (`rootDir: NexusPulse`, health check `/api/health`) alongside the `nexus-pulse-autonomous-cfo-sweeper` cron job (`*/15 * * * *`, running `node scripts/autonomous-sweep.mjs`).
