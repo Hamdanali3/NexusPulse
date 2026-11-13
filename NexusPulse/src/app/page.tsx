@@ -671,6 +671,8 @@ export default function NexusPulseHomePage() {
         voiceTranscript={voiceTranscript}
         currentUser={currentUser}
         onOpenAuthModal={() => setAuthModalOpen(true)}
+        onSwitchUser={handleLoginSuccess}
+        onSignOut={handleLogout}
         onSwitchMode={handleSwitchMode}
         onSaveRuntimeCredentials={handleSaveRuntimeCredentials}
         onPlayVoiceBriefing={handlePlayVoiceBriefing}

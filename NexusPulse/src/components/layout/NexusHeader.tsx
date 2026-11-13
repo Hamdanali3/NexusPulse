@@ -5,19 +5,24 @@ import Link from "next/link";
 import {
   ArrowDown01Icon,
   Cancel01Icon,
+  Copy01Icon,
   Key01Icon,
   LayoutTable01Icon,
+  Logout01Icon,
   Menu01Icon,
   SecurityLockIcon,
   SlidersHorizontalIcon,
   Tag01Icon,
   TaskDone01Icon,
+  Tick02Icon,
   Undo02Icon,
+  User02Icon,
   VolumeHighIcon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import type { PayPalExecutionMode, PayPalSandboxAccountConfig } from "@/lib/paypal/paypal-types";
-import type { UserProfile } from "@/lib/auth/auth-types";
+import { DEMO_EVALUATOR_ACCOUNTS, type UserProfile, type UserRole } from "@/lib/auth/auth-types";
+import { formatUsd } from "@/lib/format";
 import { AppIcon } from "@/components/ui/Icon";
 import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 
@@ -35,10 +40,31 @@ export interface NexusHeaderProps {
   voiceTranscript: string | null;
   currentUser?: UserProfile | null;
   onOpenAuthModal?: () => void;
+  onSwitchUser?: (user: UserProfile) => void;
+  onSignOut?: () => void;
   onSwitchMode: (mode: "auto" | "live" | "sandbox" | "mirror") => void;
   onSaveRuntimeCredentials: (clientId: string, clientSecret: string) => Promise<void>;
   onPlayVoiceBriefing: () => void;
   onResetDemoState: () => void;
+}
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: "Reviewer",
+  CONSUMER: "Buyer",
+  ORACLE_WORKER: "Verifier",
+  ENTERPRISE_AGENT: "Enterprise",
+};
+
+function getUserInitials(fullName: string): string {
+  return (
+    fullName
+      .trim()
+      .split(/\s+/)
+      .map((part) => part[0] || "")
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "NP"
+  );
 }
 
 export const ENGINE_ITEMS: Array<{
@@ -67,12 +93,17 @@ export default function NexusHeader({
   voiceTranscript,
   currentUser,
   onOpenAuthModal,
+  onSwitchUser,
+  onSignOut,
   onSwitchMode,
   onSaveRuntimeCredentials,
   onPlayVoiceBriefing,
   onResetDemoState,
 }: NexusHeaderProps) {
   const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [copiedPayPal, setCopiedPayPal] = useState(false);
+  const [switchingDemoKey, setSwitchingDemoKey] = useState<string | null>(null);
   const [showSandboxKeys, setShowSandboxKeys] = useState(false);
   const [showEngines, setShowEngines] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -83,6 +114,7 @@ export default function NexusHeader({
 
   const enginesRef = useRef<HTMLDivElement | null>(null);
   const toolsRef = useRef<HTMLDivElement | null>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
 
   const isEngineActive = ENGINE_ITEMS.some((e) => e.id === activeTab);
   const isDemoSession = activeMode === "mirror" || preferredMode === "mirror";
@@ -95,11 +127,15 @@ export default function NexusHeader({
       if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) {
         setShowToolsMenu(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setShowProfileMenu(false);
+      }
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setShowEngines(false);
         setShowToolsMenu(false);
+        setShowProfileMenu(false);
       }
     }
     document.addEventListener("mousedown", onDown);
@@ -110,8 +146,37 @@ export default function NexusHeader({
     };
   }, []);
 
+  async function handleQuickSwitchDemo(demoKey: string) {
+    if (!onSwitchUser || switchingDemoKey) return;
+    setSwitchingDemoKey(demoKey);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ demoKey }),
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        onSwitchUser(data.user);
+        setShowProfileMenu(false);
+      }
+    } finally {
+      setSwitchingDemoKey(null);
+    }
+  }
+
+  function handleCopyPayPalEmail(email: string) {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(email);
+      setCopiedPayPal(true);
+      window.setTimeout(() => setCopiedPayPal(false), 1600);
+    }
+  }
+
   function go(tab: WorkspaceTabId) {
     setShowEngines(false);
+    setShowToolsMenu(false);
+    setShowProfileMenu(false);
     setMobileOpen(false);
     if (onSelectTab) {
       onSelectTab(tab);
@@ -160,7 +225,11 @@ export default function NexusHeader({
             <div className="relative" ref={enginesRef}>
               <button
                 type="button"
-                onClick={() => setShowEngines((s) => !s)}
+                onClick={() => {
+                  setShowToolsMenu(false);
+                  setShowProfileMenu(false);
+                  setShowEngines((s) => !s);
+                }}
                 aria-expanded={showEngines}
                 aria-haspopup="menu"
                 className={`${linkBase} inline-flex items-center gap-1 ${isEngineActive ? linkActive : linkIdle}`}
@@ -232,14 +301,22 @@ export default function NexusHeader({
           <div className="relative" ref={toolsRef}>
             <button
               type="button"
-              onClick={() => setShowToolsMenu((s) => !s)}
+              onClick={() => {
+                setShowEngines(false);
+                setShowProfileMenu(false);
+                setShowToolsMenu((s) => !s);
+              }}
               aria-expanded={showToolsMenu}
               aria-haspopup="menu"
               className="hidden sm:inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[13px] font-medium text-zinc-700 transition-colors duration-150"
             >
               <AppIcon icon={SlidersHorizontalIcon} size="xs" className="text-zinc-600" />
               <span>Workspace</span>
-              <AppIcon icon={ArrowDown01Icon} size="xs" className="text-zinc-500" />
+              <AppIcon
+                icon={ArrowDown01Icon}
+                size="xs"
+                className={`text-zinc-500 transition-transform duration-150 ${showToolsMenu ? "rotate-180" : ""}`}
+              />
             </button>
 
             {showToolsMenu && (
@@ -331,25 +408,205 @@ export default function NexusHeader({
             )}
           </div>
 
+          <span className="hidden sm:block h-4 w-px bg-zinc-200 mx-0.5" aria-hidden="true" />
+
           {currentUser ? (
-            <button
-              type="button"
-              onClick={onOpenAuthModal}
-              className="inline-flex h-8 items-center gap-2 rounded-[6px] border border-zinc-200 bg-white hover:bg-zinc-50 px-2.5 text-[13px] font-medium text-zinc-900 transition-colors duration-150"
-              title={`Signed in as ${currentUser.fullName}`}
-            >
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zinc-950 text-[11px] font-medium text-white">
-                {currentUser.fullName
-                  .split(/\s+/)
-                  .map((w) => w[0] || "")
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase() || "NP"}
-              </span>
-              <span className="hidden sm:inline truncate max-w-[110px]">
-                {currentUser.fullName.split(" ")[0]}
-              </span>
-            </button>
+            <div className="relative" ref={profileRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEngines(false);
+                  setShowToolsMenu(false);
+                  setShowProfileMenu((s) => !s);
+                }}
+                aria-expanded={showProfileMenu}
+                aria-haspopup="menu"
+                aria-label={`Account menu for ${currentUser.fullName}`}
+                title={`${currentUser.fullName} — ${ROLE_LABELS[currentUser.role]}`}
+                className={`group inline-flex h-8 items-center gap-2 rounded-full pl-0.5 pr-2 text-[13px] font-medium transition-colors duration-150 ${
+                  showProfileMenu
+                    ? "bg-zinc-100 text-zinc-950"
+                    : "text-zinc-800 hover:bg-zinc-100/90 hover:text-zinc-950"
+                }`}
+              >
+                <span className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-semibold tracking-tight text-[#4a3be8] ring-1 ring-inset ring-indigo-200/90 group-hover:ring-indigo-300 transition-all duration-150">
+                  {getUserInitials(currentUser.fullName)}
+                  <span
+                    aria-hidden="true"
+                    className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-600 ring-2 ring-white"
+                  />
+                </span>
+                <span className="hidden sm:inline truncate max-w-[96px]">
+                  {currentUser.fullName.split(" ")[0]}
+                </span>
+                <AppIcon
+                  icon={ArrowDown01Icon}
+                  size={13}
+                  className={`text-zinc-500 transition-transform duration-150 ${
+                    showProfileMenu ? "rotate-180 text-zinc-800" : ""
+                  }`}
+                />
+              </button>
+
+              {showProfileMenu && (
+                <div
+                  role="menu"
+                  aria-label="Account options"
+                  className="animate-slide-up absolute right-0 mt-2 w-72 sm:w-80 rounded-[12px] border border-zinc-200 bg-white shadow-[0_8px_24px_-4px_rgb(9_9_11/0.08),0_2px_6px_-1px_rgb(9_9_11/0.04)] overflow-hidden z-50"
+                >
+                  {/* Profile identity */}
+                  <div className="p-3.5 bg-[#fafafa] border-b border-zinc-100 space-y-2.5">
+                    <div className="flex items-center gap-3">
+                      <span className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[12px] font-semibold tracking-tight text-[#4a3be8] ring-1 ring-inset ring-indigo-200">
+                        {getUserInitials(currentUser.fullName)}
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-600 ring-2 ring-white"
+                        />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[13px] font-semibold text-zinc-950 truncate">
+                            {currentUser.fullName}
+                          </span>
+                          <span className="text-[11px] font-medium text-[#4a3be8] shrink-0">
+                            {ROLE_LABELS[currentUser.role]}
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-zinc-600 truncate">
+                          {currentUser.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 rounded-[6px] border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px]">
+                      <span className="font-mono text-zinc-600 truncate">
+                        {currentUser.paypalEmail}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyPayPalEmail(currentUser.paypalEmail)}
+                        className="inline-flex items-center gap-1 font-medium text-zinc-700 hover:text-zinc-950 shrink-0 transition-colors"
+                        title="Copy PayPal account email"
+                      >
+                        {copiedPayPal ? (
+                          <>
+                            <AppIcon icon={Tick02Icon} size={12} className="text-emerald-700" />
+                            <span className="text-emerald-700">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <AppIcon icon={Copy01Icon} size={12} className="text-zinc-500" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Account balance & auto-spend limits */}
+                  <div className="px-3.5 py-2.5 border-b border-zinc-100 grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="block text-[11px] text-zinc-600">Wallet balance</span>
+                      <span className="text-[13px] font-semibold text-zinc-950 tabular-nums">
+                        {formatUsd(currentUser.walletBalanceUsd)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[11px] text-zinc-600">Auto-spend limit</span>
+                      <span className="text-[13px] font-semibold text-zinc-950 tabular-nums">
+                        {formatUsd(currentUser.autoSpendLimitUsd)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quick role switcher */}
+                  {onSwitchUser && (
+                    <div className="p-1.5 border-b border-zinc-100 space-y-0.5">
+                      <div className="px-2.5 py-1 text-[11px] font-medium text-zinc-600">
+                        Switch profile
+                      </div>
+                      {Object.entries(DEMO_EVALUATOR_ACCOUNTS).map(([demoKey, demo]) => {
+                        const isActive = currentUser.email === demo.email;
+                        const isBusy = switchingDemoKey === demoKey;
+                        return (
+                          <button
+                            key={demoKey}
+                            type="button"
+                            role="menuitem"
+                            disabled={Boolean(switchingDemoKey)}
+                            onClick={() => handleQuickSwitchDemo(demoKey)}
+                            className={`w-full flex items-center justify-between gap-2 rounded-[6px] px-2.5 py-1.5 text-left transition-colors duration-150 disabled:opacity-60 ${
+                              isActive
+                                ? "bg-indigo-50/70 text-zinc-950"
+                                : "text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950"
+                            }`}
+                          >
+                            <span className="flex items-center gap-2 min-w-0">
+                              <span
+                                className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
+                                  isActive
+                                    ? "bg-[#4a3be8] text-white"
+                                    : "bg-zinc-100 text-zinc-700"
+                                }`}
+                              >
+                                {getUserInitials(demo.fullName)}
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block text-[12px] font-medium truncate">
+                                  {demo.fullName}
+                                </span>
+                                <span className="block text-[11px] text-zinc-600 truncate">
+                                  {ROLE_LABELS[demo.role]}
+                                </span>
+                              </span>
+                            </span>
+                            {isBusy ? (
+                              <span className="text-[11px] text-zinc-500">Switching...</span>
+                            ) : isActive ? (
+                              <AppIcon icon={Tick02Icon} size="xs" className="text-[#4a3be8]" />
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Footer account controls */}
+                  <div className="p-1.5 space-y-0.5">
+                    {onOpenAuthModal && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          onOpenAuthModal();
+                        }}
+                        className="w-full flex items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-left text-[13px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-950 transition-colors"
+                      >
+                        <AppIcon icon={User02Icon} size="sm" className="text-zinc-600" />
+                        <span>Account &amp; sign-in options</span>
+                      </button>
+                    )}
+
+                    {onSignOut && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          onSignOut();
+                        }}
+                        className="w-full flex items-center gap-2 rounded-[6px] px-2.5 py-1.5 text-left text-[13px] font-medium text-red-700 hover:bg-red-50 transition-colors"
+                      >
+                        <AppIcon icon={Logout01Icon} size="sm" className="text-red-700" />
+                        <span>Sign out</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <button
