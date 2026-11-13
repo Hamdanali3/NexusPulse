@@ -21,7 +21,6 @@ import { type UserProfile } from "@/lib/auth/auth-types";
 import AuthModal from "@/components/auth/AuthModal";
 import NexusHeader, { type WorkspaceTabId } from "@/components/layout/NexusHeader";
 import NexusFooter from "@/components/layout/NexusFooter";
-import NexusPulseLogo from "@/components/brand/NexusPulseLogo";
 import Channel3DealHunterPanel from "@/components/sponsors/Channel3DealHunterPanel";
 import ProofOfHumanBountyBoard from "@/components/bounties/ProofOfHumanBountyBoard";
 import BryntumEscrowTimeline from "@/components/sponsors/BryntumEscrowTimeline";
