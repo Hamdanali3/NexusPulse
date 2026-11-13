@@ -183,7 +183,7 @@ button:disabled {
   }
 }
 
-/* 3-second opening/reload logo & slogan choreography */
+/* 8-second opening/reload logo & slogan choreography */
 .np-intro-tile {
   animation: npIntroTilePop 640ms cubic-bezier(0.22, 1.26, 0.36, 1) both;
 }
@@ -205,7 +205,7 @@ button:disabled {
 .np-intro-ring {
   transform-box: fill-box;
   transform-origin: center;
-  animation: npIntroRingPulse 1400ms ease-out 420ms 2 both;
+  animation: npIntroRingPulse 1400ms ease-out 420ms 5 both;
 }
 
 .np-intro-wordmark {
@@ -227,7 +227,7 @@ button:disabled {
 
 .np-intro-progress {
   transform-origin: left;
-  animation: npIntroProgressSweep 2450ms linear 100ms both;
+  animation: npIntroProgressSweep 7450ms linear 100ms both;
 }
 
 @keyframes npIntroTilePop {

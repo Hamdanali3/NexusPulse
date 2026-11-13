@@ -3,12 +3,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { NexusPulseMark } from "@/components/brand/NexusPulseLogo";
 
-const INTRO_HOLD_MS = 2550;
+const INTRO_HOLD_MS = 7550;
 const INTRO_EXIT_MS = 450;
-const INTRO_TOTAL_MS = INTRO_HOLD_MS + INTRO_EXIT_MS; // 3000ms total
+const INTRO_TOTAL_MS = INTRO_HOLD_MS + INTRO_EXIT_MS; // 8000ms total
 
 /**
- * 3-second opening & reload brand intro splash.
+ * 8-second opening & reload brand intro splash.
  * Renders a calm logo pop, connected-node stroke reveal, slogan detail,
  * and smooth dissolve before unmounting so nothing blocks the workspace.
  */
@@ -108,7 +108,7 @@ export default function BrandIntroSplash() {
           Track prices, review recurring subscriptions, pay verified contributors, and hold milestone funds on PayPal.
         </p>
 
-        {/* Quiet 3-Second Progress Sweep */}
+        {/* Quiet 8-Second Progress Sweep */}
         <div
           aria-hidden="true"
           className="np-intro-detail mt-7 h-[2px] w-40 rounded-full bg-zinc-200 overflow-hidden"
