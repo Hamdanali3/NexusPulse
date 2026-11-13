@@ -9,6 +9,79 @@ interface NexusPulseLogoProps {
   showTagline?: boolean;
 }
 
+interface NexusPulseMarkProps {
+  className?: string;
+  animated?: boolean;
+}
+
+/**
+ * Single source of truth for the NexusPulse connected-node SVG mark.
+ */
+export function NexusPulseMark({
+  className = "h-full w-full block",
+  animated = false,
+}: NexusPulseMarkProps) {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" className={className}>
+      <rect width="64" height="64" rx="16" fill="#0b0b0d" />
+      <path
+        d="M16 47V18L48 47V18"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={animated ? 106 : undefined}
+        className={animated ? "np-intro-path" : undefined}
+      />
+      <circle
+        cx="16"
+        cy="47"
+        r="4"
+        fill="#0b0b0d"
+        stroke="#ffffff"
+        strokeWidth="2.5"
+        className={animated ? "np-intro-node" : undefined}
+      />
+      <circle
+        cx="16"
+        cy="18"
+        r="4"
+        fill="#0b0b0d"
+        stroke="#ffffff"
+        strokeWidth="2.5"
+        className={animated ? "np-intro-node" : undefined}
+      />
+      <circle
+        cx="48"
+        cy="47"
+        r="4"
+        fill="#0b0b0d"
+        stroke="#ffffff"
+        strokeWidth="2.5"
+        className={animated ? "np-intro-node" : undefined}
+      />
+      <circle
+        cx="48"
+        cy="18"
+        r="9"
+        fill="none"
+        stroke="#6a5cff"
+        strokeOpacity="0.45"
+        strokeWidth="2"
+        className={animated ? "np-intro-ring" : undefined}
+      />
+      <circle
+        cx="48"
+        cy="18"
+        r="5"
+        fill="#6a5cff"
+        className={animated ? "np-intro-beacon" : undefined}
+      />
+    </svg>
+  );
+}
+
 /**
  * NexusPulse brand mark.
  * Connected-node "N" monogram with a violet pulse beacon on an ink-black tile,
@@ -39,30 +112,7 @@ export default function NexusPulseLogo({
       className={`group inline-flex items-center ${gap} rounded-md`}
     >
       <span className={`${tile} shrink-0 block transition-transform duration-200 group-hover:-rotate-3`}>
-        <svg viewBox="0 0 64 64" aria-hidden="true" className="h-full w-full block">
-          <rect width="64" height="64" rx="16" fill="#0b0b0d" />
-          <path
-            d="M16 47V18L48 47V18"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="16" cy="47" r="4" fill="#0b0b0d" stroke="#ffffff" strokeWidth="2.5" />
-          <circle cx="16" cy="18" r="4" fill="#0b0b0d" stroke="#ffffff" strokeWidth="2.5" />
-          <circle cx="48" cy="47" r="4" fill="#0b0b0d" stroke="#ffffff" strokeWidth="2.5" />
-          <circle
-            cx="48"
-            cy="18"
-            r="9"
-            fill="none"
-            stroke="#6a5cff"
-            strokeOpacity="0.45"
-            strokeWidth="2"
-          />
-          <circle cx="48" cy="18" r="5" fill="#6a5cff" />
-        </svg>
+        <NexusPulseMark />
       </span>
       <span className="flex flex-col leading-none">
         <span className={`${word} font-semibold tracking-[-0.03em] leading-none text-[#0b0b0d]`}>
